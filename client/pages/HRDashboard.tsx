@@ -2126,11 +2126,13 @@ Generated on: ${new Date().toLocaleString()}
                             onChange={(e) => {
                               const v = e.target.value;
                               const num = Number(v) || 0;
-                              const computed = computeSalaryFromCTC(num, { ...(salaryConfig || {}), fixedEmployeePf: 1800 });
-                              setNewEmployee({
-                                ...newEmployee,
+                              // if user manually edited PF, don't force fixed PF when computing
+                              const computed = computeSalaryFromCTC(num, { ...(salaryConfig || {}), fixedEmployeePf: addPfManual ? undefined : 1800 });
+                              setNewEmployee((prev) => ({
+                                ...prev,
                                 ctcPm: v,
-                                employerPf: String(computed.employerPf),
+                                // only overwrite employerPf/employeePf if user hasn't manually edited PF
+                                employerPf: addPfManual ? prev.employerPf : String(computed.employerPf),
                                 employerEsic: String(computed.employerEsic),
                                 actualGross: String(computed.actualGross),
                                 basicPay: String(computed.basicPay),
@@ -2138,11 +2140,11 @@ Generated on: ${new Date().toLocaleString()}
                                 conveyance: String(computed.conveyance),
                                 splAllowance: String(computed.splAllowance),
                                 grossPayable: String(computed.grossPayable),
-                                employeePf: String(computed.employeePf),
+                                employeePf: addPfManual ? prev.employeePf : String(computed.employeePf),
                                 employeeEsic: String(computed.employeeEsic),
                                 pt: String(computed.pt),
                                 netPayable: String(computed.netPayable),
-                              });
+                              }));
                             }}
                             className="bg-slate-800/50 border-slate-700 text-white"
                             placeholder="32000"
