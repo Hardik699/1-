@@ -3675,6 +3675,14 @@ Generated on: ${new Date().toLocaleString()}
                         {employeeDetailModal.employee.fullName} -{" "}
                         {employeeDetailModal.employee.department}
                       </CardDescription>
+
+                      {/* Small salary preview in header */}
+                      <div className="mt-2">
+                        <SalaryBreakdown
+                          ctc={Number(employeeDetailModal.employee.ctcPm || employeeDetailModal.employee.salary || 0)}
+                          config={salaryConfig || undefined}
+                        />
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
