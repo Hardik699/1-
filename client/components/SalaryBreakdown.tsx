@@ -23,7 +23,6 @@ const SalaryBreakdown: React.FC<Props> = ({ ctc, config, className }) => {
     { label: "Basic", month: data.basicPay, year: data.basicPay * 12 },
     { label: "HRA", month: data.hra, year: data.hra * 12 },
     { label: "Conveyance", month: data.conveyance, year: data.conveyance * 12 },
-    { label: "Spl Allowance", month: data.splAllowance, year: data.splAllowance * 12 },
     { label: "Gross Payable", month: data.grossPayable, year: data.grossPayable * 12 },
     { label: "Employee PF", month: data.employeePf, year: data.employeePf * 12 },
     { label: "ESIC", month: data.employeeEsic, year: data.employeeEsic * 12 },
