@@ -15,6 +15,7 @@ import {
   Camera,
   Monitor,
   Phone,
+  ArrowLeft,
 } from "lucide-react";
 
 const items = [
