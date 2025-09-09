@@ -353,6 +353,55 @@ export default function HRDashboard() {
     });
   };
 
+  // Compute salary breakdown from monthly CTC using default rules matching provided Excel
+  const computeSalaryFromCTC = (ctcPm: number) => {
+    // Default ratios and constants (based on uploaded example)
+    const basicRatio = 0.5; // basic pay = 50% of actual gross
+    const hraRatio = 0.2; // HRA = 20% of actual gross
+    const conveyanceFixed = 1600; // fixed conveyance
+    const employeePFPercent = 0.12; // 12% of basic
+    const employerPFPercent = 0.12; // employer also 12% of basic (included in CTC)
+    const ptFixed = 200; // professional tax
+    const employerEsicPercent = 0; // assume 0 unless supplied
+
+    // employerPF contributes to CTC: employerPF = employerPFPercent * basic = employerPFPercent * basicRatio * actualGross
+    const employerPfRateOnGross = employerPFPercent * basicRatio; // e.g., 0.12 * 0.5 = 0.06
+    const employerEsicRateOnGross = employerEsicPercent; // 0 for now
+
+    // actualGross = ctcPm / (1 + employerPfRateOnGross + employerEsicRateOnGross)
+    const actualGross = Math.round(ctcPm / (1 + employerPfRateOnGross + employerEsicRateOnGross));
+
+    const basic = Math.round(actualGross * basicRatio);
+    const hra = Math.round(actualGross * hraRatio);
+    const conveyance = conveyanceFixed;
+    const splAllowance = Math.round(actualGross - (basic + hra + conveyance));
+
+    const employerPf = Math.round(basic * employerPFPercent);
+    const employerEsic = Math.round(actualGross * employerEsicPercent);
+
+    const employeePf = Math.round(basic * employeePFPercent);
+    const employeeEsic = Math.round(actualGross * employerEsicPercent); // same base for simplicity
+
+    const grossPayable = actualGross;
+    const deductions = employeePf + employeeEsic + ptFixed;
+    const netPayable = Math.round(grossPayable - deductions);
+
+    return {
+      employerPf: String(employerPf),
+      employerEsic: String(employerEsic),
+      actualGross: String(actualGross),
+      basicPay: String(basic),
+      hra: String(hra),
+      conveyance: String(conveyance),
+      splAllowance: String(splAllowance),
+      grossPayable: String(grossPayable),
+      employeePf: String(employeePf),
+      employeeEsic: String(employeeEsic),
+      pt: String(ptFixed),
+      netPayable: String(netPayable),
+    } as const;
+  };
+
   const calculateHours = (checkIn: string, checkOut: string) => {
     try {
       const [inH, inM] = checkIn.split(":").map(Number);
