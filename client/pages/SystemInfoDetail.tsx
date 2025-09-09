@@ -348,12 +348,28 @@ export default function SystemInfoDetail() {
     setAssets(remaining);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
     try {
-      fetch("/api/hr/assets/upsert-batch", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-role": "admin" },
-        body: JSON.stringify({ items: remaining }),
-      }).catch(() => {});
-    } catch {}
+      const resp = await fetch(`/api/hr/assets/${encodeURIComponent(assetId)}`, {
+        method: "DELETE",
+        headers: { "x-role": "admin" },
+      });
+      if (!resp.ok) {
+        // fallback: try upsert remaining to keep DB in sync
+        await fetch("/api/hr/assets/upsert-batch", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-role": "admin" },
+          body: JSON.stringify({ items: remaining }),
+        }).catch(() => {});
+      }
+    } catch (e) {
+      // best-effort fallback
+      try {
+        await fetch("/api/hr/assets/upsert-batch", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-role": "admin" },
+          body: JSON.stringify({ items: remaining }),
+        });
+      } catch {}
+    }
     alert("Removed");
   };
 
