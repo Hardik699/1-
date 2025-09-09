@@ -2158,8 +2158,39 @@ Generated on: ${new Date().toLocaleString()}
                             value={newEmployee.employerPf}
                             onChange={(e) => {
                               const v = e.target.value;
+                              const employerPfNum = Number(v) || 0;
                               setAddPfManual(true);
-                              setNewEmployee(prev => ({ ...prev, employerPf: v, employeePf: v }));
+                              // derive other fields from manual PF using salaryConfig or defaults
+                              const cfg = salaryConfig || {};
+                              const pfPercent = cfg.pfPercent ?? 0.12;
+                              const basicRatio = cfg.basicRatio ?? 0.5;
+                              const hraRatio = cfg.hraRatio ?? 0.4;
+                              const conveyance = cfg.conveyance ?? 1600;
+
+                              const basic = Math.round(employerPfNum / pfPercent || 0);
+                              const actualGross = Math.round(basic / basicRatio || 0);
+                              const hraVal = Math.round(basic * hraRatio || 0);
+                              const splAllowance = Math.round(actualGross - basic - hraVal - conveyance);
+                              const employeePfNum = employerPfNum; // keep same
+                              const employerEsicNum = Math.round(actualGross * (cfg.esicRate ?? 0));
+                              const ptNum = cfg.pt ?? 200;
+                              const grossPayable = actualGross;
+                              const netPayable = Math.round(grossPayable - (employeePfNum + employerEsicNum + ptNum));
+
+                              setNewEmployee(prev => ({
+                                ...prev,
+                                employerPf: String(employerPfNum),
+                                employeePf: String(employeePfNum),
+                                basicPay: String(basic),
+                                actualGross: String(actualGross),
+                                hra: String(hraVal),
+                                conveyance: String(conveyance),
+                                splAllowance: String(splAllowance),
+                                employerEsic: String(employerEsicNum),
+                                pt: String(ptNum),
+                                grossPayable: String(grossPayable),
+                                netPayable: String(netPayable),
+                              }));
                             }}
                             className="bg-slate-800/50 border-slate-700 text-white"
                             placeholder="1800"
