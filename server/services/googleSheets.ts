@@ -54,7 +54,20 @@ async function writeTable(
   const headers = objKeysUnion(rows);
   const values = [
     headers,
-    ...rows.map((r) => headers.map((h) => (r?.[h] ?? "") as string)),
+    ...rows.map((r) =>
+      headers.map((h) => {
+        const v = r?.[h];
+        if (v === null || v === undefined) return "";
+        if (typeof v === "object") {
+          try {
+            return JSON.stringify(v);
+          } catch (_) {
+            return String(v);
+          }
+        }
+        return String(v);
+      }),
+    ),
   ];
   await sheets.spreadsheets.values.clear({
     spreadsheetId,
