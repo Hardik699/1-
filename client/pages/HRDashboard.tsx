@@ -1275,7 +1275,7 @@ Generated on: ${new Date().toLocaleString()}
   ];
 
   useEffect(() => {
-    if (userRole !== "admin") return;
+    if (userRole !== "admin" && userRole !== "hr") return;
     const seeded = localStorage.getItem("demoEmployeesSeeded");
     if (seeded) return;
 
