@@ -1037,6 +1037,12 @@ export default function HRDashboard() {
       const updatedEmployees = employees.filter((emp) => emp.id !== employeeId);
       saveEmployees(updatedEmployees);
 
+      // remove any salary records for this employee
+      const remainingSalaryRecords = salaryRecords.filter(
+        (r) => r.employeeId !== employeeId,
+      );
+      saveSalaryRecords(remainingSalaryRecords);
+
       // Update department employee count
       const updatedDepartments = departments.map((dept) =>
         dept.name === employee.department
@@ -1044,6 +1050,16 @@ export default function HRDashboard() {
           : dept,
       );
       saveDepartments(updatedDepartments);
+
+      // If employee detail modal is open for this employee, close it
+      if (employeeDetailModal.employee && employeeDetailModal.employee.id === employeeId) {
+        handleCloseEmployeeDetail();
+      }
+
+      // attempt backend delete as well (best-effort)
+      try {
+        fetch(`/api/hr/employees/${employeeId}`, { method: 'DELETE', headers: { 'x-role': 'admin' } }).catch(() => {});
+      } catch (e) {}
     }
   };
 
