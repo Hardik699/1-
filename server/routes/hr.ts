@@ -376,6 +376,40 @@ const upsertAssetsBatch: RequestHandler = async (req, res, next) => {
   }
 };
 
+const deleteAsset: RequestHandler = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ error: "Missing id" });
+    await pool.query("BEGIN");
+    // Remove assignments referencing this asset
+    await pool.query("DELETE FROM asset_assignments WHERE asset_id = $1", [id]);
+    // Remove from canonical assets table
+    await pool.query("DELETE FROM system_assets WHERE id = $1", [id]);
+    // Attempt to remove from per-category tables (best-effort)
+    const tables = [
+      "mice",
+      "keyboards",
+      "motherboards",
+      "rams",
+      "storages",
+      "power_supplies",
+      "headphones",
+      "cameras",
+      "monitors",
+      "vonage_numbers",
+      "vitel_global_numbers",
+    ];
+    for (const t of tables) {
+      await pool.query(`DELETE FROM ${t} WHERE id = $1`, [id]);
+    }
+    await pool.query("COMMIT");
+    res.json({ id });
+  } catch (err) {
+    await pool.query("ROLLBACK").catch(() => {});
+    next(err);
+  }
+};
+
 const listItAccounts: RequestHandler = async (_req, res) => {
   const { rows } = await pool.query(
     "SELECT * FROM it_accounts ORDER BY created_at DESC",
