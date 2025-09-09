@@ -87,6 +87,12 @@ interface SalaryRecord {
   totalSalary: number;
   paymentDate?: string;
   notes?: string;
+  // Optional identifiers and banking info captured per salary run
+  uanNumber?: string;
+  esicNumber?: string;
+  bankAccount?: string;
+  // Days in month (e.g., 30/31)
+  daysInMonth?: number;
   createdAt: string;
 }
 
@@ -289,6 +295,11 @@ export default function HRDashboard() {
     deductions: "",
     paymentDate: "",
     notes: "",
+    // New fields
+    uanNumber: "",
+    esicNumber: "",
+    bankAccount: "",
+    daysInMonth: "",
   });
   const [showSalaryForm, setShowSalaryForm] = useState(false);
 
@@ -1192,6 +1203,10 @@ Generated on: ${new Date().toLocaleString()}
       totalSalary: totalSalary,
       paymentDate: salaryForm.paymentDate || undefined,
       notes: salaryForm.notes || undefined,
+      uanNumber: salaryForm.uanNumber || employeeDetailModal.employee.uanNumber || undefined,
+      esicNumber: salaryForm.esicNumber || undefined,
+      bankAccount: salaryForm.bankAccount || employeeDetailModal.employee.accountNumber || undefined,
+      daysInMonth: salaryForm.daysInMonth ? parseInt(salaryForm.daysInMonth) : undefined,
       createdAt: new Date().toISOString(),
     };
 
@@ -4314,6 +4329,62 @@ Generated on: ${new Date().toLocaleString()}
                                   placeholder="2000"
                                 />
                               </div>
+
+                              {/* New fields: UAN, ESIC, Bank Account, Days in Month */}
+                              <div className="space-y-2">
+                                <Label className="text-slate-300">UAN Number</Label>
+                                <Input
+                                  type="text"
+                                  value={salaryForm.uanNumber}
+                                  onChange={(e) =>
+                                    setSalaryForm({ ...salaryForm, uanNumber: e.target.value })
+                                  }
+                                  className="bg-slate-800/50 border-slate-700 text-white"
+                                  placeholder="UAN1234567890"
+                                />
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label className="text-slate-300">ESIC Number</Label>
+                                <Input
+                                  type="text"
+                                  value={salaryForm.esicNumber}
+                                  onChange={(e) =>
+                                    setSalaryForm({ ...salaryForm, esicNumber: e.target.value })
+                                  }
+                                  className="bg-slate-800/50 border-slate-700 text-white"
+                                  placeholder="ESIC123456"
+                                />
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label className="text-slate-300">Bank Account No.</Label>
+                                <Input
+                                  type="text"
+                                  value={salaryForm.bankAccount}
+                                  onChange={(e) =>
+                                    setSalaryForm({ ...salaryForm, bankAccount: e.target.value })
+                                  }
+                                  className="bg-slate-800/50 border-slate-700 text-white"
+                                  placeholder="XXXXXXXXXXXX"
+                                />
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label className="text-slate-300">Days in Month</Label>
+                                <Input
+                                  type="number"
+                                  min="28"
+                                  max="31"
+                                  value={salaryForm.daysInMonth}
+                                  onChange={(e) =>
+                                    setSalaryForm({ ...salaryForm, daysInMonth: e.target.value })
+                                  }
+                                  className="bg-slate-800/50 border-slate-700 text-white"
+                                  placeholder="30"
+                                />
+                              </div>
+
                               <div className="space-y-2">
                                 <Label className="text-slate-300">
                                   Payment Date (Optional)
