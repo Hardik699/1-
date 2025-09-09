@@ -4778,10 +4778,10 @@ Generated on: ${new Date().toLocaleString()}
                           </h3>
                         </div>
                         <Button
-                          onClick={() => setShowSalaryForm(!showSalaryForm)}
-                          className="bg-blue-500 hover:bg-blue-600 text-white"
-                          size="sm"
-                        >
+              onClick={() => { setSalaryFormBasicManual(false); setShowSalaryForm(!showSalaryForm); }}
+              className="bg-blue-500 hover:bg-blue-600 text-white"
+              size="sm"
+            >
                           <Plus className="h-4 w-4 mr-2" />
                           Add Salary Record
                         </Button>
