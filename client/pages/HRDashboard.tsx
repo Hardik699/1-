@@ -2281,7 +2281,78 @@ Generated on: ${new Date().toLocaleString()}
 
                       {/* Salary breakdown preview */}
                       <div>
-                        <SalaryBreakdown ctc={Number(newEmployee.ctcPm) || 0} className="mt-4" />
+                        <div className="flex items-center space-x-2">
+                          <Label className="text-slate-300">Import Salary Template (.xlsx)</Label>
+                          <input
+                            type="file"
+                            accept=".xlsx,.xls"
+                            onChange={async (e) => {
+                              const f = e.target.files?.[0];
+                              if (!f) return;
+                              try {
+                                const ab = await f.arrayBuffer();
+                                const XLSX = await import('xlsx');
+                                const wb = XLSX.read(ab, { type: 'array' });
+                                const sheet = wb.Sheets[wb.SheetNames[0]];
+                                const get = (addr: string) => (sheet[addr] && sheet[addr].v) || null;
+                                const b3 = get('B3');
+                                const b4 = get('B4');
+                                const b6 = get('B6');
+                                const b7 = get('B7');
+                                const b8 = get('B8');
+                                const b9 = get('B9');
+                                const b10 = get('B10');
+                                const b12 = get('B12');
+                                const b14 = get('B14');
+
+                                const basicRatio = b7 && b6 ? Number(b7) / Number(b6) : undefined;
+                                const hraRatio = b8 && b7 ? Number(b8) / Number(b7) : undefined;
+                                const pfPercent = b4 && b7 ? Number(b4) / Number(b7) : undefined; // employerPF/basic
+                                const conveyance = b9 ? Number(b9) : undefined;
+                                const pt = b14 ? Number(b14) : undefined;
+
+                                setSalaryConfig({
+                                  basicRatio: basicRatio || undefined,
+                                  hraRatio: hraRatio || undefined,
+                                  pfPercent: pfPercent || undefined,
+                                  conveyance: conveyance || undefined,
+                                  pt: pt || undefined,
+                                });
+
+                                // auto compute into form too
+                                const num = Number(newEmployee.ctcPm) || Number(b3) || 0;
+                                const computed = computeSalaryFromCTC(num, {
+                                  basicRatio: basicRatio || undefined,
+                                  hraRatio: hraRatio || undefined,
+                                  pfPercent: pfPercent || undefined,
+                                  conveyance: conveyance || undefined,
+                                  pt: pt || undefined,
+                                });
+                                setNewEmployee({
+                                  ...newEmployee,
+                                  ctcPm: String(num),
+                                  employerPf: String(computed.employerPf),
+                                  employerEsic: String(computed.employerEsic),
+                                  actualGross: String(computed.actualGross),
+                                  basicPay: String(computed.basicPay),
+                                  hra: String(computed.hra),
+                                  conveyance: String(computed.conveyance),
+                                  splAllowance: String(computed.splAllowance),
+                                  grossPayable: String(computed.grossPayable),
+                                  employeePf: String(computed.employeePf),
+                                  employeeEsic: String(computed.employeeEsic),
+                                  pt: String(computed.pt),
+                                  netPayable: String(computed.netPayable),
+                                });
+                              } catch (err) {
+                                console.debug('Failed to import xlsx', err);
+                                alert('Failed to parse spreadsheet');
+                              }
+                            }}
+                          />
+                        </div>
+
+                        <SalaryBreakdown ctc={Number(newEmployee.ctcPm) || 0} config={salaryConfig} className="mt-4" />
                       </div>
                     </div>
 
