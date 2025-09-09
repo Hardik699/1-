@@ -353,38 +353,42 @@ export default function HRDashboard() {
     });
   };
 
-  // Compute salary breakdown from monthly CTC using default rules matching provided Excel
+  // Compute salary breakdown from monthly CTC using default rules matching uploaded Excel
   const computeSalaryFromCTC = (ctcPm: number) => {
-    // Default ratios and constants (based on uploaded example)
-    const basicRatio = 0.5; // basic pay = 50% of actual gross
-    const hraRatio = 0.2; // HRA = 20% of actual gross
-    const conveyanceFixed = 1600; // fixed conveyance
-    const employeePFPercent = 0.12; // 12% of basic
-    const employerPFPercent = 0.12; // employer also 12% of basic (included in CTC)
-    const ptFixed = 200; // professional tax
-    const employerEsicPercent = 0; // assume 0 unless supplied
+    const conveyanceFixed = 1600;
+    const ptFixed = 200;
+    const esicRate = 0; // assume 0 by default
+    const pfPercent = 0.12; // 12% on basic
 
-    // employerPF contributes to CTC: employerPF = employerPFPercent * basic = employerPFPercent * basicRatio * actualGross
-    const employerPfRateOnGross = employerPFPercent * basicRatio; // e.g., 0.12 * 0.5 = 0.06
-    const employerEsicRateOnGross = employerEsicPercent; // 0 for now
+    // iterative approach because employer PF depends on basic which depends on actual gross which depends on employer PF
+    let employerPf = 0;
+    let actualGross = 0;
+    let basic = 0;
 
-    // actualGross = ctcPm / (1 + employerPfRateOnGross + employerEsicRateOnGross)
-    const actualGross = Math.round(ctcPm / (1 + employerPfRateOnGross + employerEsicRateOnGross));
+    for (let i = 0; i < 10; i++) {
+      actualGross = Math.round(ctcPm - employerPf - Math.round(actualGross * esicRate));
+      basic = Math.round(actualGross * 0.5);
+      const newEmployerPf = Math.round(basic * pfPercent);
+      if (Math.abs(newEmployerPf - employerPf) <= 1) {
+        employerPf = newEmployerPf;
+        break;
+      }
+      employerPf = newEmployerPf;
+    }
 
-    const basic = Math.round(actualGross * basicRatio);
-    const hra = Math.round(actualGross * hraRatio);
+    // final calculations matching the sheet formulas
+    actualGross = Math.round(ctcPm - employerPf - Math.round(actualGross * esicRate));
+    basic = Math.round(actualGross * 0.5);
+    const hra = Math.round(basic * 0.4); // B8 = B7 * 0.4
     const conveyance = conveyanceFixed;
-    const splAllowance = Math.round(actualGross - (basic + hra + conveyance));
+    const splAllowance = Math.round(actualGross - basic - hra - conveyance);
 
-    const employerPf = Math.round(basic * employerPFPercent);
-    const employerEsic = Math.round(actualGross * employerEsicPercent);
+    const employerEsic = Math.round(actualGross * esicRate);
+    const employeePf = Math.round(basic * pfPercent);
+    const employeeEsic = Math.round(actualGross * esicRate);
 
-    const employeePf = Math.round(basic * employeePFPercent);
-    const employeeEsic = Math.round(actualGross * employerEsicPercent); // same base for simplicity
-
-    const grossPayable = actualGross;
-    const deductions = employeePf + employeeEsic + ptFixed;
-    const netPayable = Math.round(grossPayable - deductions);
+    const grossPayable = basic + hra + conveyance + splAllowance; // equals actualGross
+    const netPayable = Math.round(grossPayable - (employeePf + employeeEsic + ptFixed));
 
     return {
       employerPf: String(employerPf),
