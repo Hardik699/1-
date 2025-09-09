@@ -575,6 +575,42 @@ export default function AppNav() {
                             HR Dashboard
                           </Button>
                         </>
+                      ) : userRole === "it" ? (
+                        <>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start border-slate-600 text-slate-300 hover:bg-slate-700"
+                            onClick={() => {
+                              handleMainDashboard();
+                              setIsMobileMenuOpen(false);
+                            }}
+                          >
+                            <LayoutDashboard className="h-4 w-4 mr-2" />
+                            IT Dashboard
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start border-slate-600 text-slate-300 hover:bg-slate-700"
+                            onClick={() => {
+                              handleSystemInfo();
+                              setIsMobileMenuOpen(false);
+                            }}
+                          >
+                            <ServerCog className="h-4 w-4 mr-2" />
+                            System Info
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start border-slate-600 text-slate-300 hover:bg-slate-700"
+                            onClick={() => {
+                              handlePcLaptopInfo();
+                              setIsMobileMenuOpen(false);
+                            }}
+                          >
+                            <HardDrive className="h-4 w-4 mr-2" />
+                            PC/Laptop
+                          </Button>
+                        </>
                       ) : null}
 
                       <Button
