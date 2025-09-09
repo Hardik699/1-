@@ -4696,7 +4696,7 @@ Generated on: ${new Date().toLocaleString()}
                   <div className="space-y-6">
                     {/* Employee CTC and breakdown (editable) */}
                     <div className="bg-slate-900/20 p-4 rounded border border-slate-700">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                         <div className="space-y-2">
                           <Label className="text-slate-300">CTC (Per month)</Label>
                           {employeeDetailModal.isEditing ? (
