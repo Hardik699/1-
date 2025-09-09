@@ -332,11 +332,21 @@ export const syncMasterDataFromDb: RequestHandler = async (req, res) => {
     const sheets = await getSheetsClient();
 
     // Load data from DB
-    const empRes = await pool.query("SELECT * FROM employees ORDER BY created_at DESC");
-    const assetsRes = await pool.query("SELECT * FROM system_assets ORDER BY created_at DESC");
-    const pcRes = await pool.query("SELECT * FROM pc_laptop_assets ORDER BY created_at DESC");
-    const itRes = await pool.query("SELECT id, employee_id, payload, created_at FROM it_accounts ORDER BY created_at DESC");
-    const salariesRes = await pool.query("SELECT * FROM salaries ORDER BY created_at DESC");
+    const empRes = await pool.query(
+      "SELECT * FROM employees ORDER BY created_at DESC",
+    );
+    const assetsRes = await pool.query(
+      "SELECT * FROM system_assets ORDER BY created_at DESC",
+    );
+    const pcRes = await pool.query(
+      "SELECT * FROM pc_laptop_assets ORDER BY created_at DESC",
+    );
+    const itRes = await pool.query(
+      "SELECT id, employee_id, payload, created_at FROM it_accounts ORDER BY created_at DESC",
+    );
+    const salariesRes = await pool.query(
+      "SELECT * FROM salaries ORDER BY created_at DESC",
+    );
 
     const masterData: any = {
       employees: empRes.rows.map((r: any) => ({
@@ -373,7 +383,7 @@ export const syncMasterDataFromDb: RequestHandler = async (req, res) => {
       itAccounts: itRes.rows.map((r: any) => ({
         id: r.id,
         employeeId: r.employee_id,
-        ...((r.payload && typeof r.payload === 'object') ? r.payload : {}),
+        ...(r.payload && typeof r.payload === "object" ? r.payload : {}),
         createdAt: r.created_at,
       })),
       salaryRecords: salariesRes.rows.map((r: any) => ({
@@ -402,31 +412,68 @@ export const syncMasterDataFromDb: RequestHandler = async (req, res) => {
         itAccounts: masterData.itAccounts.length,
         salaryRecords: masterData.salaryRecords.length,
         leaveRequests: (masterData.leaveRequests || []).length,
-        pendingITNotifications: (masterData.pendingITNotifications || []).length,
+        pendingITNotifications: (masterData.pendingITNotifications || [])
+          .length,
         updatedAt: new Date().toISOString(),
       },
     ]);
 
-    await writeTable(sheets, spreadsheetId, "System_Assets", masterData.systemAssets || []);
+    await writeTable(
+      sheets,
+      spreadsheetId,
+      "System_Assets",
+      masterData.systemAssets || [],
+    );
     const assets = masterData.systemAssets || [];
-    const byCat = (c: string) => assets.filter((a: any) => (a?.category || "").toLowerCase() === c);
+    const byCat = (c: string) =>
+      assets.filter((a: any) => (a?.category || "").toLowerCase() === c);
     await writeTable(sheets, spreadsheetId, "Mouse", byCat("mouse"));
     await writeTable(sheets, spreadsheetId, "Keyboard", byCat("keyboard"));
-    await writeTable(sheets, spreadsheetId, "Motherboard", byCat("motherboard"));
+    await writeTable(
+      sheets,
+      spreadsheetId,
+      "Motherboard",
+      byCat("motherboard"),
+    );
     await writeTable(sheets, spreadsheetId, "RAM", byCat("ram"));
     await writeTable(sheets, spreadsheetId, "Storage", byCat("storage"));
-    await writeTable(sheets, spreadsheetId, "Power_Supply", byCat("power-supply"));
+    await writeTable(
+      sheets,
+      spreadsheetId,
+      "Power_Supply",
+      byCat("power-supply"),
+    );
     await writeTable(sheets, spreadsheetId, "Headphone", byCat("headphone"));
     await writeTable(sheets, spreadsheetId, "Camera", byCat("camera"));
     await writeTable(sheets, spreadsheetId, "Monitor", byCat("monitor"));
     await writeTable(sheets, spreadsheetId, "Vonage", byCat("vonage"));
 
-    await writeTable(sheets, spreadsheetId, "PC_Laptop_Configs", masterData.pcLaptopAssets || []);
-    await writeTable(sheets, spreadsheetId, "IT_Accounts", masterData.itAccounts || []);
-    await writeTable(sheets, spreadsheetId, "IT_Notifications", masterData.pendingITNotifications || []);
+    await writeTable(
+      sheets,
+      spreadsheetId,
+      "PC_Laptop_Configs",
+      masterData.pcLaptopAssets || [],
+    );
+    await writeTable(
+      sheets,
+      spreadsheetId,
+      "IT_Accounts",
+      masterData.itAccounts || [],
+    );
+    await writeTable(
+      sheets,
+      spreadsheetId,
+      "IT_Notifications",
+      masterData.pendingITNotifications || [],
+    );
 
-    res.json({ success: true, message: "Synced master data from DB to Google Sheets" });
+    res.json({
+      success: true,
+      message: "Synced master data from DB to Google Sheets",
+    });
   } catch (e: any) {
-    res.status(500).json({ success: false, error: e?.message || "Sync from DB failed" });
+    res
+      .status(500)
+      .json({ success: false, error: e?.message || "Sync from DB failed" });
   }
 };

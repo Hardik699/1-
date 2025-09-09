@@ -30,7 +30,9 @@ const queryClient = new QueryClient();
 const App = () => {
   useEffect(() => {
     try {
-      const credentials = JSON.parse(localStorage.getItem("userCredentials") || "{}");
+      const credentials = JSON.parse(
+        localStorage.getItem("userCredentials") || "{}",
+      );
       const users = JSON.parse(localStorage.getItem("users") || "[]");
       const roles = JSON.parse(localStorage.getItem("userRoles") || "{}");
       let changed = false;
@@ -39,7 +41,11 @@ const App = () => {
         changed = true;
       }
       if (!users.find((u: any) => u.username === "hr")) {
-        users.push({ id: Date.now().toString(), username: "hr", createdAt: new Date().toISOString() });
+        users.push({
+          id: Date.now().toString(),
+          username: "hr",
+          createdAt: new Date().toISOString(),
+        });
         changed = true;
       }
       if (!roles["hr"]) {
@@ -53,7 +59,11 @@ const App = () => {
         changed = true;
       }
       if (!users.find((u: any) => u.username === "it")) {
-        users.push({ id: (Date.now()+1).toString(), username: "it", createdAt: new Date().toISOString() });
+        users.push({
+          id: (Date.now() + 1).toString(),
+          username: "it",
+          createdAt: new Date().toISOString(),
+        });
         changed = true;
       }
       if (!roles["it"]) {

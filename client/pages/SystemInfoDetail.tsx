@@ -348,10 +348,13 @@ export default function SystemInfoDetail() {
     setAssets(remaining);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
     try {
-      const resp = await fetch(`/api/hr/assets/${encodeURIComponent(assetId)}`, {
-        method: "DELETE",
-        headers: { "x-role": "admin" },
-      });
+      const resp = await fetch(
+        `/api/hr/assets/${encodeURIComponent(assetId)}`,
+        {
+          method: "DELETE",
+          headers: { "x-role": "admin" },
+        },
+      );
       if (!resp.ok) {
         // fallback: try upsert remaining to keep DB in sync
         await fetch("/api/hr/assets/upsert-batch", {
