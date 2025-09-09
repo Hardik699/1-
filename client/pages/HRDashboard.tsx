@@ -2127,7 +2127,7 @@ Generated on: ${new Date().toLocaleString()}
                               const v = e.target.value;
                               const num = Number(v) || 0;
                               // if user manually edited PF, don't force fixed PF when computing
-                              const computed = computeSalaryFromCTC(num, { ...(salaryConfig || {}), fixedEmployeePf: addPfManual ? undefined : 1800 });
+                              const computed = computeSalaryFromCTC(num, { ...(salaryConfig || {}) });
                               setNewEmployee((prev) => ({
                                 ...prev,
                                 ctcPm: v,
