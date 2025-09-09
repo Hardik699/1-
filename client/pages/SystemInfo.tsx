@@ -109,15 +109,24 @@ export default function SystemInfo() {
   }, []);
 
   const handleBack = () => {
+    const currentPath = window.location.pathname;
     try {
-      if (typeof window !== "undefined" && window.history && window.history.length > 1) {
-        navigate(-1);
-      } else {
-        navigate("/");
+      // Try native history back first
+      if (typeof window !== "undefined" && window.history) {
+        window.history.back();
+        // If history.back didn't change the path within 250ms, navigate to home as fallback
+        setTimeout(() => {
+          if (window.location.pathname === currentPath) {
+            navigate("/");
+          }
+        }, 250);
+        return;
       }
     } catch (e) {
-      navigate("/");
+      // ignore
     }
+    // Fallback
+    navigate("/");
   };
 
   return (
