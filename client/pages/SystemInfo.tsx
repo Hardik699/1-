@@ -102,16 +102,10 @@ export default function SystemInfo() {
   const [assetCount, setAssetCount] = useState(0);
 
   useEffect(() => {
-    const role = localStorage.getItem("userRole");
-    if (role === "it") {
-      // Block direct access for IT role
-      navigate("/");
-      return;
-    }
     const existing = localStorage.getItem(STORAGE_KEY);
     const assets = existing ? JSON.parse(existing) : [];
     setAssetCount(assets.length);
-  }, [navigate]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
