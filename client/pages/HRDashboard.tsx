@@ -4840,126 +4840,187 @@ Generated on: ${new Date().toLocaleString()}
                         const employeeSalaryRecords = getEmployeeSalaryRecords(
                           employeeDetailModal.employee.id,
                         );
-                        return employeeSalaryRecords.length === 0 ? (
-                          <div className="text-center py-8">
-                            <DollarSign className="h-12 w-12 text-slate-600 mx-auto mb-4" />
-                            <h4 className="text-white font-medium mb-2">
-                              No Salary Records
-                            </h4>
-                            <p className="text-slate-400 mb-4">
-                              No salary records found for this employee.
-                            </p>
-                            <Button
-                              onClick={() => setShowSalaryForm(true)}
-                              className="bg-blue-500 hover:bg-blue-600 text-white"
-                            >
-                              <Plus className="h-4 w-4 mr-2" />
-                              Add First Record
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="space-y-3">
-                            {employeeSalaryRecords.map((record) => (
-                              <Card
-                                key={record.id}
-                                className="bg-slate-800/30 border-slate-700"
-                              >
-                                <CardContent className="p-4">
-                                  <div className="flex items-center justify-between mb-3">
-                                    <div className="flex items-center space-x-3">
-                                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                                      <div>
-                                        <h4 className="text-white font-medium">
-                                          {new Date(
-                                            record.month + "-01",
-                                          ).toLocaleDateString("en-US", {
-                                            month: "long",
-                                            year: "numeric",
-                                          })}
-                                        </h4>
-                                        <p className="text-slate-400 text-sm">
-                                          {record.actualWorkingDays}/
-                                          {record.totalWorkingDays} working days
-                                        </p>
-                                      </div>
-                                    </div>
-                                    <div className="flex items-center space-x-3">
-                                      <div className="text-right">
-                                        <p className="text-white font-bold text-lg">
-                                          ₹{record.totalSalary.toLocaleString()}
-                                        </p>
-                                        {record.paymentDate && (
-                                          <p className="text-slate-400 text-sm">
-                                            Paid: {record.paymentDate}
-                                          </p>
-                                        )}
-                                      </div>
-                                      <Button
-                                        onClick={() =>
-                                          handleDeleteSalaryRecord(record.id)
-                                        }
-                                        variant="outline"
-                                        size="sm"
-                                        className="border-red-500 text-red-400 hover:bg-red-500/20"
-                                      >
-                                        <Trash2 className="h-4 w-4" />
-                                      </Button>
-                                    </div>
-                                  </div>
+                        const summary = (() => {
+                          const emp = employeeDetailModal.employee as any;
+                          const ctcStr = String(emp.ctcPm || emp.salary || "0").replace(/[^0-9.-]+/g, "");
+                          const ctcNum = Number(ctcStr) || 0;
+                          const computed = computeSalaryFromCTC(ctcNum, salaryConfig || undefined);
 
-                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                                    <div>
-                                      <p className="text-slate-400">
-                                        Basic Salary
-                                      </p>
-                                      <p className="text-white font-medium">
-                                        ₹{record.basicSalary.toLocaleString()}
-                                      </p>
-                                    </div>
-                                    {record.bonus && record.bonus > 0 && (
-                                      <div>
-                                        <p className="text-slate-400">Bonus</p>
-                                        <p className="text-green-400 font-medium">
-                                          +₹{record.bonus.toLocaleString()}
-                                        </p>
+                          return {
+                            ctc: ctcNum,
+                            basic: emp.basicPay ? Number(emp.basicPay) : computed.basicPay,
+                            hra: emp.hra ? Number(emp.hra) : computed.hra,
+                            conveyance: emp.conveyance ? Number(emp.conveyance) : computed.conveyance,
+                            employerPf: emp.employerPf ? Number(emp.employerPf) : computed.employerPf,
+                            employeePf: emp.employeePf ? Number(emp.employeePf) : computed.employeePf,
+                            pt: emp.pt ? Number(emp.pt) : computed.pt,
+                            netPayable: emp.netPayable ? Number(emp.netPayable) : computed.netPayable,
+                          };
+                        })();
+
+                        return (
+                          <>
+                            {employeeSalaryRecords.length === 0 ? (
+                              <div className="text-center py-8">
+                                <DollarSign className="h-12 w-12 text-slate-600 mx-auto mb-4" />
+                                <h4 className="text-white font-medium mb-2">
+                                  No Salary Records
+                                </h4>
+                                <p className="text-slate-400 mb-4">
+                                  No salary records found for this employee.
+                                </p>
+                                <Button
+                                  onClick={() => setShowSalaryForm(true)}
+                                  className="bg-blue-500 hover:bg-blue-600 text-white"
+                                >
+                                  <Plus className="h-4 w-4 mr-2" />
+                                  Add First Record
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="space-y-3">
+                                {employeeSalaryRecords.map((record) => (
+                                  <Card
+                                    key={record.id}
+                                    className="bg-slate-800/30 border-slate-700"
+                                  >
+                                    <CardContent className="p-4">
+                                      <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center space-x-3">
+                                          <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                                          <div>
+                                            <h4 className="text-white font-medium">
+                                              {new Date(
+                                                record.month + "-01",
+                                              ).toLocaleDateString("en-US", {
+                                                month: "long",
+                                                year: "numeric",
+                                              })}
+                                            </h4>
+                                            <p className="text-slate-400 text-sm">
+                                              {record.actualWorkingDays}/
+                                              {record.totalWorkingDays} working days
+                                            </p>
+                                          </div>
+                                        </div>
+                                        <div className="flex items-center space-x-3">
+                                          <div className="text-right">
+                                            <p className="text-white font-bold text-lg">
+                                              ₹{record.totalSalary.toLocaleString()}
+                                            </p>
+                                            {record.paymentDate && (
+                                              <p className="text-slate-400 text-sm">
+                                                Paid: {record.paymentDate}
+                                              </p>
+                                            )}
+                                          </div>
+                                          <Button
+                                            onClick={() =>
+                                              handleDeleteSalaryRecord(record.id)
+                                            }
+                                            variant="outline"
+                                            size="sm"
+                                            className="border-red-500 text-red-400 hover:bg-red-500/20"
+                                          >
+                                            <Trash2 className="h-4 w-4" />
+                                          </Button>
+                                        </div>
                                       </div>
-                                    )}
-                                    {record.deductions &&
-                                      record.deductions > 0 && (
+
+                                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                                         <div>
                                           <p className="text-slate-400">
-                                            Deductions
+                                            Basic Salary
                                           </p>
-                                          <p className="text-red-400 font-medium">
-                                            -₹
-                                            {record.deductions.toLocaleString()}
+                                          <p className="text-white font-medium">
+                                            ₹{record.basicSalary.toLocaleString()}
+                                          </p>
+                                        </div>
+                                        {record.bonus && record.bonus > 0 && (
+                                          <div>
+                                            <p className="text-slate-400">Bonus</p>
+                                            <p className="text-green-400 font-medium">
+                                              +₹{record.bonus.toLocaleString()}
+                                            </p>
+                                          </div>
+                                        )}
+                                        {record.deductions &&
+                                          record.deductions > 0 && (
+                                            <div>
+                                              <p className="text-slate-400">
+                                                Deductions
+                                              </p>
+                                              <p className="text-red-400 font-medium">
+                                                -₹
+                                                {record.deductions.toLocaleString()}
+                                              </p>
+                                            </div>
+                                          )}
+                                        <div>
+                                          <p className="text-slate-400">Added On</p>
+                                          <p className="text-white font-medium">
+                                            {new Date(
+                                              record.createdAt,
+                                            ).toLocaleDateString()}
+                                          </p>
+                                        </div>
+                                      </div>
+
+                                      {record.notes && (
+                                        <div className="mt-3 pt-3 border-t border-slate-700">
+                                          <p className="text-slate-400 text-sm">
+                                            Notes:
+                                          </p>
+                                          <p className="text-slate-300 text-sm mt-1">
+                                            {record.notes}
                                           </p>
                                         </div>
                                       )}
-                                    <div>
-                                      <p className="text-slate-400">Added On</p>
-                                      <p className="text-white font-medium">
-                                        {new Date(
-                                          record.createdAt,
-                                        ).toLocaleDateString()}
-                                      </p>
-                                    </div>
-                                  </div>
+                                    </CardContent>
+                                  </Card>
+                                ))}
+                              </div>
+                            )}
 
-                                  {record.notes && (
-                                    <div className="mt-3 pt-3 border-t border-slate-700">
-                                      <p className="text-slate-400 text-sm">
-                                        Notes:
-                                      </p>
-                                      <p className="text-slate-300 text-sm mt-1">
-                                        {record.notes}
-                                      </p>
-                                    </div>
-                                  )}
-                                </CardContent>
-                              </Card>
-                            ))}
-                          </div>
+                            {/* Salary summary (final) */}
+                            <div className="mt-6 bg-slate-900/30 border border-slate-700 rounded-lg p-4">
+                              <h4 className="text-white font-medium mb-3">Salary Summary</h4>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                <div>
+                                  <p className="text-slate-400">CTC (PM)</p>
+                                  <p className="text-white font-medium">₹{summary.ctc.toLocaleString()}</p>
+                                </div>
+                                <div>
+                                  <p className="text-slate-400">Basic (PM)</p>
+                                  <p className="text-white font-medium">₹{summary.basic.toLocaleString()}</p>
+                                </div>
+                                <div>
+                                  <p className="text-slate-400">HRA (PM)</p>
+                                  <p className="text-white font-medium">₹{summary.hra.toLocaleString()}</p>
+                                </div>
+                                <div>
+                                  <p className="text-slate-400">Conveyance (PM)</p>
+                                  <p className="text-white font-medium">₹{summary.conveyance.toLocaleString()}</p>
+                                </div>
+                                <div>
+                                  <p className="text-slate-400">Employer PF (PM)</p>
+                                  <p className="text-white font-medium">₹{summary.employerPf.toLocaleString()}</p>
+                                </div>
+                                <div>
+                                  <p className="text-slate-400">Employee PF (PM)</p>
+                                  <p className="text-white font-medium">₹{summary.employeePf.toLocaleString()}</p>
+                                </div>
+                                <div>
+                                  <p className="text-slate-400">PT (PM)</p>
+                                  <p className="text-white font-medium">₹{summary.pt.toLocaleString()}</p>
+                                </div>
+                                <div>
+                                  <p className="text-slate-400">Net Payable (PM)</p>
+                                  <p className="text-white font-medium">₹{summary.netPayable.toLocaleString()}</p>
+                                </div>
+                              </div>
+                            </div>
+                          </>
                         );
                       })()}
                     </div>
