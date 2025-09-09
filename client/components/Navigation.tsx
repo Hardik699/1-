@@ -476,7 +476,7 @@ export default function AppNav() {
                   {isAuthenticated ? (
                     <>
                       {/* Admin Mobile Options */}
-                      {userRole === "admin" && (
+                      {userRole === "admin" ? (
                         <>
                           <Button
                             variant="outline"
@@ -523,7 +523,21 @@ export default function AppNav() {
                             Master Admin
                           </Button>
                         </>
-                      )}
+                      ) : userRole === "hr" ? (
+                        <>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start border-slate-600 text-slate-300 hover:bg-slate-700"
+                            onClick={() => {
+                              handleHRDashboard();
+                              setIsMobileMenuOpen(false);
+                            }}
+                          >
+                            <Building2 className="h-4 w-4 mr-2" />
+                            HR Dashboard
+                          </Button>
+                        </>
+                      ) : null}
 
                       <Button
                         variant="outline"
