@@ -1466,13 +1466,6 @@ Generated on: ${new Date().toLocaleString()}
               <Building2 className="h-4 w-4 mr-2" />
               Departments
             </TabsTrigger>
-            <TabsTrigger
-              value="leaves"
-              className="data-[state=active]:bg-blue-500 data-[state=active]:text-white"
-            >
-              <Calendar className="h-4 w-4 mr-2" />
-              Leave Requests
-            </TabsTrigger>
           </TabsList>
 
           {/* Add Employees Tab */}
@@ -3166,38 +3159,6 @@ Generated on: ${new Date().toLocaleString()}
             </Card>
           </TabsContent>)}
 
-          {/* Leave Requests Tab */}
-          <TabsContent value="leaves" className="space-y-6">
-            <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center space-x-2">
-                  <Calendar className="h-5 w-5 text-orange-400" />
-                  <span>Leave Requests</span>
-                </CardTitle>
-                <CardDescription className="text-slate-400">
-                  Manage employee leave requests and approvals
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12">
-                  <Calendar className="h-16 w-16 text-slate-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-white mb-2">
-                    Leave Management
-                  </h3>
-                  <p className="text-slate-400 mb-4">
-                    Handle vacation requests, sick leaves, and time-off
-                    approvals
-                  </p>
-                  <Badge
-                    variant="secondary"
-                    className="bg-orange-500/20 text-orange-400"
-                  >
-                    Coming Soon
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
 
         {/* Deactivation Modal */}
