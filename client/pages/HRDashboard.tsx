@@ -556,7 +556,7 @@ export default function HRDashboard() {
 
   // Prepare attendance day map for active employees on selected date
   useEffect(() => {
-    if (userRole !== "admin") return;
+    if (userRole !== "admin" && userRole !== "hr") return;
     const active = employees.filter((e) => e.status === "active");
     const map: Record<string, AttendanceRecord> = {};
     active.forEach((emp) => {
