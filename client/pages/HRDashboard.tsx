@@ -323,6 +323,7 @@ export default function HRDashboard() {
     notes: "",
   });
   const [showSalaryForm, setShowSalaryForm] = useState(false);
+  const [salaryConfig, setSalaryConfig] = useState<import("@/lib/salary").SalaryConfig | null>(null);
 
   // Attendance state
   const [attendanceRecords, setAttendanceRecords] = useState<
