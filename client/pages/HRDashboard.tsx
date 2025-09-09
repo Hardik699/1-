@@ -695,6 +695,27 @@ export default function HRDashboard() {
     localStorage.setItem("hrEmployees", JSON.stringify(updatedEmployees));
   };
 
+  // Auto-prorate basicSalary in salary form when total/actual working days change (unless manually edited)
+  useEffect(() => {
+    try {
+      if (!employeeDetailModal.employee) return;
+      const tw = Number(salaryForm.totalWorkingDays) || 0;
+      const aw = Number(salaryForm.actualWorkingDays) || 0;
+      if (tw <= 0) return;
+      if (salaryFormBasicManual) return; // user edited basic manually
+      // prefer editForm values when editing
+      const src: any = employeeDetailModal.isEditing
+        ? { ...(employeeDetailModal.employee || {}), ...(employeeDetailModal.editForm || {}) }
+        : (employeeDetailModal.employee || {});
+      const ctc = Number(String(src.ctcPm || src.salary || 0).replace(/[^0-9.-]+/g, "")) || 0;
+      const computed = computeSalaryFromCTC(ctc, salaryConfig || undefined);
+      const prorated = Math.round((computed.basicPay || 0) * (aw / tw));
+      setSalaryForm((prev) => ({ ...prev, basicSalary: String(prorated) }));
+    } catch (e) {
+      // ignore
+    }
+  }, [salaryForm.totalWorkingDays, salaryForm.actualWorkingDays, employeeDetailModal, salaryFormBasicManual, salaryConfig]);
+
   const saveDepartments = (updatedDepartments: Department[]) => {
     setDepartments(updatedDepartments);
     localStorage.setItem("departments", JSON.stringify(updatedDepartments));
