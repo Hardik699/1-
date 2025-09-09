@@ -628,6 +628,46 @@ export default function HRDashboard() {
     }
   }, [userRole]);
 
+  // Auto-normalize stored employee salary fields (remove non-digits and scale down obvious yearly values)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('hrEmployees');
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as any[];
+      if (!Array.isArray(parsed) || parsed.length === 0) return;
+      let changed = false;
+      const normalizeField = (val: any) => {
+        const s = String(val ?? '').replace(/[^0-9.-]+/g, '');
+        let n = Number(s) || 0;
+        // if value is unrealistically large for monthly CTC (e.g. > 200k), assume it's yearly or mis-entered and divide by 1000 repeatedly
+        while (n > 200000) {
+          n = Math.round(n / 1000);
+        }
+        return String(n);
+      };
+      const fields = ['ctcPm','salary','employerPf','employeePf','basicPay','hra','conveyance','pt','netPayable'];
+      const fixed = parsed.map((emp) => {
+        const e = { ...emp };
+        fields.forEach((f) => {
+          if (e[f] || e[f] === 0) {
+            const norm = normalizeField(e[f]);
+            if (String(e[f]) !== norm) {
+              e[f] = norm;
+              changed = true;
+            }
+          }
+        });
+        return e;
+      });
+      if (changed) {
+        localStorage.setItem('hrEmployees', JSON.stringify(fixed));
+        setEmployees(fixed as any);
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
   // Prepare attendance day map for active employees on selected date
   useEffect(() => {
     if (userRole !== "admin" && userRole !== "hr") return;
