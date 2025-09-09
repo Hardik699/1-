@@ -4525,6 +4525,7 @@ Generated on: ${new Date().toLocaleString()}
                                 // compute using existing salaryConfig and fixed PF
                                 const computed = computeSalaryFromCTC(num, {
                                   ...(salaryConfig || {}),
+                                  employeePfOverride: Number(employeeDetailModal.editForm.employeePf) || Number(employeeDetailModal.employee.employeePf) || undefined,
                                 });
                                 // update edit form fields
                                 handleEditFormChange("ctcPm", String(num));
