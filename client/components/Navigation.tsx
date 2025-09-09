@@ -27,6 +27,7 @@ import {
   Database,
   RefreshCw,
   ServerCog,
+  HardDrive,
 } from "lucide-react";
 
 export default function AppNav() {
