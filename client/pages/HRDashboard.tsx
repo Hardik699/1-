@@ -2124,7 +2124,7 @@ Generated on: ${new Date().toLocaleString()}
                             onChange={(e) => {
                               const v = e.target.value;
                               const num = Number(v) || 0;
-                              const computed = computeSalaryFromCTC(num);
+                              const computed = computeSalaryFromCTC(num, { ...(salaryConfig || {}), fixedEmployeePf: 1800 });
                               setNewEmployee({
                                 ...newEmployee,
                                 ctcPm: v,
