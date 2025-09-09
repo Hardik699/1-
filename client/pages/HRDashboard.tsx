@@ -73,6 +73,8 @@ import {
   Eye,
 } from "lucide-react";
 import AppNav from "@/components/Navigation";
+import SalaryBreakdown from "@/components/SalaryBreakdown";
+import { computeSalaryFromCTC } from "@/lib/salary";
 
 interface SalaryRecord {
   id: string;
