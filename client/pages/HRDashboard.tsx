@@ -1584,7 +1584,12 @@ Generated on: ${new Date().toLocaleString()}
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">HR Dashboard</h1>
+            <div className="flex items-center space-x-3">
+              <h1 className="text-3xl font-bold text-white mb-2">HR Dashboard</h1>
+              <Button size="sm" onClick={handleAddDemoEmployee} className="bg-green-600 hover:bg-green-700 text-white">
+                Add Demo Employee
+              </Button>
+            </div>
             <p className="text-slate-400">Human Resources Management System</p>
           </div>
           <Button
