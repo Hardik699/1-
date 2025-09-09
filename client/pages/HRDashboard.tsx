@@ -4467,6 +4467,64 @@ Generated on: ${new Date().toLocaleString()}
                 {/* Salary Tab Content */}
                 {employeeDetailModal.activeTab === "salary" && (
                   <div className="space-y-6">
+                    {/* Employee CTC and breakdown (editable) */}
+                    <div className="bg-slate-900/20 p-4 rounded border border-slate-700">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">CTC (Per month)</Label>
+                          {employeeDetailModal.isEditing ? (
+                            <Input
+                              type="number"
+                              value={
+                                (employeeDetailModal.editForm.ctcPm as any) ||
+                                employeeDetailModal.employee.ctcPm ||
+                                ""
+                              }
+                              onChange={(e) => {
+                                const v = e.target.value || "0";
+                                const num = Number(v) || 0;
+                                // compute using existing salaryConfig and fixed PF
+                                const computed = computeSalaryFromCTC(num, {
+                                  ...(salaryConfig || {}),
+                                  fixedEmployeePf: 1800,
+                                });
+                                // update edit form fields
+                                handleEditFormChange("ctcPm", String(num));
+                                handleEditFormChange("employerPf", String(computed.employerPf));
+                                handleEditFormChange("employerEsic", String(computed.employerEsic));
+                                handleEditFormChange("actualGross", String(computed.actualGross));
+                                handleEditFormChange("basicPay", String(computed.basicPay));
+                                handleEditFormChange("hra", String(computed.hra));
+                                handleEditFormChange("conveyance", String(computed.conveyance));
+                                handleEditFormChange("splAllowance", String(computed.splAllowance));
+                                handleEditFormChange("grossPayable", String(computed.grossPayable));
+                                handleEditFormChange("employeePf", String(computed.employeePf));
+                                handleEditFormChange("employeeEsic", String(computed.employeeEsic));
+                                handleEditFormChange("pt", String(computed.pt));
+                                handleEditFormChange("netPayable", String(computed.netPayable));
+                              }}
+                              className="bg-slate-800/50 border-slate-700 text-white"
+                            />
+                          ) : (
+                            <p className="text-white p-2 bg-slate-800/30 rounded border border-slate-700">
+                              {employeeDetailModal.employee.ctcPm || "N/A"}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="md:col-span-2">
+                          <SalaryBreakdown
+                            ctc={Number(
+                              (employeeDetailModal.editForm.ctcPm as any) ||
+                                employeeDetailModal.employee.ctcPm ||
+                                0,
+                            )}
+                            config={{ ...(salaryConfig || {}), fixedEmployeePf: 1800 }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Add Salary Form */}
                     <div className="space-y-4">
                       <div className="flex items-center justify-between border-b border-slate-700 pb-2">
