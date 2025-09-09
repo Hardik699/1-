@@ -2090,6 +2090,159 @@ Generated on: ${new Date().toLocaleString()}
                       </div>
                     </div>
 
+                    {/* Salary Details (per month) */}
+                    <div className="space-y-6 mt-4">
+                      <div className="flex items-center space-x-2 border-b border-slate-700 pb-2">
+                        <Clock className="h-5 w-5 text-green-400" />
+                        <h3 className="text-lg font-semibold text-white">Salary Details</h3>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">CTC (Per month)</Label>
+                          <Input
+                            type="number"
+                            value={newEmployee.ctcPm}
+                            onChange={(e) => setNewEmployee({ ...newEmployee, ctcPm: e.target.value })}
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="32000"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">Employer PF (Per month)</Label>
+                          <Input
+                            type="number"
+                            value={newEmployee.employerPf}
+                            onChange={(e) => setNewEmployee({ ...newEmployee, employerPf: e.target.value })}
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="1800"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">Employer ESIC (Per month)</Label>
+                          <Input
+                            type="number"
+                            value={newEmployee.employerEsic}
+                            onChange={(e) => setNewEmployee({ ...newEmployee, employerEsic: e.target.value })}
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="0"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">Actual Gross (Per month)</Label>
+                          <Input
+                            type="number"
+                            value={newEmployee.actualGross}
+                            onChange={(e) => setNewEmployee({ ...newEmployee, actualGross: e.target.value })}
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="30200"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">Basic (Per month)</Label>
+                          <Input
+                            type="number"
+                            value={newEmployee.basicPay}
+                            onChange={(e) => setNewEmployee({ ...newEmployee, basicPay: e.target.value })}
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="15100"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">HRA (Per month)</Label>
+                          <Input
+                            type="number"
+                            value={newEmployee.hra}
+                            onChange={(e) => setNewEmployee({ ...newEmployee, hra: e.target.value })}
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="6040"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">Conveyance (Per month)</Label>
+                          <Input
+                            type="number"
+                            value={newEmployee.conveyance}
+                            onChange={(e) => setNewEmployee({ ...newEmployee, conveyance: e.target.value })}
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="1600"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">Spl. Allowance (Per month)</Label>
+                          <Input
+                            type="number"
+                            value={newEmployee.splAllowance}
+                            onChange={(e) => setNewEmployee({ ...newEmployee, splAllowance: e.target.value })}
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="7460"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">Gross Payable (Per month)</Label>
+                          <Input
+                            type="number"
+                            value={newEmployee.grossPayable}
+                            onChange={(e) => setNewEmployee({ ...newEmployee, grossPayable: e.target.value })}
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="30200"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">Employee PF (Per month)</Label>
+                          <Input
+                            type="number"
+                            value={newEmployee.employeePf}
+                            onChange={(e) => setNewEmployee({ ...newEmployee, employeePf: e.target.value })}
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="1800"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">Employee ESIC (Per month)</Label>
+                          <Input
+                            type="number"
+                            value={newEmployee.employeeEsic}
+                            onChange={(e) => setNewEmployee({ ...newEmployee, employeeEsic: e.target.value })}
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="0"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">PT (Per month)</Label>
+                          <Input
+                            type="number"
+                            value={newEmployee.pt}
+                            onChange={(e) => setNewEmployee({ ...newEmployee, pt: e.target.value })}
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="200"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">Net Payable (Per month)</Label>
+                          <Input
+                            type="number"
+                            value={newEmployee.netPayable}
+                            onChange={(e) => setNewEmployee({ ...newEmployee, netPayable: e.target.value })}
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="28200"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Document Uploads Section */}
                     <div className="space-y-6">
                       <div className="flex items-center space-x-2 border-b border-slate-700 pb-2">
