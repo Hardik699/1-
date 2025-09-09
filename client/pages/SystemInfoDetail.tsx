@@ -342,7 +342,7 @@ export default function SystemInfoDetail() {
     setShowForm(true);
   };
 
-  const handleRemove = (assetId: string) => {
+  const handleRemove = async (assetId: string) => {
     if (!confirm("Remove this asset?")) return;
     const remaining = assets.filter((a) => a.id !== assetId);
     setAssets(remaining);
