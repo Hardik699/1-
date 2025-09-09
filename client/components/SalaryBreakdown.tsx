@@ -17,17 +17,41 @@ const SalaryBreakdown: React.FC<Props> = ({ ctc, config, className }) => {
   const data = computeSalaryFromCTC(ctc || 0, config || undefined);
   const rows: { label: string; month: number; year: number }[] = [
     { label: "CTC (PM)", month: ctc || 0, year: Math.round((ctc || 0) * 12) },
-    { label: "Employer PF", month: data.employerPf, year: data.employerPf * 12 },
-    { label: "Employer ESIC", month: data.employerEsic, year: data.employerEsic * 12 },
-    { label: "Actual Gross", month: data.actualGross, year: data.actualGross * 12 },
+    {
+      label: "Employer PF",
+      month: data.employerPf,
+      year: data.employerPf * 12,
+    },
+    {
+      label: "Employer ESIC",
+      month: data.employerEsic,
+      year: data.employerEsic * 12,
+    },
+    {
+      label: "Actual Gross",
+      month: data.actualGross,
+      year: data.actualGross * 12,
+    },
     { label: "Basic", month: data.basicPay, year: data.basicPay * 12 },
     { label: "HRA", month: data.hra, year: data.hra * 12 },
     { label: "Conveyance", month: data.conveyance, year: data.conveyance * 12 },
-    { label: "Gross Payable", month: data.grossPayable, year: data.grossPayable * 12 },
-    { label: "Employee PF", month: data.employeePf, year: data.employeePf * 12 },
+    {
+      label: "Gross Payable",
+      month: data.grossPayable,
+      year: data.grossPayable * 12,
+    },
+    {
+      label: "Employee PF",
+      month: data.employeePf,
+      year: data.employeePf * 12,
+    },
     { label: "ESIC", month: data.employeeEsic, year: data.employeeEsic * 12 },
     { label: "PT", month: data.pt, year: data.pt * 12 },
-    { label: "Net Payable", month: data.netPayable, year: data.netPayable * 12 },
+    {
+      label: "Net Payable",
+      month: data.netPayable,
+      year: data.netPayable * 12,
+    },
   ];
 
   return (

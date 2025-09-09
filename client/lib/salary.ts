@@ -31,7 +31,9 @@ export function computeSalaryFromCTC(ctcPm: number, cfg?: SalaryConfig) {
   } else {
     // iterative approach because employer PF depends on basic which depends on actual gross which depends on employer PF
     for (let i = 0; i < 10; i++) {
-      actualGross = Math.round(ctcPm - employerPf - Math.round(actualGross * esicRate));
+      actualGross = Math.round(
+        ctcPm - employerPf - Math.round(actualGross * esicRate),
+      );
       basic = Math.round(actualGross * basicRatioCfg);
       const newEmployerPf = Math.round(basic * pfPercent);
       if (Math.abs(newEmployerPf - employerPf) <= 1) {
@@ -41,7 +43,9 @@ export function computeSalaryFromCTC(ctcPm: number, cfg?: SalaryConfig) {
       employerPf = newEmployerPf;
     }
     // final actualGross
-    actualGross = Math.round(ctcPm - employerPf - Math.round(actualGross * esicRate));
+    actualGross = Math.round(
+      ctcPm - employerPf - Math.round(actualGross * esicRate),
+    );
     basic = Math.round(actualGross * basicRatioCfg);
   }
 
@@ -50,11 +54,16 @@ export function computeSalaryFromCTC(ctcPm: number, cfg?: SalaryConfig) {
   const splAllowance = Math.round(actualGross - basic - hra - conveyance);
 
   const employerEsic = Math.round(actualGross * esicRate);
-  const employeePf = typeof employeePfOverride === "number" ? Math.round(employeePfOverride) : Math.round(basic * pfPercent);
+  const employeePf =
+    typeof employeePfOverride === "number"
+      ? Math.round(employeePfOverride)
+      : Math.round(basic * pfPercent);
   const employeeEsic = Math.round(actualGross * esicRate);
 
   const grossPayable = basic + hra + conveyance + splAllowance; // equals actualGross
-  const netPayable = Math.round(grossPayable - (employeePf + employeeEsic + ptFixed));
+  const netPayable = Math.round(
+    grossPayable - (employeePf + employeeEsic + ptFixed),
+  );
 
   return {
     employerPf,

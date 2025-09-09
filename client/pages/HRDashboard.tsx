@@ -324,12 +324,14 @@ export default function HRDashboard() {
   });
   const [showSalaryForm, setShowSalaryForm] = useState(false);
   const [salaryFormBasicManual, setSalaryFormBasicManual] = useState(false);
-  const [salaryConfig, setSalaryConfig] = useState<import("@/lib/salary").SalaryConfig | null>(null);
+  const [salaryConfig, setSalaryConfig] = useState<
+    import("@/lib/salary").SalaryConfig | null
+  >(null);
 
   // persist salary config derived from uploaded sheet so it's applied globally
   useEffect(() => {
     try {
-      const raw = localStorage.getItem('salaryConfig');
+      const raw = localStorage.getItem("salaryConfig");
       if (raw) {
         setSalaryConfig(JSON.parse(raw));
       }
@@ -341,9 +343,9 @@ export default function HRDashboard() {
   useEffect(() => {
     try {
       if (salaryConfig) {
-        localStorage.setItem('salaryConfig', JSON.stringify(salaryConfig));
+        localStorage.setItem("salaryConfig", JSON.stringify(salaryConfig));
       } else {
-        localStorage.removeItem('salaryConfig');
+        localStorage.removeItem("salaryConfig");
       }
     } catch (e) {
       // ignore
@@ -396,7 +398,6 @@ export default function HRDashboard() {
       hour12: false,
     });
   };
-
 
   const calculateHours = (checkIn: string, checkOut: string) => {
     try {
@@ -632,13 +633,13 @@ export default function HRDashboard() {
   // Auto-normalize stored employee salary fields (remove non-digits and scale down obvious yearly values)
   useEffect(() => {
     try {
-      const raw = localStorage.getItem('hrEmployees');
+      const raw = localStorage.getItem("hrEmployees");
       if (!raw) return;
       const parsed = JSON.parse(raw) as any[];
       if (!Array.isArray(parsed) || parsed.length === 0) return;
       let changed = false;
       const normalizeField = (val: any) => {
-        const s = String(val ?? '').replace(/[^0-9.-]+/g, '');
+        const s = String(val ?? "").replace(/[^0-9.-]+/g, "");
         let n = Number(s) || 0;
         // if value is unrealistically large for monthly CTC (e.g. > 200k), assume it's yearly or mis-entered and divide by 1000 repeatedly
         while (n > 200000) {
@@ -646,7 +647,17 @@ export default function HRDashboard() {
         }
         return String(n);
       };
-      const fields = ['ctcPm','salary','employerPf','employeePf','basicPay','hra','conveyance','pt','netPayable'];
+      const fields = [
+        "ctcPm",
+        "salary",
+        "employerPf",
+        "employeePf",
+        "basicPay",
+        "hra",
+        "conveyance",
+        "pt",
+        "netPayable",
+      ];
       const fixed = parsed.map((emp) => {
         const e = { ...emp };
         fields.forEach((f) => {
@@ -661,7 +672,7 @@ export default function HRDashboard() {
         return e;
       });
       if (changed) {
-        localStorage.setItem('hrEmployees', JSON.stringify(fixed));
+        localStorage.setItem("hrEmployees", JSON.stringify(fixed));
         setEmployees(fixed as any);
       }
     } catch (e) {
@@ -705,16 +716,28 @@ export default function HRDashboard() {
       if (salaryFormBasicManual) return; // user edited basic manually
       // prefer editForm values when editing
       const src: any = employeeDetailModal.isEditing
-        ? { ...(employeeDetailModal.employee || {}), ...(employeeDetailModal.editForm || {}) }
-        : (employeeDetailModal.employee || {});
-      const ctc = Number(String(src.ctcPm || src.salary || 0).replace(/[^0-9.-]+/g, "")) || 0;
+        ? {
+            ...(employeeDetailModal.employee || {}),
+            ...(employeeDetailModal.editForm || {}),
+          }
+        : employeeDetailModal.employee || {};
+      const ctc =
+        Number(
+          String(src.ctcPm || src.salary || 0).replace(/[^0-9.-]+/g, ""),
+        ) || 0;
       const computed = computeSalaryFromCTC(ctc, salaryConfig || undefined);
       const prorated = Math.round((computed.basicPay || 0) * (aw / tw));
       setSalaryForm((prev) => ({ ...prev, basicSalary: String(prorated) }));
     } catch (e) {
       // ignore
     }
-  }, [salaryForm.totalWorkingDays, salaryForm.actualWorkingDays, employeeDetailModal, salaryFormBasicManual, salaryConfig]);
+  }, [
+    salaryForm.totalWorkingDays,
+    salaryForm.actualWorkingDays,
+    employeeDetailModal,
+    salaryFormBasicManual,
+    salaryConfig,
+  ]);
 
   const saveDepartments = (updatedDepartments: Department[]) => {
     setDepartments(updatedDepartments);
@@ -948,7 +971,7 @@ export default function HRDashboard() {
     // Notify done (no inline IT data stored)
     alert("Employee created. IT department notified.");
     // redirect to home after successful submission
-    navigate('/');
+    navigate("/");
   };
 
   // Handle employee status toggle
@@ -1074,13 +1097,19 @@ export default function HRDashboard() {
       saveDepartments(updatedDepartments);
 
       // If employee detail modal is open for this employee, close it
-      if (employeeDetailModal.employee && employeeDetailModal.employee.id === employeeId) {
+      if (
+        employeeDetailModal.employee &&
+        employeeDetailModal.employee.id === employeeId
+      ) {
         handleCloseEmployeeDetail();
       }
 
       // attempt backend delete as well (best-effort)
       try {
-        fetch(`/api/hr/employees/${employeeId}`, { method: 'DELETE', headers: { 'x-role': 'admin' } }).catch(() => {});
+        fetch(`/api/hr/employees/${employeeId}`, {
+          method: "DELETE",
+          headers: { "x-role": "admin" },
+        }).catch(() => {});
       } catch (e) {}
     }
   };
@@ -1623,8 +1652,14 @@ Generated on: ${new Date().toLocaleString()}
         <div className="flex items-center justify-between mb-8">
           <div>
             <div className="flex items-center space-x-3">
-              <h1 className="text-3xl font-bold text-white mb-2">HR Dashboard</h1>
-              <Button size="sm" onClick={handleAddDemoEmployee} className="bg-green-600 hover:bg-green-700 text-white">
+              <h1 className="text-3xl font-bold text-white mb-2">
+                HR Dashboard
+              </h1>
+              <Button
+                size="sm"
+                onClick={handleAddDemoEmployee}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
                 Add Demo Employee
               </Button>
             </div>
@@ -2332,12 +2367,16 @@ Generated on: ${new Date().toLocaleString()}
                     <div className="space-y-6 mt-4">
                       <div className="flex items-center space-x-2 border-b border-slate-700 pb-2">
                         <Clock className="h-5 w-5 text-green-400" />
-                        <h3 className="text-lg font-semibold text-white">Salary Details</h3>
+                        <h3 className="text-lg font-semibold text-white">
+                          Salary Details
+                        </h3>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="space-y-2">
-                          <Label className="text-slate-300">CTC (Per month)</Label>
+                          <Label className="text-slate-300">
+                            CTC (Per month)
+                          </Label>
                           <Input
                             type="number"
                             value={newEmployee.ctcPm}
@@ -2345,14 +2384,23 @@ Generated on: ${new Date().toLocaleString()}
                               const v = e.target.value;
                               const num = Number(v) || 0;
                               // if user manually edited PF, don't force fixed PF when computing
-                              const cfgForCompute: any = { ...(salaryConfig || {}) };
-                              if (addPfManual) cfgForCompute.employeePfOverride = Number(newEmployee.employeePf) || undefined;
-                              const computed = computeSalaryFromCTC(num, cfgForCompute);
+                              const cfgForCompute: any = {
+                                ...(salaryConfig || {}),
+                              };
+                              if (addPfManual)
+                                cfgForCompute.employeePfOverride =
+                                  Number(newEmployee.employeePf) || undefined;
+                              const computed = computeSalaryFromCTC(
+                                num,
+                                cfgForCompute,
+                              );
                               setNewEmployee((prev) => ({
                                 ...prev,
                                 ctcPm: v,
                                 // only overwrite employerPf/employeePf if user hasn't manually edited PF
-                                employerPf: addPfManual ? prev.employerPf : String(computed.employerPf),
+                                employerPf: addPfManual
+                                  ? prev.employerPf
+                                  : String(computed.employerPf),
                                 employerEsic: String(computed.employerEsic),
                                 actualGross: String(computed.actualGross),
                                 basicPay: String(computed.basicPay),
@@ -2360,7 +2408,9 @@ Generated on: ${new Date().toLocaleString()}
                                 conveyance: String(computed.conveyance),
                                 splAllowance: String(computed.splAllowance),
                                 grossPayable: String(computed.grossPayable),
-                                employeePf: addPfManual ? prev.employeePf : String(computed.employeePf),
+                                employeePf: addPfManual
+                                  ? prev.employeePf
+                                  : String(computed.employeePf),
                                 employeeEsic: String(computed.employeeEsic),
                                 pt: String(computed.pt),
                                 netPayable: String(computed.netPayable),
@@ -2372,7 +2422,9 @@ Generated on: ${new Date().toLocaleString()}
                         </div>
 
                         <div className="space-y-2">
-                          <Label className="text-slate-300">Employer PF (Per month)</Label>
+                          <Label className="text-slate-300">
+                            Employer PF (Per month)
+                          </Label>
                           <Input
                             type="number"
                             value={newEmployee.employerPf}
@@ -2387,17 +2439,28 @@ Generated on: ${new Date().toLocaleString()}
                               const hraRatio = cfg.hraRatio ?? 0.4;
                               const conveyance = cfg.conveyance ?? 1600;
 
-                              const basic = Math.round(employerPfNum / pfPercent || 0);
-                              const actualGross = Math.round(basic / basicRatio || 0);
+                              const basic = Math.round(
+                                employerPfNum / pfPercent || 0,
+                              );
+                              const actualGross = Math.round(
+                                basic / basicRatio || 0,
+                              );
                               const hraVal = Math.round(basic * hraRatio || 0);
-                              const splAllowance = Math.round(actualGross - basic - hraVal - conveyance);
+                              const splAllowance = Math.round(
+                                actualGross - basic - hraVal - conveyance,
+                              );
                               const employeePfNum = employerPfNum; // keep same
-                              const employerEsicNum = Math.round(actualGross * (cfg.esicRate ?? 0));
+                              const employerEsicNum = Math.round(
+                                actualGross * (cfg.esicRate ?? 0),
+                              );
                               const ptNum = cfg.pt ?? 200;
                               const grossPayable = actualGross;
-                              const netPayable = Math.round(grossPayable - (employeePfNum + employerEsicNum + ptNum));
+                              const netPayable = Math.round(
+                                grossPayable -
+                                  (employeePfNum + employerEsicNum + ptNum),
+                              );
 
-                              setNewEmployee(prev => ({
+                              setNewEmployee((prev) => ({
                                 ...prev,
                                 employerPf: String(employerPfNum),
                                 employeePf: String(employeePfNum),
@@ -2418,90 +2481,144 @@ Generated on: ${new Date().toLocaleString()}
                         </div>
 
                         <div className="space-y-2">
-                          <Label className="text-slate-300">Employer ESIC (Per month)</Label>
+                          <Label className="text-slate-300">
+                            Employer ESIC (Per month)
+                          </Label>
                           <Input
                             type="number"
                             value={newEmployee.employerEsic}
-                            onChange={(e) => setNewEmployee({ ...newEmployee, employerEsic: e.target.value })}
+                            onChange={(e) =>
+                              setNewEmployee({
+                                ...newEmployee,
+                                employerEsic: e.target.value,
+                              })
+                            }
                             className="bg-slate-800/50 border-slate-700 text-white"
                             placeholder="0"
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label className="text-slate-300">Actual Gross (Per month)</Label>
+                          <Label className="text-slate-300">
+                            Actual Gross (Per month)
+                          </Label>
                           <Input
                             type="number"
                             value={newEmployee.actualGross}
-                            onChange={(e) => setNewEmployee({ ...newEmployee, actualGross: e.target.value })}
+                            onChange={(e) =>
+                              setNewEmployee({
+                                ...newEmployee,
+                                actualGross: e.target.value,
+                              })
+                            }
                             className="bg-slate-800/50 border-slate-700 text-white"
                             placeholder="30200"
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label className="text-slate-300">Basic (Per month)</Label>
+                          <Label className="text-slate-300">
+                            Basic (Per month)
+                          </Label>
                           <Input
                             type="number"
                             value={newEmployee.basicPay}
-                            onChange={(e) => setNewEmployee({ ...newEmployee, basicPay: e.target.value })}
+                            onChange={(e) =>
+                              setNewEmployee({
+                                ...newEmployee,
+                                basicPay: e.target.value,
+                              })
+                            }
                             className="bg-slate-800/50 border-slate-700 text-white"
                             placeholder="15100"
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label className="text-slate-300">HRA (Per month)</Label>
+                          <Label className="text-slate-300">
+                            HRA (Per month)
+                          </Label>
                           <Input
                             type="number"
                             value={newEmployee.hra}
-                            onChange={(e) => setNewEmployee({ ...newEmployee, hra: e.target.value })}
+                            onChange={(e) =>
+                              setNewEmployee({
+                                ...newEmployee,
+                                hra: e.target.value,
+                              })
+                            }
                             className="bg-slate-800/50 border-slate-700 text-white"
                             placeholder="6040"
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label className="text-slate-300">Conveyance (Per month)</Label>
+                          <Label className="text-slate-300">
+                            Conveyance (Per month)
+                          </Label>
                           <Input
                             type="number"
                             value={newEmployee.conveyance}
-                            onChange={(e) => setNewEmployee({ ...newEmployee, conveyance: e.target.value })}
+                            onChange={(e) =>
+                              setNewEmployee({
+                                ...newEmployee,
+                                conveyance: e.target.value,
+                              })
+                            }
                             className="bg-slate-800/50 border-slate-700 text-white"
                             placeholder="1600"
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label className="text-slate-300">Spl. Allowance (Per month)</Label>
+                          <Label className="text-slate-300">
+                            Spl. Allowance (Per month)
+                          </Label>
                           <Input
                             type="number"
                             value={newEmployee.splAllowance}
-                            onChange={(e) => setNewEmployee({ ...newEmployee, splAllowance: e.target.value })}
+                            onChange={(e) =>
+                              setNewEmployee({
+                                ...newEmployee,
+                                splAllowance: e.target.value,
+                              })
+                            }
                             className="bg-slate-800/50 border-slate-700 text-white"
                             placeholder="7460"
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label className="text-slate-300">Gross Payable (Per month)</Label>
+                          <Label className="text-slate-300">
+                            Gross Payable (Per month)
+                          </Label>
                           <Input
                             type="number"
                             value={newEmployee.grossPayable}
-                            onChange={(e) => setNewEmployee({ ...newEmployee, grossPayable: e.target.value })}
+                            onChange={(e) =>
+                              setNewEmployee({
+                                ...newEmployee,
+                                grossPayable: e.target.value,
+                              })
+                            }
                             className="bg-slate-800/50 border-slate-700 text-white"
                             placeholder="30200"
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label className="text-slate-300">Employee PF (Per month)</Label>
+                          <Label className="text-slate-300">
+                            Employee PF (Per month)
+                          </Label>
                           <Input
                             type="number"
                             value={newEmployee.employeePf}
                             onChange={(e) => {
                               setAddPfManual(true);
-                              setNewEmployee({ ...newEmployee, employeePf: e.target.value });
+                              setNewEmployee({
+                                ...newEmployee,
+                                employeePf: e.target.value,
+                              });
                             }}
                             className="bg-slate-800/50 border-slate-700 text-white"
                             placeholder="1800"
@@ -2509,33 +2626,54 @@ Generated on: ${new Date().toLocaleString()}
                         </div>
 
                         <div className="space-y-2">
-                          <Label className="text-slate-300">Employee ESIC (Per month)</Label>
+                          <Label className="text-slate-300">
+                            Employee ESIC (Per month)
+                          </Label>
                           <Input
                             type="number"
                             value={newEmployee.employeeEsic}
-                            onChange={(e) => setNewEmployee({ ...newEmployee, employeeEsic: e.target.value })}
+                            onChange={(e) =>
+                              setNewEmployee({
+                                ...newEmployee,
+                                employeeEsic: e.target.value,
+                              })
+                            }
                             className="bg-slate-800/50 border-slate-700 text-white"
                             placeholder="0"
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label className="text-slate-300">PT (Per month)</Label>
+                          <Label className="text-slate-300">
+                            PT (Per month)
+                          </Label>
                           <Input
                             type="number"
                             value={newEmployee.pt}
-                            onChange={(e) => setNewEmployee({ ...newEmployee, pt: e.target.value })}
+                            onChange={(e) =>
+                              setNewEmployee({
+                                ...newEmployee,
+                                pt: e.target.value,
+                              })
+                            }
                             className="bg-slate-800/50 border-slate-700 text-white"
                             placeholder="200"
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label className="text-slate-300">Net Payable (Per month)</Label>
+                          <Label className="text-slate-300">
+                            Net Payable (Per month)
+                          </Label>
                           <Input
                             type="number"
                             value={newEmployee.netPayable}
-                            onChange={(e) => setNewEmployee({ ...newEmployee, netPayable: e.target.value })}
+                            onChange={(e) =>
+                              setNewEmployee({
+                                ...newEmployee,
+                                netPayable: e.target.value,
+                              })
+                            }
                             className="bg-slate-800/50 border-slate-700 text-white"
                             placeholder="28200"
                           />
@@ -2545,7 +2683,9 @@ Generated on: ${new Date().toLocaleString()}
                       {/* Salary breakdown preview */}
                       <div>
                         <div className="flex items-center space-x-2">
-                          <Label className="text-slate-300">Import Salary Template (.xlsx)</Label>
+                          <Label className="text-slate-300">
+                            Import Salary Template (.xlsx)
+                          </Label>
                           <input
                             type="file"
                             accept=".xlsx,.xls"
@@ -2554,23 +2694,33 @@ Generated on: ${new Date().toLocaleString()}
                               if (!f) return;
                               try {
                                 const ab = await f.arrayBuffer();
-                                const XLSX = await import('xlsx');
-                                const wb = XLSX.read(ab, { type: 'array' });
+                                const XLSX = await import("xlsx");
+                                const wb = XLSX.read(ab, { type: "array" });
                                 const sheet = wb.Sheets[wb.SheetNames[0]];
-                                const get = (addr: string) => (sheet[addr] && sheet[addr].v) || null;
-                                const b3 = get('B3');
-                                const b4 = get('B4');
-                                const b6 = get('B6');
-                                const b7 = get('B7');
-                                const b8 = get('B8');
-                                const b9 = get('B9');
-                                const b10 = get('B10');
-                                const b12 = get('B12');
-                                const b14 = get('B14');
+                                const get = (addr: string) =>
+                                  (sheet[addr] && sheet[addr].v) || null;
+                                const b3 = get("B3");
+                                const b4 = get("B4");
+                                const b6 = get("B6");
+                                const b7 = get("B7");
+                                const b8 = get("B8");
+                                const b9 = get("B9");
+                                const b10 = get("B10");
+                                const b12 = get("B12");
+                                const b14 = get("B14");
 
-                                const basicRatio = b7 && b6 ? Number(b7) / Number(b6) : undefined;
-                                const hraRatio = b8 && b7 ? Number(b8) / Number(b7) : undefined;
-                                const pfPercent = b4 && b7 ? Number(b4) / Number(b7) : undefined; // employerPF/basic
+                                const basicRatio =
+                                  b7 && b6
+                                    ? Number(b7) / Number(b6)
+                                    : undefined;
+                                const hraRatio =
+                                  b8 && b7
+                                    ? Number(b8) / Number(b7)
+                                    : undefined;
+                                const pfPercent =
+                                  b4 && b7
+                                    ? Number(b4) / Number(b7)
+                                    : undefined; // employerPF/basic
                                 const conveyance = b9 ? Number(b9) : undefined;
                                 const pt = b14 ? Number(b14) : undefined;
 
@@ -2586,7 +2736,8 @@ Generated on: ${new Date().toLocaleString()}
                                 setAddPfManual(false);
 
                                 // auto compute into form too (use sheet values, do not force employeePF override)
-                                const num = Number(newEmployee.ctcPm) || Number(b3) || 0;
+                                const num =
+                                  Number(newEmployee.ctcPm) || Number(b3) || 0;
                                 const computed = computeSalaryFromCTC(num, {
                                   basicRatio: basicRatio || undefined,
                                   hraRatio: hraRatio || undefined,
@@ -2612,14 +2763,18 @@ Generated on: ${new Date().toLocaleString()}
                                   netPayable: String(computed.netPayable),
                                 });
                               } catch (err) {
-                                console.debug('Failed to import xlsx', err);
-                                alert('Failed to parse spreadsheet');
+                                console.debug("Failed to import xlsx", err);
+                                alert("Failed to parse spreadsheet");
                               }
                             }}
                           />
                         </div>
 
-                        <SalaryBreakdown ctc={Number(newEmployee.ctcPm) || 0} config={salaryConfig || undefined} className="mt-4" />
+                        <SalaryBreakdown
+                          ctc={Number(newEmployee.ctcPm) || 0}
+                          config={salaryConfig || undefined}
+                          className="mt-4"
+                        />
                       </div>
                     </div>
 
@@ -3399,329 +3554,333 @@ Generated on: ${new Date().toLocaleString()}
           </TabsContent>
 
           {/* Attendance Tab */}
-          {false && (<TabsContent value="attendance" className="space-y-6">
-            <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center space-x-2">
-                  <Clock className="h-5 w-5 text-blue-400" />
-                  <span>Attendance Tracking</span>
-                </CardTitle>
-                <CardDescription className="text-slate-400">
-                  Monitor employee attendance and working hours
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Left: Active employee list */}
-                  <div className="md:col-span-1">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-sm font-medium text-white">
-                        Active Employees
-                      </h4>
-                      <div className="text-xs text-slate-400">
-                        Shift: 6:00 PM - 3:30 AM
+          {false && (
+            <TabsContent value="attendance" className="space-y-6">
+              <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center space-x-2">
+                    <Clock className="h-5 w-5 text-blue-400" />
+                    <span>Attendance Tracking</span>
+                  </CardTitle>
+                  <CardDescription className="text-slate-400">
+                    Monitor employee attendance and working hours
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Left: Active employee list */}
+                    <div className="md:col-span-1">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-medium text-white">
+                          Active Employees
+                        </h4>
+                        <div className="text-xs text-slate-400">
+                          Shift: 6:00 PM - 3:30 AM
+                        </div>
                       </div>
-                    </div>
-                    <div className="max-h-96 overflow-auto rounded border border-slate-700 bg-slate-800/30 p-2 space-y-2">
-                      {(employees.filter((e) => e.status === "active") || [])
-                        .length === 0 ? (
-                        <div className="text-slate-400 text-sm p-4 text-center">
-                          No active employees
-                        </div>
-                      ) : (
-                        employees
-                          .filter((e) => e.status === "active")
-                          .map((emp) => {
-                            const rec = attendanceDayMap[emp.id];
-                            const checkedIn = !!rec?.checkIn;
-                            const checkedOut = !!rec?.checkOut;
-                            return (
-                              <div
-                                key={emp.id}
-                                className="flex items-center justify-between p-2 rounded hover:bg-slate-800/40"
-                              >
-                                <div>
-                                  <div className="text-sm text-white font-medium">
-                                    {emp.fullName}
-                                  </div>
-                                  <div className="text-xs text-slate-400">
-                                    {emp.position || emp.department || "-"}
-                                  </div>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  {!checkedIn && (
-                                    <Button
-                                      size="sm"
-                                      className="text-xs"
-                                      onClick={() => handleCheckIn(emp.id)}
-                                    >
-                                      Check In
-                                    </Button>
-                                  )}
-                                  {checkedIn && !checkedOut && (
-                                    <Button
-                                      size="sm"
-                                      className="text-xs"
-                                      onClick={() => handleCheckOut(emp.id)}
-                                    >
-                                      Check Out
-                                    </Button>
-                                  )}
-                                  {checkedIn && checkedOut && (
-                                    <Badge className="text-xs bg-green-600">
-                                      Done
-                                    </Badge>
-                                  )}
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="text-xs"
-                                    onClick={() => openAttendanceFor(emp.id)}
-                                  >
-                                    Open
-                                  </Button>
-                                </div>
-                              </div>
-                            );
-                          })
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Right: Details and today's attendance */}
-                  <div className="md:col-span-2">
-                    <div className="rounded border border-slate-700 bg-slate-800/30 p-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          <h4 className="text-lg font-medium text-white">
-                            Today's Attendance ({selectedDate})
-                          </h4>
-                          <div className="text-xs text-slate-400">
-                            Shift: 18:00 - 03:30 (overnight)
+                      <div className="max-h-96 overflow-auto rounded border border-slate-700 bg-slate-800/30 p-2 space-y-2">
+                        {(employees.filter((e) => e.status === "active") || [])
+                          .length === 0 ? (
+                          <div className="text-slate-400 text-sm p-4 text-center">
+                            No active employees
                           </div>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Input
-                            type="date"
-                            value={selectedDate}
-                            onChange={(e) => setSelectedDate(e.target.value)}
-                            className="bg-slate-900/60 text-white"
-                          />
-                          <Button
-                            size="sm"
-                            onClick={() => {
-                              setSelectedDate(
-                                new Date().toISOString().split("T")[0],
+                        ) : (
+                          employees
+                            .filter((e) => e.status === "active")
+                            .map((emp) => {
+                              const rec = attendanceDayMap[emp.id];
+                              const checkedIn = !!rec?.checkIn;
+                              const checkedOut = !!rec?.checkOut;
+                              return (
+                                <div
+                                  key={emp.id}
+                                  className="flex items-center justify-between p-2 rounded hover:bg-slate-800/40"
+                                >
+                                  <div>
+                                    <div className="text-sm text-white font-medium">
+                                      {emp.fullName}
+                                    </div>
+                                    <div className="text-xs text-slate-400">
+                                      {emp.position || emp.department || "-"}
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    {!checkedIn && (
+                                      <Button
+                                        size="sm"
+                                        className="text-xs"
+                                        onClick={() => handleCheckIn(emp.id)}
+                                      >
+                                        Check In
+                                      </Button>
+                                    )}
+                                    {checkedIn && !checkedOut && (
+                                      <Button
+                                        size="sm"
+                                        className="text-xs"
+                                        onClick={() => handleCheckOut(emp.id)}
+                                      >
+                                        Check Out
+                                      </Button>
+                                    )}
+                                    {checkedIn && checkedOut && (
+                                      <Badge className="text-xs bg-green-600">
+                                        Done
+                                      </Badge>
+                                    )}
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-xs"
+                                      onClick={() => openAttendanceFor(emp.id)}
+                                    >
+                                      Open
+                                    </Button>
+                                  </div>
+                                </div>
                               );
-                            }}
-                          >
-                            Today
-                          </Button>
-                        </div>
+                            })
+                        )}
                       </div>
+                    </div>
 
-                      <div className="grid grid-cols-1 gap-3">
-                        {/* Selected employee panel or summary list */}
-                        <div className="flex items-center justify-between">
-                          <div className="text-sm text-slate-400">
-                            Click an employee on the left to view full
-                            attendance controls and history.
-                          </div>
+                    {/* Right: Details and today's attendance */}
+                    <div className="md:col-span-2">
+                      <div className="rounded border border-slate-700 bg-slate-800/30 p-4">
+                        <div className="flex items-center justify-between mb-4">
                           <div>
-                            <Button onClick={exportAttendanceCsv} size="sm">
-                              Export CSV
+                            <h4 className="text-lg font-medium text-white">
+                              Today's Attendance ({selectedDate})
+                            </h4>
+                            <div className="text-xs text-slate-400">
+                              Shift: 18:00 - 03:30 (overnight)
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Input
+                              type="date"
+                              value={selectedDate}
+                              onChange={(e) => setSelectedDate(e.target.value)}
+                              className="bg-slate-900/60 text-white"
+                            />
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                setSelectedDate(
+                                  new Date().toISOString().split("T")[0],
+                                );
+                              }}
+                            >
+                              Today
                             </Button>
                           </div>
                         </div>
 
-                        <div className="overflow-auto max-h-72 rounded border border-slate-700 bg-slate-900/20 p-2">
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead>Employee</TableHead>
-                                <TableHead>Check In</TableHead>
-                                <TableHead>Check Out</TableHead>
-                                <TableHead>Hours</TableHead>
-                                <TableHead>Notes</TableHead>
-                                <TableHead>Actions</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {(
-                                employees.filter(
-                                  (e) => e.status === "active",
-                                ) || []
-                              ).map((emp) => {
-                                const rec = attendanceDayMap[emp.id];
-                                const hours =
-                                  rec && rec.checkIn && rec.checkOut
-                                    ? calculateHours(rec.checkIn, rec.checkOut)
-                                    : "";
-                                return (
-                                  <TableRow key={emp.id}>
-                                    <TableCell className="text-sm">
-                                      {emp.fullName}
-                                    </TableCell>
-                                    <TableCell className="text-sm">
-                                      {rec?.checkIn || "-"}
-                                    </TableCell>
-                                    <TableCell className="text-sm">
-                                      {rec?.checkOut || "-"}
-                                    </TableCell>
-                                    <TableCell className="text-sm">
-                                      {hours}
-                                    </TableCell>
-                                    <TableCell className="text-sm">
-                                      {rec?.notes || "-"}
-                                    </TableCell>
-                                    <TableCell className="text-sm">
-                                      <div className="flex items-center space-x-2">
-                                        {!rec?.checkIn && (
+                        <div className="grid grid-cols-1 gap-3">
+                          {/* Selected employee panel or summary list */}
+                          <div className="flex items-center justify-between">
+                            <div className="text-sm text-slate-400">
+                              Click an employee on the left to view full
+                              attendance controls and history.
+                            </div>
+                            <div>
+                              <Button onClick={exportAttendanceCsv} size="sm">
+                                Export CSV
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div className="overflow-auto max-h-72 rounded border border-slate-700 bg-slate-900/20 p-2">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Employee</TableHead>
+                                  <TableHead>Check In</TableHead>
+                                  <TableHead>Check Out</TableHead>
+                                  <TableHead>Hours</TableHead>
+                                  <TableHead>Notes</TableHead>
+                                  <TableHead>Actions</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {(
+                                  employees.filter(
+                                    (e) => e.status === "active",
+                                  ) || []
+                                ).map((emp) => {
+                                  const rec = attendanceDayMap[emp.id];
+                                  const hours =
+                                    rec && rec.checkIn && rec.checkOut
+                                      ? calculateHours(
+                                          rec.checkIn,
+                                          rec.checkOut,
+                                        )
+                                      : "";
+                                  return (
+                                    <TableRow key={emp.id}>
+                                      <TableCell className="text-sm">
+                                        {emp.fullName}
+                                      </TableCell>
+                                      <TableCell className="text-sm">
+                                        {rec?.checkIn || "-"}
+                                      </TableCell>
+                                      <TableCell className="text-sm">
+                                        {rec?.checkOut || "-"}
+                                      </TableCell>
+                                      <TableCell className="text-sm">
+                                        {hours}
+                                      </TableCell>
+                                      <TableCell className="text-sm">
+                                        {rec?.notes || "-"}
+                                      </TableCell>
+                                      <TableCell className="text-sm">
+                                        <div className="flex items-center space-x-2">
+                                          {!rec?.checkIn && (
+                                            <Button
+                                              size="xs"
+                                              onClick={() =>
+                                                handleCheckIn(emp.id)
+                                              }
+                                            >
+                                              In
+                                            </Button>
+                                          )}
+                                          {rec?.checkIn && !rec?.checkOut && (
+                                            <Button
+                                              size="xs"
+                                              onClick={() =>
+                                                handleCheckOut(emp.id)
+                                              }
+                                            >
+                                              Out
+                                            </Button>
+                                          )}
                                           <Button
                                             size="xs"
+                                            variant="ghost"
                                             onClick={() =>
-                                              handleCheckIn(emp.id)
+                                              openAttendanceFor(emp.id)
                                             }
                                           >
-                                            In
+                                            Details
                                           </Button>
-                                        )}
-                                        {rec?.checkIn && !rec?.checkOut && (
-                                          <Button
-                                            size="xs"
-                                            onClick={() =>
-                                              handleCheckOut(emp.id)
-                                            }
-                                          >
-                                            Out
-                                          </Button>
-                                        )}
-                                        <Button
-                                          size="xs"
-                                          variant="ghost"
-                                          onClick={() =>
-                                            openAttendanceFor(emp.id)
-                                          }
-                                        >
-                                          Details
-                                        </Button>
-                                      </div>
-                                    </TableCell>
-                                  </TableRow>
-                                );
-                              })}
-                            </TableBody>
-                          </Table>
+                                        </div>
+                                      </TableCell>
+                                    </TableRow>
+                                  );
+                                })}
+                              </TableBody>
+                            </Table>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Attendance modal/drawer */}
-                    {attendanceModal.open && (
-                      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                        <div className="w-full max-w-2xl p-4">
-                          <Card className="bg-slate-900 border-slate-700">
-                            <CardHeader>
-                              <CardTitle className="text-white">
-                                Attendance for{" "}
-                                {attendanceModal.employee?.fullName}
-                              </CardTitle>
-                              <CardDescription className="text-slate-400">
-                                Date: {attendanceModal.record?.date}
-                              </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                  <div className="text-slate-400 text-sm">
-                                    Check In
+                      {/* Attendance modal/drawer */}
+                      {attendanceModal.open && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                          <div className="w-full max-w-2xl p-4">
+                            <Card className="bg-slate-900 border-slate-700">
+                              <CardHeader>
+                                <CardTitle className="text-white">
+                                  Attendance for{" "}
+                                  {attendanceModal.employee?.fullName}
+                                </CardTitle>
+                                <CardDescription className="text-slate-400">
+                                  Date: {attendanceModal.record?.date}
+                                </CardDescription>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div>
+                                    <div className="text-slate-400 text-sm">
+                                      Check In
+                                    </div>
+                                    <div className="text-white font-medium text-lg">
+                                      {attendanceModal.record?.checkIn || "-"}
+                                    </div>
                                   </div>
-                                  <div className="text-white font-medium text-lg">
-                                    {attendanceModal.record?.checkIn || "-"}
+                                  <div>
+                                    <div className="text-slate-400 text-sm">
+                                      Check Out
+                                    </div>
+                                    <div className="text-white font-medium text-lg">
+                                      {attendanceModal.record?.checkOut || "-"}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div className="text-slate-400 text-sm">
+                                      Hours
+                                    </div>
+                                    <div className="text-white font-medium text-lg">
+                                      {attendanceModal.record?.checkIn &&
+                                      attendanceModal.record?.checkOut
+                                        ? calculateHours(
+                                            attendanceModal.record.checkIn!,
+                                            attendanceModal.record.checkOut!,
+                                          )
+                                        : "-"}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div className="text-slate-400 text-sm">
+                                      Present
+                                    </div>
+                                    <div className="text-white font-medium">
+                                      {attendanceModal.record?.present
+                                        ? "Yes"
+                                        : "No"}
+                                    </div>
                                   </div>
                                 </div>
-                                <div>
-                                  <div className="text-slate-400 text-sm">
-                                    Check Out
-                                  </div>
-                                  <div className="text-white font-medium text-lg">
-                                    {attendanceModal.record?.checkOut || "-"}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-slate-400 text-sm">
-                                    Hours
-                                  </div>
-                                  <div className="text-white font-medium text-lg">
-                                    {attendanceModal.record?.checkIn &&
-                                    attendanceModal.record?.checkOut
-                                      ? calculateHours(
-                                          attendanceModal.record.checkIn!,
-                                          attendanceModal.record.checkOut!,
-                                        )
-                                      : "-"}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-slate-400 text-sm">
-                                    Present
-                                  </div>
-                                  <div className="text-white font-medium">
-                                    {attendanceModal.record?.present
-                                      ? "Yes"
-                                      : "No"}
-                                  </div>
-                                </div>
-                              </div>
 
-                              <div className="mt-4 flex items-center space-x-2">
-                                {!attendanceModal.record?.checkIn && (
-                                  <Button
-                                    onClick={() =>
-                                      handleCheckIn(
-                                        attendanceModal.employee!.id,
-                                      )
-                                    }
-                                  >
-                                    Check In
-                                  </Button>
-                                )}
-                                {attendanceModal.record?.checkIn &&
-                                  !attendanceModal.record?.checkOut && (
+                                <div className="mt-4 flex items-center space-x-2">
+                                  {!attendanceModal.record?.checkIn && (
                                     <Button
                                       onClick={() =>
-                                        handleCheckOut(
+                                        handleCheckIn(
                                           attendanceModal.employee!.id,
                                         )
                                       }
                                     >
-                                      Check Out
+                                      Check In
                                     </Button>
                                   )}
-                                <Button
-                                  variant="outline"
-                                  onClick={() =>
-                                    setAttendanceModal({
-                                      open: false,
-                                      employee: null,
-                                      record: null,
-                                    })
-                                  }
-                                >
-                                  Close
-                                </Button>
-                              </div>
-                            </CardContent>
-                          </Card>
+                                  {attendanceModal.record?.checkIn &&
+                                    !attendanceModal.record?.checkOut && (
+                                      <Button
+                                        onClick={() =>
+                                          handleCheckOut(
+                                            attendanceModal.employee!.id,
+                                          )
+                                        }
+                                      >
+                                        Check Out
+                                      </Button>
+                                    )}
+                                  <Button
+                                    variant="outline"
+                                    onClick={() =>
+                                      setAttendanceModal({
+                                        open: false,
+                                        employee: null,
+                                        record: null,
+                                      })
+                                    }
+                                  >
+                                    Close
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>)}
-
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
         </Tabs>
 
         {/* Deactivation Modal */}
@@ -4736,7 +4895,9 @@ Generated on: ${new Date().toLocaleString()}
                     <div className="bg-slate-900/20 p-4 rounded border border-slate-700">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                         <div className="space-y-2">
-                          <Label className="text-slate-300">CTC (Per month)</Label>
+                          <Label className="text-slate-300">
+                            CTC (Per month)
+                          </Label>
                           {employeeDetailModal.isEditing ? (
                             <Input
                               type="number"
@@ -4749,23 +4910,69 @@ Generated on: ${new Date().toLocaleString()}
                                 const v = e.target.value || "0";
                                 const num = Number(v) || 0;
                                 // compute using existing salaryConfig and fixed PF (only override PF when user manually edited it)
-                                const cfgForCompute: any = { ...(salaryConfig || {}) };
-                                if (addPfManual) cfgForCompute.employeePfOverride = Number(employeeDetailModal.editForm.employeePf) || Number(employeeDetailModal.employee.employeePf) || undefined;
-                                const computed = computeSalaryFromCTC(num, cfgForCompute);
+                                const cfgForCompute: any = {
+                                  ...(salaryConfig || {}),
+                                };
+                                if (addPfManual)
+                                  cfgForCompute.employeePfOverride =
+                                    Number(
+                                      employeeDetailModal.editForm.employeePf,
+                                    ) ||
+                                    Number(
+                                      employeeDetailModal.employee.employeePf,
+                                    ) ||
+                                    undefined;
+                                const computed = computeSalaryFromCTC(
+                                  num,
+                                  cfgForCompute,
+                                );
                                 // update edit form fields
                                 handleEditFormChange("ctcPm", String(num));
-                                handleEditFormChange("employerPf", String(computed.employerPf));
-                                handleEditFormChange("employerEsic", String(computed.employerEsic));
-                                handleEditFormChange("actualGross", String(computed.actualGross));
-                                handleEditFormChange("basicPay", String(computed.basicPay));
-                                handleEditFormChange("hra", String(computed.hra));
-                                handleEditFormChange("conveyance", String(computed.conveyance));
-                                handleEditFormChange("splAllowance", String(computed.splAllowance));
-                                handleEditFormChange("grossPayable", String(computed.grossPayable));
-                                handleEditFormChange("employeePf", String(computed.employeePf));
-                                handleEditFormChange("employeeEsic", String(computed.employeeEsic));
+                                handleEditFormChange(
+                                  "employerPf",
+                                  String(computed.employerPf),
+                                );
+                                handleEditFormChange(
+                                  "employerEsic",
+                                  String(computed.employerEsic),
+                                );
+                                handleEditFormChange(
+                                  "actualGross",
+                                  String(computed.actualGross),
+                                );
+                                handleEditFormChange(
+                                  "basicPay",
+                                  String(computed.basicPay),
+                                );
+                                handleEditFormChange(
+                                  "hra",
+                                  String(computed.hra),
+                                );
+                                handleEditFormChange(
+                                  "conveyance",
+                                  String(computed.conveyance),
+                                );
+                                handleEditFormChange(
+                                  "splAllowance",
+                                  String(computed.splAllowance),
+                                );
+                                handleEditFormChange(
+                                  "grossPayable",
+                                  String(computed.grossPayable),
+                                );
+                                handleEditFormChange(
+                                  "employeePf",
+                                  String(computed.employeePf),
+                                );
+                                handleEditFormChange(
+                                  "employeeEsic",
+                                  String(computed.employeeEsic),
+                                );
                                 handleEditFormChange("pt", String(computed.pt));
-                                handleEditFormChange("netPayable", String(computed.netPayable));
+                                handleEditFormChange(
+                                  "netPayable",
+                                  String(computed.netPayable),
+                                );
                               }}
                               className="bg-slate-800/50 border-slate-700 text-white"
                             />
@@ -4799,10 +5006,13 @@ Generated on: ${new Date().toLocaleString()}
                           </h3>
                         </div>
                         <Button
-              onClick={() => { setSalaryFormBasicManual(false); setShowSalaryForm(!showSalaryForm); }}
-              className="bg-blue-500 hover:bg-blue-600 text-white"
-              size="sm"
-            >
+                          onClick={() => {
+                            setSalaryFormBasicManual(false);
+                            setShowSalaryForm(!showSalaryForm);
+                          }}
+                          className="bg-blue-500 hover:bg-blue-600 text-white"
+                          size="sm"
+                        >
                           <Plus className="h-4 w-4 mr-2" />
                           Add Salary Record
                         </Button>
@@ -4885,14 +5095,13 @@ Generated on: ${new Date().toLocaleString()}
                                   min="0"
                                   step="0.01"
                                   value={salaryForm.basicSalary}
-                                  onChange={(e) =>{
+                                  onChange={(e) => {
                                     setSalaryFormBasicManual(true);
                                     setSalaryForm({
                                       ...salaryForm,
                                       basicSalary: e.target.value,
-                                    })
-                                  }
-                                  }
+                                    });
+                                  }}
                                   className="bg-slate-800/50 border-slate-700 text-white"
                                   placeholder="50000"
                                   required
@@ -5032,22 +5241,40 @@ Generated on: ${new Date().toLocaleString()}
                         const summary = (() => {
                           // prefer live editForm values when editing the employee
                           const src: any = employeeDetailModal.isEditing
-                            ? { ...(employeeDetailModal.employee || {}), ...(employeeDetailModal.editForm || {}) }
-                            : (employeeDetailModal.employee || {});
+                            ? {
+                                ...(employeeDetailModal.employee || {}),
+                                ...(employeeDetailModal.editForm || {}),
+                              }
+                            : employeeDetailModal.employee || {};
 
-                          const ctcStr = String(src.ctcPm || src.salary || "0").replace(/[^0-9.-]+/g, "");
+                          const ctcStr = String(
+                            src.ctcPm || src.salary || "0",
+                          ).replace(/[^0-9.-]+/g, "");
                           const ctcNum = Number(ctcStr) || 0;
-                          const computed = computeSalaryFromCTC(ctcNum, salaryConfig || undefined);
+                          const computed = computeSalaryFromCTC(
+                            ctcNum,
+                            salaryConfig || undefined,
+                          );
 
                           return {
                             ctc: ctcNum,
-                            basic: src.basicPay ? Number(src.basicPay) : computed.basicPay,
+                            basic: src.basicPay
+                              ? Number(src.basicPay)
+                              : computed.basicPay,
                             hra: src.hra ? Number(src.hra) : computed.hra,
-                            conveyance: src.conveyance ? Number(src.conveyance) : computed.conveyance,
-                            employerPf: src.employerPf ? Number(src.employerPf) : computed.employerPf,
-                            employeePf: src.employeePf ? Number(src.employeePf) : computed.employeePf,
+                            conveyance: src.conveyance
+                              ? Number(src.conveyance)
+                              : computed.conveyance,
+                            employerPf: src.employerPf
+                              ? Number(src.employerPf)
+                              : computed.employerPf,
+                            employeePf: src.employeePf
+                              ? Number(src.employeePf)
+                              : computed.employeePf,
                             pt: src.pt ? Number(src.pt) : computed.pt,
-                            netPayable: src.netPayable ? Number(src.netPayable) : computed.netPayable,
+                            netPayable: src.netPayable
+                              ? Number(src.netPayable)
+                              : computed.netPayable,
                           };
                         })();
 
@@ -5063,9 +5290,12 @@ Generated on: ${new Date().toLocaleString()}
                                   No salary records found for this employee.
                                 </p>
                                 <Button
-                          onClick={() => { setSalaryFormBasicManual(false); setShowSalaryForm(true); }}
-                          className="bg-blue-500 hover:bg-blue-600 text-white"
-                        >
+                                  onClick={() => {
+                                    setSalaryFormBasicManual(false);
+                                    setShowSalaryForm(true);
+                                  }}
+                                  className="bg-blue-500 hover:bg-blue-600 text-white"
+                                >
                                   <Plus className="h-4 w-4 mr-2" />
                                   Add First Record
                                 </Button>
@@ -5092,14 +5322,16 @@ Generated on: ${new Date().toLocaleString()}
                                             </h4>
                                             <p className="text-slate-400 text-sm">
                                               {record.actualWorkingDays}/
-                                              {record.totalWorkingDays} working days
+                                              {record.totalWorkingDays} working
+                                              days
                                             </p>
                                           </div>
                                         </div>
                                         <div className="flex items-center space-x-3">
                                           <div className="text-right">
                                             <p className="text-white font-bold text-lg">
-                                              ₹{record.totalSalary.toLocaleString()}
+                                              ₹
+                                              {record.totalSalary.toLocaleString()}
                                             </p>
                                             {record.paymentDate && (
                                               <p className="text-slate-400 text-sm">
@@ -5109,7 +5341,9 @@ Generated on: ${new Date().toLocaleString()}
                                           </div>
                                           <Button
                                             onClick={() =>
-                                              handleDeleteSalaryRecord(record.id)
+                                              handleDeleteSalaryRecord(
+                                                record.id,
+                                              )
                                             }
                                             variant="outline"
                                             size="sm"
@@ -5126,12 +5360,15 @@ Generated on: ${new Date().toLocaleString()}
                                             Basic Salary
                                           </p>
                                           <p className="text-white font-medium">
-                                            ₹{record.basicSalary.toLocaleString()}
+                                            ₹
+                                            {record.basicSalary.toLocaleString()}
                                           </p>
                                         </div>
                                         {record.bonus && record.bonus > 0 && (
                                           <div>
-                                            <p className="text-slate-400">Bonus</p>
+                                            <p className="text-slate-400">
+                                              Bonus
+                                            </p>
                                             <p className="text-green-400 font-medium">
                                               +₹{record.bonus.toLocaleString()}
                                             </p>
@@ -5150,7 +5387,9 @@ Generated on: ${new Date().toLocaleString()}
                                             </div>
                                           )}
                                         <div>
-                                          <p className="text-slate-400">Added On</p>
+                                          <p className="text-slate-400">
+                                            Added On
+                                          </p>
                                           <p className="text-white font-medium">
                                             {new Date(
                                               record.createdAt,
@@ -5177,39 +5416,65 @@ Generated on: ${new Date().toLocaleString()}
 
                             {/* Salary summary (final) */}
                             <div className="mt-6 bg-slate-900/30 border border-slate-700 rounded-lg p-4">
-                              <h4 className="text-white font-medium mb-3">Salary Summary</h4>
+                              <h4 className="text-white font-medium mb-3">
+                                Salary Summary
+                              </h4>
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                                 <div>
                                   <p className="text-slate-400">CTC (PM)</p>
-                                  <p className="text-white font-medium">₹{summary.ctc.toLocaleString()}</p>
+                                  <p className="text-white font-medium">
+                                    ₹{summary.ctc.toLocaleString()}
+                                  </p>
                                 </div>
                                 <div>
                                   <p className="text-slate-400">Basic (PM)</p>
-                                  <p className="text-white font-medium">₹{summary.basic.toLocaleString()}</p>
+                                  <p className="text-white font-medium">
+                                    ₹{summary.basic.toLocaleString()}
+                                  </p>
                                 </div>
                                 <div>
                                   <p className="text-slate-400">HRA (PM)</p>
-                                  <p className="text-white font-medium">₹{summary.hra.toLocaleString()}</p>
+                                  <p className="text-white font-medium">
+                                    ₹{summary.hra.toLocaleString()}
+                                  </p>
                                 </div>
                                 <div>
-                                  <p className="text-slate-400">Conveyance (PM)</p>
-                                  <p className="text-white font-medium">₹{summary.conveyance.toLocaleString()}</p>
+                                  <p className="text-slate-400">
+                                    Conveyance (PM)
+                                  </p>
+                                  <p className="text-white font-medium">
+                                    ₹{summary.conveyance.toLocaleString()}
+                                  </p>
                                 </div>
                                 <div>
-                                  <p className="text-slate-400">Employer PF (PM)</p>
-                                  <p className="text-white font-medium">₹{summary.employerPf.toLocaleString()}</p>
+                                  <p className="text-slate-400">
+                                    Employer PF (PM)
+                                  </p>
+                                  <p className="text-white font-medium">
+                                    ₹{summary.employerPf.toLocaleString()}
+                                  </p>
                                 </div>
                                 <div>
-                                  <p className="text-slate-400">Employee PF (PM)</p>
-                                  <p className="text-white font-medium">₹{summary.employeePf.toLocaleString()}</p>
+                                  <p className="text-slate-400">
+                                    Employee PF (PM)
+                                  </p>
+                                  <p className="text-white font-medium">
+                                    ₹{summary.employeePf.toLocaleString()}
+                                  </p>
                                 </div>
                                 <div>
                                   <p className="text-slate-400">PT (PM)</p>
-                                  <p className="text-white font-medium">₹{summary.pt.toLocaleString()}</p>
+                                  <p className="text-white font-medium">
+                                    ₹{summary.pt.toLocaleString()}
+                                  </p>
                                 </div>
                                 <div>
-                                  <p className="text-slate-400">Net Payable (PM)</p>
-                                  <p className="text-white font-medium">₹{summary.netPayable.toLocaleString()}</p>
+                                  <p className="text-slate-400">
+                                    Net Payable (PM)
+                                  </p>
+                                  <p className="text-white font-medium">
+                                    ₹{summary.netPayable.toLocaleString()}
+                                  </p>
                                 </div>
                               </div>
                             </div>

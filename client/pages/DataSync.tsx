@@ -72,15 +72,27 @@ const DataSync: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <h2 className="text-2xl font-semibold text-white mb-4">Data Sync</h2>
-      <p className="text-slate-300 mb-6">Run and inspect data synchronization between local storage and server.</p>
+      <p className="text-slate-300 mb-6">
+        Run and inspect data synchronization between local storage and server.
+      </p>
 
       <div className="space-y-4">
-        <Button onClick={runSync} disabled={syncing} className="inline-flex items-center">
-          <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
+        <Button
+          onClick={runSync}
+          disabled={syncing}
+          className="inline-flex items-center"
+        >
+          <RefreshCw
+            className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`}
+          />
           {syncing ? "Syncing" : "Run Sync"}
         </Button>
 
-        <Button onClick={() => navigator.clipboard.writeText(lastSync || "")} disabled={!lastSync} className="inline-flex items-center">
+        <Button
+          onClick={() => navigator.clipboard.writeText(lastSync || "")}
+          disabled={!lastSync}
+          className="inline-flex items-center"
+        >
           <HardDrive className="h-4 w-4 mr-2" />
           {lastSync ? `Last sync: ${lastSync}` : "No sync yet"}
         </Button>

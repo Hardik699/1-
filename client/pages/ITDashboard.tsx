@@ -41,24 +41,24 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   ServerCog,
-    User,
-    Building2,
-    Monitor,
-    Shield,
-    Wifi,
-    HardDrive,
-    AlertTriangle,
-    CheckCircle,
-    Clock,
-    Activity,
-    Bell,
-    Settings,
-    Eye,
-    Pencil,
-    Plus,
-    Trash2,
-    ArrowLeft,
-  } from "lucide-react";
+  User,
+  Building2,
+  Monitor,
+  Shield,
+  Wifi,
+  HardDrive,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  Activity,
+  Bell,
+  Settings,
+  Eye,
+  Pencil,
+  Plus,
+  Trash2,
+  ArrowLeft,
+} from "lucide-react";
 
 interface ITRecord {
   id: string;
@@ -490,7 +490,10 @@ export default function ITDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <button onClick={handleBack} className="inline-flex items-center gap-2 px-3 py-2 bg-slate-800/40 border border-slate-700 text-white rounded-lg hover:bg-slate-800/60 transition">
+            <button
+              onClick={handleBack}
+              className="inline-flex items-center gap-2 px-3 py-2 bg-slate-800/40 border border-slate-700 text-white rounded-lg hover:bg-slate-800/60 transition"
+            >
               <ArrowLeft className="h-4 w-4" />
               <span className="text-sm font-medium">Back</span>
             </button>

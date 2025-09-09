@@ -375,24 +375,40 @@ export default function AppNav() {
                           variant="outline"
                           size="sm"
                           disabled={syncing}
-                          title={lastSync ? `Last sync: ${lastSync}` : "Sync to DB"}
+                          title={
+                            lastSync ? `Last sync: ${lastSync}` : "Sync to DB"
+                          }
                           className={`transition-all duration-300 ${dbStatus === "online" ? "border-green-500 text-green-300 hover:bg-green-700 hover:text-white" : dbStatus === "offline" ? "border-red-500 text-red-300 hover:bg-red-700 hover:text-white" : "border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white"}`}
                         >
-                          <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
+                          <RefreshCw
+                            className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`}
+                          />
                           {syncing ? "Syncing" : "Sync"}
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="bg-slate-800 border-slate-700 text-white" align="start">
-                        <DropdownMenuItem className="focus:bg-slate-700 cursor-pointer" onClick={syncAll}>
+                      <DropdownMenuContent
+                        className="bg-slate-800 border-slate-700 text-white"
+                        align="start"
+                      >
+                        <DropdownMenuItem
+                          className="focus:bg-slate-700 cursor-pointer"
+                          onClick={syncAll}
+                        >
                           <RefreshCw className="h-4 w-4 mr-2" />
                           Run Sync
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="focus:bg-slate-700 cursor-pointer" onClick={() => navigate("/data-sync")}>
+                        <DropdownMenuItem
+                          className="focus:bg-slate-700 cursor-pointer"
+                          onClick={() => navigate("/data-sync")}
+                        >
                           <HardDrive className="h-4 w-4 mr-2" />
                           Sync Status
                         </DropdownMenuItem>
                         <DropdownMenuSeparator className="bg-slate-700" />
-                        <DropdownMenuItem className="focus:bg-slate-700 cursor-pointer" onClick={dbHealth}>
+                        <DropdownMenuItem
+                          className="focus:bg-slate-700 cursor-pointer"
+                          onClick={dbHealth}
+                        >
                           <ServerCog className="h-4 w-4 mr-2" />
                           DB Health
                         </DropdownMenuItem>
@@ -568,9 +584,13 @@ export default function AppNav() {
                               setIsMobileMenuOpen(false);
                             }}
                             disabled={syncing}
-                            title={lastSync ? `Last sync: ${lastSync}` : "Sync to DB"}
+                            title={
+                              lastSync ? `Last sync: ${lastSync}` : "Sync to DB"
+                            }
                           >
-                            <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
+                            <RefreshCw
+                              className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`}
+                            />
                             {syncing ? "Syncing" : "Run Sync"}
                           </Button>
 

@@ -128,7 +128,10 @@ if (typeof window !== "undefined") {
           // Log for debugging but return a fake Response so callers don't throw
           console.debug("Safe fetch intercepted error:", err?.message || err);
           try {
-            return new Response(null, { status: 0, statusText: "Network Error" });
+            return new Response(null, {
+              status: 0,
+              statusText: "Network Error",
+            });
           } catch (e) {
             // fallback object mimicking Response
             return {

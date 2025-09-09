@@ -139,7 +139,10 @@ export default function SystemInfo() {
             <p className="text-slate-400">Hardware categories</p>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={handleBack} className="inline-flex items-center gap-2 px-3 py-2 bg-slate-800/40 border border-slate-700 text-white rounded-lg hover:bg-slate-800/60 transition">
+            <button
+              onClick={handleBack}
+              className="inline-flex items-center gap-2 px-3 py-2 bg-slate-800/40 border border-slate-700 text-white rounded-lg hover:bg-slate-800/60 transition"
+            >
               <ArrowLeft className="h-4 w-4" />
               <span className="text-sm font-medium">Back</span>
             </button>
