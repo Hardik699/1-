@@ -1467,13 +1467,6 @@ Generated on: ${new Date().toLocaleString()}
               Departments
             </TabsTrigger>
             <TabsTrigger
-              value="attendance"
-              className="data-[state=active]:bg-blue-500 data-[state=active]:text-white"
-            >
-              <Clock className="h-4 w-4 mr-2" />
-              Attendance
-            </TabsTrigger>
-            <TabsTrigger
               value="leaves"
               className="data-[state=active]:bg-blue-500 data-[state=active]:text-white"
             >
