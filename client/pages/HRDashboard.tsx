@@ -469,7 +469,7 @@ export default function HRDashboard() {
 
     if (!isAuthenticated) {
       navigate("/login");
-    } else if (role !== "admin") {
+    } else if (role !== "admin" && role !== "hr") {
       navigate("/"); // Redirect non-admin users to home
     } else {
       setUserRole(role);
