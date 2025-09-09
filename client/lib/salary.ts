@@ -5,6 +5,8 @@ export type SalaryConfig = {
   pfPercent?: number;
   pt?: number;
   esicRate?: number;
+  // allow passing explicit employee PF to be used as override when computing
+  employeePfOverride?: number;
 };
 
 export function computeSalaryFromCTC(ctcPm: number, cfg?: SalaryConfig) {
