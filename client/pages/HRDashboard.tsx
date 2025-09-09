@@ -3679,7 +3679,7 @@ Generated on: ${new Date().toLocaleString()}
                       {/* Small salary preview in header */}
                       <div className="mt-2">
                         <SalaryBreakdown
-                          ctc={Number(employeeDetailModal.employee.ctcPm || employeeDetailModal.employee.salary || 0)}
+                          ctc={Number(String(employeeDetailModal.employee.ctcPm || employeeDetailModal.employee.salary || 0).replace(/[^0-9.-]+/g, "")) || 0}
                           config={salaryConfig || undefined}
                         />
                       </div>
