@@ -2278,6 +2278,11 @@ Generated on: ${new Date().toLocaleString()}
                           />
                         </div>
                       </div>
+
+                      {/* Salary breakdown preview */}
+                      <div>
+                        <SalaryBreakdown ctc={Number(newEmployee.ctcPm) || 0} className="mt-4" />
+                      </div>
                     </div>
 
                     {/* Document Uploads Section */}
