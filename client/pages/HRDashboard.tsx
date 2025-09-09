@@ -323,6 +323,7 @@ export default function HRDashboard() {
     notes: "",
   });
   const [showSalaryForm, setShowSalaryForm] = useState(false);
+  const [salaryFormBasicManual, setSalaryFormBasicManual] = useState(false);
   const [salaryConfig, setSalaryConfig] = useState<import("@/lib/salary").SalaryConfig | null>(null);
 
   // persist salary config derived from uploaded sheet so it's applied globally
