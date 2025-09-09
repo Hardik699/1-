@@ -220,6 +220,21 @@ export default function HRDashboard() {
     uanNumber: "",
     salary: "",
 
+    // Salary breakdown (per month fields)
+    ctcPm: "",
+    employerPf: "",
+    employerEsic: "",
+    actualGross: "",
+    basicPay: "",
+    hra: "",
+    conveyance: "",
+    splAllowance: "",
+    grossPayable: "",
+    employeePf: "",
+    employeeEsic: "",
+    pt: "",
+    netPayable: "",
+
     // Document Uploads
     aadhaarCard: "",
     panCard: "",
