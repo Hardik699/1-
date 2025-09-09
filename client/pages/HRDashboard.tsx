@@ -2550,7 +2550,7 @@ Generated on: ${new Date().toLocaleString()}
                           <li>• Maximum file size: 10MB per document</li>
                           <li>• Ensure documents are clear and readable</li>
                           <li>
-                            • All documents are securely stored and encrypted
+                            ��� All documents are securely stored and encrypted
                           </li>
                         </ul>
                       </div>
@@ -3717,14 +3717,6 @@ Generated on: ${new Date().toLocaleString()}
                         {employeeDetailModal.employee.fullName} -{" "}
                         {employeeDetailModal.employee.department}
                       </CardDescription>
-
-                      {/* Small salary preview in header */}
-                      <div className="mt-2">
-                        <SalaryBreakdown
-                          ctc={Number(String(employeeDetailModal.employee.ctcPm || employeeDetailModal.employee.salary || 0).replace(/[^0-9.-]+/g, "")) || 0}
-                          config={salaryConfig || undefined}
-                        />
-                      </div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
