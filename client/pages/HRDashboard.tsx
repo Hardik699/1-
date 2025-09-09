@@ -324,6 +324,8 @@ export default function HRDashboard() {
   });
   const [showSalaryForm, setShowSalaryForm] = useState(false);
   const [salaryConfig, setSalaryConfig] = useState<import("@/lib/salary").SalaryConfig | null>(null);
+  // when user manually edits PF in Add Employee form, preserve manual PF and don't overwrite from CTC
+  const [addPfManual, setAddPfManual] = useState(false);
 
   // Attendance state
   const [attendanceRecords, setAttendanceRecords] = useState<
