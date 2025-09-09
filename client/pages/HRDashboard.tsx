@@ -122,6 +122,21 @@ interface Employee {
   uanNumber: string;
   salary: string;
 
+  // Salary breakdown (per month values saved with employee)
+  ctcPm?: string;
+  employerPf?: string;
+  employerEsic?: string;
+  actualGross?: string;
+  basicPay?: string;
+  hra?: string;
+  conveyance?: string;
+  splAllowance?: string;
+  grossPayable?: string;
+  employeePf?: string;
+  employeeEsic?: string;
+  pt?: string;
+  netPayable?: string;
+
   // Document Uploads
   aadhaarCard?: string;
   panCard?: string;
