@@ -2354,7 +2354,7 @@ Generated on: ${new Date().toLocaleString()}
                           />
                         </div>
 
-                        <SalaryBreakdown ctc={Number(newEmployee.ctcPm) || 0} config={salaryConfig} className="mt-4" />
+                        <SalaryBreakdown ctc={Number(newEmployee.ctcPm) || 0} config={{ ...(salaryConfig || {}), fixedEmployeePf: 1800 }} className="mt-4" />
                       </div>
                     </div>
 
