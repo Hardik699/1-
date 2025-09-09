@@ -4915,20 +4915,24 @@ Generated on: ${new Date().toLocaleString()}
                           employeeDetailModal.employee.id,
                         );
                         const summary = (() => {
-                          const emp = employeeDetailModal.employee as any;
-                          const ctcStr = String(emp.ctcPm || emp.salary || "0").replace(/[^0-9.-]+/g, "");
+                          // prefer live editForm values when editing the employee
+                          const src: any = employeeDetailModal.isEditing
+                            ? { ...(employeeDetailModal.employee || {}), ...(employeeDetailModal.editForm || {}) }
+                            : (employeeDetailModal.employee || {});
+
+                          const ctcStr = String(src.ctcPm || src.salary || "0").replace(/[^0-9.-]+/g, "");
                           const ctcNum = Number(ctcStr) || 0;
                           const computed = computeSalaryFromCTC(ctcNum, salaryConfig || undefined);
 
                           return {
                             ctc: ctcNum,
-                            basic: emp.basicPay ? Number(emp.basicPay) : computed.basicPay,
-                            hra: emp.hra ? Number(emp.hra) : computed.hra,
-                            conveyance: emp.conveyance ? Number(emp.conveyance) : computed.conveyance,
-                            employerPf: emp.employerPf ? Number(emp.employerPf) : computed.employerPf,
-                            employeePf: emp.employeePf ? Number(emp.employeePf) : computed.employeePf,
-                            pt: emp.pt ? Number(emp.pt) : computed.pt,
-                            netPayable: emp.netPayable ? Number(emp.netPayable) : computed.netPayable,
+                            basic: src.basicPay ? Number(src.basicPay) : computed.basicPay,
+                            hra: src.hra ? Number(src.hra) : computed.hra,
+                            conveyance: src.conveyance ? Number(src.conveyance) : computed.conveyance,
+                            employerPf: src.employerPf ? Number(src.employerPf) : computed.employerPf,
+                            employeePf: src.employeePf ? Number(src.employeePf) : computed.employeePf,
+                            pt: src.pt ? Number(src.pt) : computed.pt,
+                            netPayable: src.netPayable ? Number(src.netPayable) : computed.netPayable,
                           };
                         })();
 
@@ -5214,21 +5218,6 @@ Generated on: ${new Date().toLocaleString()}
                     </p>
                   </div>
                 )}
-              </CardContent>
-
-              <CardContent className="border-t border-slate-700 p-4 bg-slate-800/20">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="flex-1">
-                    <h4 className="text-white font-medium mb-2">Salary Preview</h4>
-                    {
-                      (() => {
-                        const emp = employees.find((e) => e.fullName === documentPreviewModal.employeeName);
-                        const ctcVal = Number(String(emp?.ctcPm || emp?.salary || 0).replace(/[^0-9.-]+/g, "")) || 0;
-                        return <SalaryBreakdown ctc={ctcVal} config={salaryConfig || undefined} />;
-                      })()
-                    }
-                  </div>
-                </div>
               </CardContent>
 
               <CardContent className="border-t border-slate-700 p-4 bg-slate-800/30">
