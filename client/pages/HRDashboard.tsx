@@ -2166,7 +2166,27 @@ Generated on: ${new Date().toLocaleString()}
                           <Input
                             type="number"
                             value={newEmployee.ctcPm}
-                            onChange={(e) => setNewEmployee({ ...newEmployee, ctcPm: e.target.value })}
+                            onChange={(e) => {
+                              const v = e.target.value;
+                              const num = Number(v) || 0;
+                              const computed = computeSalaryFromCTC(num);
+                              setNewEmployee({
+                                ...newEmployee,
+                                ctcPm: v,
+                                employerPf: computed.employerPf,
+                                employerEsic: computed.employerEsic,
+                                actualGross: computed.actualGross,
+                                basicPay: computed.basicPay,
+                                hra: computed.hra,
+                                conveyance: computed.conveyance,
+                                splAllowance: computed.splAllowance,
+                                grossPayable: computed.grossPayable,
+                                employeePf: computed.employeePf,
+                                employeeEsic: computed.employeeEsic,
+                                pt: computed.pt,
+                                netPayable: computed.netPayable,
+                              });
+                            }}
                             className="bg-slate-800/50 border-slate-700 text-white"
                             placeholder="32000"
                           />
