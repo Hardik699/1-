@@ -189,12 +189,6 @@ export default function PCLaptopInfo() {
   }, [form.ramId, form.ramId2]);
 
   useEffect(() => {
-    const role = localStorage.getItem("userRole");
-    if (role === "it") {
-      navigate("/");
-      return;
-    }
-
     // Reset editing state on component load
     setEditingItem(null);
     setShowForm(false);
