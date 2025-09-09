@@ -2389,7 +2389,10 @@ Generated on: ${new Date().toLocaleString()}
                           <Input
                             type="number"
                             value={newEmployee.employeePf}
-                            onChange={(e) => setNewEmployee({ ...newEmployee, employeePf: e.target.value })}
+                            onChange={(e) => {
+                              setAddPfManual(true);
+                              setNewEmployee({ ...newEmployee, employeePf: e.target.value });
+                            }}
                             className="bg-slate-800/50 border-slate-700 text-white"
                             placeholder="1800"
                           />
