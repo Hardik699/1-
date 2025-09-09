@@ -2127,7 +2127,7 @@ Generated on: ${new Date().toLocaleString()}
                               const v = e.target.value;
                               const num = Number(v) || 0;
                               // if user manually edited PF, don't force fixed PF when computing
-                              const computed = computeSalaryFromCTC(num, { ...(salaryConfig || {}) });
+                              const computed = computeSalaryFromCTC(num, { ...(salaryConfig || {}), employeePfOverride: Number(newEmployee.employeePf) || undefined });
                               setNewEmployee((prev) => ({
                                 ...prev,
                                 ctcPm: v,
@@ -4891,7 +4891,7 @@ Generated on: ${new Date().toLocaleString()}
                                             Deductions
                                           </p>
                                           <p className="text-red-400 font-medium">
-                                            -₹
+                                            -���
                                             {record.deductions.toLocaleString()}
                                           </p>
                                         </div>
