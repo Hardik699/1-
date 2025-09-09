@@ -4864,11 +4864,13 @@ Generated on: ${new Date().toLocaleString()}
                                   min="0"
                                   step="0.01"
                                   value={salaryForm.basicSalary}
-                                  onChange={(e) =>
+                                  onChange={(e) =>{
+                                    setSalaryFormBasicManual(true);
                                     setSalaryForm({
                                       ...salaryForm,
                                       basicSalary: e.target.value,
                                     })
+                                  }
                                   }
                                   className="bg-slate-800/50 border-slate-700 text-white"
                                   placeholder="50000"
