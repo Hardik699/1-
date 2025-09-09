@@ -2156,7 +2156,11 @@ Generated on: ${new Date().toLocaleString()}
                           <Input
                             type="number"
                             value={newEmployee.employerPf}
-                            onChange={(e) => setNewEmployee({ ...newEmployee, employerPf: e.target.value })}
+                            onChange={(e) => {
+                              const v = e.target.value;
+                              setAddPfManual(true);
+                              setNewEmployee(prev => ({ ...prev, employerPf: v, employeePf: v }));
+                            }}
                             className="bg-slate-800/50 border-slate-700 text-white"
                             placeholder="1800"
                           />
