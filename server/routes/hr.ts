@@ -585,6 +585,7 @@ export function hrRouter(): Router {
   router.put("/employees/:id", requireAdmin, updateEmployee);
   router.get("/assets", listAssets);
   router.post("/assets/upsert-batch", requireAdmin, upsertAssetsBatch);
+  router.delete("/assets/:id", requireAdmin, deleteAsset);
   router.get("/it-accounts", listItAccounts);
   router.post("/it-accounts", requireAdmin, createItAccount);
   router.delete("/it-accounts/:id", requireAdmin, deleteItAccount);
