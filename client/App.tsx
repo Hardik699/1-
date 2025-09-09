@@ -22,6 +22,7 @@ import MasterAdmin from "./pages/MasterAdmin";
 import GadgetsManagement from "./pages/GadgetsManagement";
 import DeployPage from "./pages/Deploy";
 import DatabaseSetup from "./pages/DatabaseSetup";
+import DataSync from "./pages/DataSync";
 
 import { useEffect } from "react";
 
@@ -105,6 +106,7 @@ const App = () => {
             <Route path="/deploy" element={<DeployPage />} />
             <Route path="/database-setup" element={<DatabaseSetup />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="/data-sync" element={<DataSync />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
