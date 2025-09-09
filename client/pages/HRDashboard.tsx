@@ -5042,9 +5042,9 @@ Generated on: ${new Date().toLocaleString()}
                                   No salary records found for this employee.
                                 </p>
                                 <Button
-                                  onClick={() => setShowSalaryForm(true)}
-                                  className="bg-blue-500 hover:bg-blue-600 text-white"
-                                >
+                          onClick={() => { setSalaryFormBasicManual(false); setShowSalaryForm(true); }}
+                          className="bg-blue-500 hover:bg-blue-600 text-white"
+                        >
                                   <Plus className="h-4 w-4 mr-2" />
                                   Add First Record
                                 </Button>
