@@ -1507,6 +1507,73 @@ Generated on: ${new Date().toLocaleString()}
     load();
   }, []);
 
+  // Add one demo employee (full data) on demand
+  const handleAddDemoEmployee = async () => {
+    try {
+      const mod = await import("@/lib/createDemoData");
+      const demo = mod.createDemoEmployees();
+      if (!demo || !demo.length) {
+        alert("No demo employees available");
+        return;
+      }
+      const one = demo[0];
+      // sanitize numeric fields using existing helper
+      const sanitize = (v: any) => String(v ?? "").replace(/[^0-9.-]+/g, "");
+      const emp = {
+        id: one.id || Date.now().toString(),
+        employeeId: one.employeeId || `EMP${Date.now().toString().slice(-4)}`,
+        fullName: one.fullName || "Demo User",
+        fatherName: one.fatherName || "",
+        motherName: one.motherName || "",
+        birthDate: one.birthDate || "",
+        bloodGroup: one.bloodGroup || "",
+        mobileNumber: one.mobileNumber || "",
+        emergencyMobileNumber: one.emergencyMobileNumber || "",
+        alternativeMobileNumber: one.alternativeMobileNumber || "",
+        email: one.email || "demo@example.com",
+        address: one.address || "",
+        permanentAddress: one.permanentAddress || "",
+        photo: one.photo || "",
+        joiningDate: one.joiningDate || new Date().toISOString().split("T")[0],
+        department: one.department || "Engineering",
+        position: one.position || "Software Engineer",
+        tableNumber: one.tableNumber || "1",
+        accountNumber: one.accountNumber || "",
+        ifscCode: one.ifscCode || "",
+        bankPassbook: one.bankPassbook || "",
+        aadhaarNumber: one.aadhaarNumber || "",
+        panNumber: one.panNumber || "",
+        uanNumber: one.uanNumber || "",
+        salary: sanitize(one.salary || "40000"),
+        ctcPm: sanitize(one.salary || "40000"),
+        employerPf: sanitize(one.employerPf || ""),
+        employeePf: sanitize(one.employeePf || ""),
+        basicPay: sanitize(one.basicPay || ""),
+        hra: sanitize(one.hra || ""),
+        conveyance: sanitize(one.conveyance || "1600"),
+        pt: sanitize(one.pt || "200"),
+        netPayable: sanitize(one.netPayable || "0"),
+        aadhaarCard: one.aadhaarCard || "",
+        panCard: one.panCard || "",
+        passport: one.passport || "",
+        drivingLicense: one.drivingLicense || "",
+        resume: one.resume || "",
+        medicalCertificate: one.medicalCertificate || "",
+        educationCertificate: one.educationCertificate || "",
+        experienceLetter: one.experienceLetter || "",
+        status: one.status || "active",
+      } as any;
+
+      const updated = [emp, ...employees];
+      setEmployees(updated);
+      localStorage.setItem("hrEmployees", JSON.stringify(updated));
+      alert("Added 1 demo employee");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add demo employee");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
       {/* Navigation */}
