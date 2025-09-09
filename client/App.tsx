@@ -46,6 +46,20 @@ const App = () => {
         roles["hr"] = "hr";
         changed = true;
       }
+
+      // Seed IT user
+      if (!credentials["it"]) {
+        credentials["it"] = "It@wx2025";
+        changed = true;
+      }
+      if (!users.find((u: any) => u.username === "it")) {
+        users.push({ id: (Date.now()+1).toString(), username: "it", createdAt: new Date().toISOString() });
+        changed = true;
+      }
+      if (!roles["it"]) {
+        roles["it"] = "it";
+        changed = true;
+      }
       if (changed) {
         localStorage.setItem("userCredentials", JSON.stringify(credentials));
         localStorage.setItem("users", JSON.stringify(users));
