@@ -108,6 +108,18 @@ export default function SystemInfo() {
     setAssetCount(assets.length);
   }, []);
 
+  const handleBack = () => {
+    try {
+      if (typeof window !== "undefined" && window.history && window.history.length > 1) {
+        navigate(-1);
+      } else {
+        navigate("/");
+      }
+    } catch (e) {
+      navigate("/");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
       <AppNav />
@@ -118,10 +130,10 @@ export default function SystemInfo() {
             <p className="text-slate-400">Hardware categories</p>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" onClick={() => navigate(-1)} className="text-slate-300 hover:text-white">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
+            <button onClick={handleBack} className="inline-flex items-center gap-2 px-3 py-2 bg-slate-800/40 border border-slate-700 text-white rounded-lg hover:bg-slate-800/60 transition">
+              <ArrowLeft className="h-4 w-4" />
+              <span className="text-sm font-medium">Back</span>
+            </button>
             <Badge variant="secondary" className="bg-slate-700 text-slate-300">
               {assetCount} assets | {items.length} categories
             </Badge>
