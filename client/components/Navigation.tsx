@@ -331,7 +331,7 @@ export default function AppNav() {
             {isAuthenticated ? (
               <>
                 {/* Admin Options */}
-                {userRole === "admin" && (
+                {userRole === "admin" ? (
                   <>
                     <Button
                       variant="outline"
@@ -385,7 +385,19 @@ export default function AppNav() {
                       Database
                     </Button>
                   </>
-                )}
+                ) : userRole === "hr" ? (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleHRDashboard}
+                      className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition-all duration-300"
+                    >
+                      <Building2 className="h-4 w-4 mr-2" />
+                      HR Dashboard
+                    </Button>
+                  </>
+                ) : null}
 
                 {/* User Dropdown */}
                 <DropdownMenu>
