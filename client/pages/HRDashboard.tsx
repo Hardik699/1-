@@ -348,6 +348,20 @@ export default function HRDashboard() {
       // ignore
     }
   }, [salaryConfig]);
+
+  // sanitize currency inputs helper
+  const normalizeMoney = (val: any) => {
+    try {
+      const s = String(val ?? "").replace(/[^0-9.-]+/g, "");
+      const n = Number(s);
+      if (!Number.isFinite(n)) return "0";
+      // keep as integer (per month rupees)
+      return String(Math.round(n));
+    } catch (e) {
+      return "0";
+    }
+  };
+
   // when user manually edits PF in Add Employee form, preserve manual PF and don't overwrite from CTC
   const [addPfManual, setAddPfManual] = useState(false);
 
@@ -753,10 +767,24 @@ export default function HRDashboard() {
 
     setIsLoading(true);
 
+    // sanitize numeric salary-related fields before saving employee
+    const sanitized = {
+      ...newEmployee,
+      ctcPm: normalizeMoney(newEmployee.ctcPm),
+      salary: normalizeMoney(newEmployee.salary),
+      employerPf: normalizeMoney(newEmployee.employerPf),
+      employeePf: normalizeMoney(newEmployee.employeePf),
+      basicPay: normalizeMoney(newEmployee.basicPay),
+      hra: normalizeMoney(newEmployee.hra),
+      conveyance: normalizeMoney(newEmployee.conveyance),
+      pt: normalizeMoney(newEmployee.pt),
+      netPayable: normalizeMoney(newEmployee.netPayable),
+    };
+
     const employee: Employee = {
       id: Date.now().toString(),
       employeeId: `EMP${Date.now().toString().slice(-4)}`,
-      ...newEmployee,
+      ...sanitized,
       status: "active",
     };
 
@@ -1191,16 +1219,30 @@ Generated on: ${new Date().toLocaleString()}
       }
     }
 
+    // sanitize numeric fields in edit form before applying
+    const cleanedEditForm = {
+      ...employeeDetailModal.editForm,
+      ctcPm: normalizeMoney(employeeDetailModal.editForm.ctcPm),
+      salary: normalizeMoney(employeeDetailModal.editForm.salary),
+      employerPf: normalizeMoney(employeeDetailModal.editForm.employerPf),
+      employeePf: normalizeMoney(employeeDetailModal.editForm.employeePf),
+      basicPay: normalizeMoney(employeeDetailModal.editForm.basicPay),
+      hra: normalizeMoney(employeeDetailModal.editForm.hra),
+      conveyance: normalizeMoney(employeeDetailModal.editForm.conveyance),
+      pt: normalizeMoney(employeeDetailModal.editForm.pt),
+      netPayable: normalizeMoney(employeeDetailModal.editForm.netPayable),
+    };
+
     const updatedEmployees = employees.map((emp) =>
       emp.id === employeeDetailModal.employee!.id
-        ? { ...emp, ...employeeDetailModal.editForm }
+        ? { ...emp, ...cleanedEditForm }
         : emp,
     );
 
     saveEmployees(updatedEmployees);
     setEmployeeDetailModal((prev) => ({
       ...prev,
-      employee: { ...prev.employee!, ...prev.editForm },
+      employee: { ...prev.employee!, ...cleanedEditForm },
       isEditing: false,
       editForm: {},
     }));
