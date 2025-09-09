@@ -1,8 +1,11 @@
 import React from "react";
 import { computeSalaryFromCTC } from "@/lib/salary";
 
+import type { SalaryConfig } from "@/lib/salary";
+
 interface Props {
   ctc: number;
+  config?: SalaryConfig | null;
   className?: string;
 }
 
@@ -10,8 +13,8 @@ const fmt = (n: number) => {
   return `₹ ${n.toLocaleString()}`;
 };
 
-const SalaryBreakdown: React.FC<Props> = ({ ctc, className }) => {
-  const data = computeSalaryFromCTC(ctc || 0);
+const SalaryBreakdown: React.FC<Props> = ({ ctc, config, className }) => {
+  const data = computeSalaryFromCTC(ctc || 0, config || undefined);
   const rows: { label: string; month: number; year: number }[] = [
     { label: "CTC (PM)", month: ctc || 0, year: Math.round((ctc || 0) * 12) },
     { label: "Employer PF", month: data.employerPf, year: data.employerPf * 12 },
