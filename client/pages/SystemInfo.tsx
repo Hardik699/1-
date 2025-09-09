@@ -113,9 +113,15 @@ export default function SystemInfo() {
       <AppNav />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <header className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-white">System Info</h1>
-            <p className="text-slate-400">Hardware categories</p>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" onClick={() => navigate(-1)} className="text-slate-300 hover:text-white">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-white">System Info</h1>
+              <p className="text-slate-400">Hardware categories</p>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             {assetCount > 0 && (
