@@ -5,6 +5,8 @@ export type SalaryConfig = {
   pfPercent?: number;
   pt?: number;
   esicRate?: number;
+  // optional: force employee PF (and employer PF) to a fixed value
+  fixedEmployeePf?: number;
 };
 
 export function computeSalaryFromCTC(ctcPm: number, cfg?: SalaryConfig) {
@@ -23,7 +25,11 @@ export function computeSalaryFromCTC(ctcPm: number, cfg?: SalaryConfig) {
   for (let i = 0; i < 10; i++) {
     actualGross = Math.round(ctcPm - employerPf - Math.round(actualGross * esicRate));
     basic = Math.round(actualGross * basicRatioCfg);
-    const newEmployerPf = Math.round(basic * pfPercent);
+    let newEmployerPf = Math.round(basic * pfPercent);
+    // if fixedEmployeePf provided, use that for employerPf as per requirement
+    if (cfg?.fixedEmployeePf != null) {
+      newEmployerPf = Math.round(cfg.fixedEmployeePf);
+    }
     if (Math.abs(newEmployerPf - employerPf) <= 1) {
       employerPf = newEmployerPf;
       break;
@@ -39,8 +45,14 @@ export function computeSalaryFromCTC(ctcPm: number, cfg?: SalaryConfig) {
   const splAllowance = Math.round(actualGross - basic - hra - conveyance);
 
   const employerEsic = Math.round(actualGross * esicRate);
-  const employeePf = Math.round(basic * pfPercent);
+  let employeePf = Math.round(basic * pfPercent);
   const employeeEsic = Math.round(actualGross * esicRate);
+
+  if (cfg?.fixedEmployeePf != null) {
+    employeePf = Math.round(cfg.fixedEmployeePf);
+    // keep employerPf in sync with fixed value as well
+    employerPf = Math.round(cfg.fixedEmployeePf);
+  }
 
   const grossPayable = basic + hra + conveyance + splAllowance; // equals actualGross
   const netPayable = Math.round(grossPayable - (employeePf + employeeEsic + ptFixed));
