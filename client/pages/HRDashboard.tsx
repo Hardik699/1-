@@ -4553,11 +4553,10 @@ Generated on: ${new Date().toLocaleString()}
                               onChange={(e) => {
                                 const v = e.target.value || "0";
                                 const num = Number(v) || 0;
-                                // compute using existing salaryConfig and fixed PF
-                                const computed = computeSalaryFromCTC(num, {
-                                  ...(salaryConfig || {}),
-                                  employeePfOverride: Number(employeeDetailModal.editForm.employeePf) || Number(employeeDetailModal.employee.employeePf) || undefined,
-                                });
+                                // compute using existing salaryConfig and fixed PF (only override PF when user manually edited it)
+                                const cfgForCompute: any = { ...(salaryConfig || {}) };
+                                if (addPfManual) cfgForCompute.employeePfOverride = Number(employeeDetailModal.editForm.employeePf) || Number(employeeDetailModal.employee.employeePf) || undefined;
+                                const computed = computeSalaryFromCTC(num, cfgForCompute);
                                 // update edit form fields
                                 handleEditFormChange("ctcPm", String(num));
                                 handleEditFormChange("employerPf", String(computed.employerPf));
