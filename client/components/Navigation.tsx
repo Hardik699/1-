@@ -417,24 +417,6 @@ export default function AppNav() {
                       <LayoutDashboard className="h-4 w-4 mr-2" />
                       IT Dashboard
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleSystemInfo}
-                      className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition-all duration-300"
-                    >
-                      <ServerCog className="h-4 w-4 mr-2" />
-                      System Info
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handlePcLaptopInfo}
-                      className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition-all duration-300"
-                    >
-                      <HardDrive className="h-4 w-4 mr-2" />
-                      PC/Laptop
-                    </Button>
                   </>
                 ) : null}
 
@@ -588,28 +570,6 @@ export default function AppNav() {
                           >
                             <LayoutDashboard className="h-4 w-4 mr-2" />
                             IT Dashboard
-                          </Button>
-                          <Button
-                            variant="outline"
-                            className="w-full justify-start border-slate-600 text-slate-300 hover:bg-slate-700"
-                            onClick={() => {
-                              handleSystemInfo();
-                              setIsMobileMenuOpen(false);
-                            }}
-                          >
-                            <ServerCog className="h-4 w-4 mr-2" />
-                            System Info
-                          </Button>
-                          <Button
-                            variant="outline"
-                            className="w-full justify-start border-slate-600 text-slate-300 hover:bg-slate-700"
-                            onClick={() => {
-                              handlePcLaptopInfo();
-                              setIsMobileMenuOpen(false);
-                            }}
-                          >
-                            <HardDrive className="h-4 w-4 mr-2" />
-                            PC/Laptop
                           </Button>
                         </>
                       ) : null}
