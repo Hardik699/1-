@@ -2843,7 +2843,7 @@ Generated on: ${new Date().toLocaleString()}
           </TabsContent>
 
           {/* Attendance Tab */}
-          <TabsContent value="attendance" className="space-y-6">
+          {false && (<TabsContent value="attendance" className="space-y-6">
             <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="text-white flex items-center space-x-2">
@@ -3164,7 +3164,7 @@ Generated on: ${new Date().toLocaleString()}
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+          </TabsContent>)}
 
           {/* Leave Requests Tab */}
           <TabsContent value="leaves" className="space-y-6">
