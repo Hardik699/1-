@@ -857,6 +857,8 @@ export default function HRDashboard() {
 
     // Notify done (no inline IT data stored)
     alert("Employee created. IT department notified.");
+    // redirect to home after successful submission
+    navigate('/');
   };
 
   // Handle employee status toggle
