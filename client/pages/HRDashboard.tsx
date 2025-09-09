@@ -2336,7 +2336,6 @@ Generated on: ${new Date().toLocaleString()}
                                   pfPercent: pfPercent || undefined,
                                   conveyance: conveyance || undefined,
                                   pt: pt || undefined,
-                                  fixedEmployeePf: 1800,
                                 });
                                 setNewEmployee({
                                   ...newEmployee,
