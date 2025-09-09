@@ -5215,6 +5215,22 @@ Generated on: ${new Date().toLocaleString()}
                   </div>
                 )}
               </CardContent>
+
+              <CardContent className="border-t border-slate-700 p-4 bg-slate-800/20">
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1">
+                    <h4 className="text-white font-medium mb-2">Salary Preview</h4>
+                    {
+                      (() => {
+                        const emp = employees.find((e) => e.fullName === documentPreviewModal.employeeName);
+                        const ctcVal = Number(String(emp?.ctcPm || emp?.salary || 0).replace(/[^0-9.-]+/g, "")) || 0;
+                        return <SalaryBreakdown ctc={ctcVal} config={salaryConfig || undefined} />;
+                      })()
+                    }
+                  </div>
+                </div>
+              </CardContent>
+
               <CardContent className="border-t border-slate-700 p-4 bg-slate-800/30">
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-slate-400">
