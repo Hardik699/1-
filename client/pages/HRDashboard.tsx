@@ -2367,6 +2367,7 @@ Generated on: ${new Date().toLocaleString()}
                                   pfPercent: pfPercent || undefined,
                                   conveyance: conveyance || undefined,
                                   pt: pt || undefined,
+                                  employeePfOverride: Number(newEmployee.employeePf) || undefined,
                                 });
                                 setNewEmployee({
                                   ...newEmployee,
@@ -4891,7 +4892,7 @@ Generated on: ${new Date().toLocaleString()}
                                             Deductions
                                           </p>
                                           <p className="text-red-400 font-medium">
-                                            -���
+                                            -₹
                                             {record.deductions.toLocaleString()}
                                           </p>
                                         </div>
