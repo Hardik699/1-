@@ -255,6 +255,14 @@ export default function AppNav() {
     navigate("/deshbord");
   };
 
+  const handleSystemInfo = () => {
+    navigate("/system-info");
+  };
+
+  const handlePcLaptopInfo = () => {
+    navigate("/pc-laptop-info");
+  };
+
   const handleMasterAdmin = () => {
     navigate("/master-admin");
   };
