@@ -2151,11 +2151,9 @@ Generated on: ${new Date().toLocaleString()}
                               const v = e.target.value;
                               const num = Number(v) || 0;
                               // if user manually edited PF, don't force fixed PF when computing
-                              {
                               const cfgForCompute: any = { ...(salaryConfig || {}) };
                               if (addPfManual) cfgForCompute.employeePfOverride = Number(newEmployee.employeePf) || undefined;
                               const computed = computeSalaryFromCTC(num, cfgForCompute);
-                            }
                               setNewEmployee((prev) => ({
                                 ...prev,
                                 ctcPm: v,
