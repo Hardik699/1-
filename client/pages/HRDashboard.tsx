@@ -478,7 +478,7 @@ export default function HRDashboard() {
 
   // Load data from localStorage
   useEffect(() => {
-    if (userRole === "admin") {
+    if (userRole === "admin" || userRole === "hr") {
       const savedEmployees = localStorage.getItem("hrEmployees");
       const savedDepartments = localStorage.getItem("departments");
       const savedLeaveRequests = localStorage.getItem("leaveRequests");
