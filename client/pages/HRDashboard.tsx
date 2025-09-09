@@ -324,6 +324,30 @@ export default function HRDashboard() {
   });
   const [showSalaryForm, setShowSalaryForm] = useState(false);
   const [salaryConfig, setSalaryConfig] = useState<import("@/lib/salary").SalaryConfig | null>(null);
+
+  // persist salary config derived from uploaded sheet so it's applied globally
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('salaryConfig');
+      if (raw) {
+        setSalaryConfig(JSON.parse(raw));
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (salaryConfig) {
+        localStorage.setItem('salaryConfig', JSON.stringify(salaryConfig));
+      } else {
+        localStorage.removeItem('salaryConfig');
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [salaryConfig]);
   // when user manually edits PF in Add Employee form, preserve manual PF and don't overwrite from CTC
   const [addPfManual, setAddPfManual] = useState(false);
 
@@ -2127,7 +2151,11 @@ Generated on: ${new Date().toLocaleString()}
                               const v = e.target.value;
                               const num = Number(v) || 0;
                               // if user manually edited PF, don't force fixed PF when computing
-                              const computed = computeSalaryFromCTC(num, { ...(salaryConfig || {}), employeePfOverride: Number(newEmployee.employeePf) || undefined });
+                              {
+                              const cfgForCompute: any = { ...(salaryConfig || {}) };
+                              if (addPfManual) cfgForCompute.employeePfOverride = Number(newEmployee.employeePf) || undefined;
+                              const computed = computeSalaryFromCTC(num, cfgForCompute);
+                            }
                               setNewEmployee((prev) => ({
                                 ...prev,
                                 ctcPm: v,
@@ -2359,7 +2387,10 @@ Generated on: ${new Date().toLocaleString()}
                                   pt: pt || undefined,
                                 });
 
-                                // auto compute into form too
+                                // ensure sheet-derived values become active and override manual PF
+                                setAddPfManual(false);
+
+                                // auto compute into form too (use sheet values, do not force employeePF override)
                                 const num = Number(newEmployee.ctcPm) || Number(b3) || 0;
                                 const computed = computeSalaryFromCTC(num, {
                                   basicRatio: basicRatio || undefined,
@@ -2367,8 +2398,8 @@ Generated on: ${new Date().toLocaleString()}
                                   pfPercent: pfPercent || undefined,
                                   conveyance: conveyance || undefined,
                                   pt: pt || undefined,
-                                  employeePfOverride: Number(newEmployee.employeePf) || undefined,
                                 });
+
                                 setNewEmployee({
                                   ...newEmployee,
                                   ctcPm: String(num),
