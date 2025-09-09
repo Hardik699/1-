@@ -4525,7 +4525,7 @@ Generated on: ${new Date().toLocaleString()}
                                 employeeDetailModal.employee.ctcPm ||
                                 0,
                             )}
-                            config={{ ...(salaryConfig || {}), fixedEmployeePf: 1800 }}
+                            config={salaryConfig || undefined}
                           />
                         </div>
                       </div>
