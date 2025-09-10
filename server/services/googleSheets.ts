@@ -315,6 +315,39 @@ export const syncHRDataToGoogleSheets: RequestHandler = async (req, res) => {
   }
 };
 
+// Delete single employee row from HR sheet (best-effort)
+export async function deleteEmployeeFromHRSheet(employeeId: string) {
+  try {
+    const spreadsheetId = process.env.GOOGLE_SHEET_ID_HR || process.env.GOOGLE_SHEET_ID;
+    if (!spreadsheetId || !process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS) return false;
+    const sheets = await getSheetsClient();
+    const title = "Employees";
+    // read existing values
+    const resp = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `${title}!A1:ZZ`,
+    });
+    const values = resp.data.values || [];
+    if (values.length === 0) return true;
+    const headers = values[0].map((h: any) => String(h || ""));
+    const idCol = headers.findIndex((h: string) => h.toLowerCase() === "id" || h.toLowerCase() === "employeeid" || h.toLowerCase() === "employee_id");
+    if (idCol === -1) return false;
+    const filtered = [headers, ...values.slice(1).filter((row: any[]) => String(row[idCol] || "") !== employeeId)];
+    // clear and write
+    await sheets.spreadsheets.values.clear({ spreadsheetId, range: `${title}!A:ZZ` });
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: `${title}!A1`,
+      valueInputOption: "RAW",
+      requestBody: { values: filtered },
+    });
+    return true;
+  } catch (e) {
+    console.debug("deleteEmployeeFromHRSheet failed", e?.message || e);
+    return false;
+  }
+}
+
 // Sync directly from Postgres DB into Google Sheets (admin only)
 export const syncMasterDataFromDb: RequestHandler = async (req, res) => {
   try {
