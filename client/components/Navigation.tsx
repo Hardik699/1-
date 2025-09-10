@@ -143,18 +143,68 @@ export default function AppNav() {
       }
       if (itR && (itR as any).ok) {
         const j = await (itR as Response).json().catch(() => null);
-        if (j?.items)
-          localStorage.setItem("itAccounts", JSON.stringify(j.items));
+        if (j?.items) {
+          // if a recent local delete happened for an IT account, avoid overwriting immediately
+          const recent = localStorage.getItem("recentlyDeletedItAccount");
+          if (recent) {
+            try {
+              const r = JSON.parse(recent);
+              const age = Date.now() - (r.ts || 0);
+              if (age < 10_000) {
+                // skip overwriting itAccounts to avoid immediate re-appearance
+                console.debug("Skipping itAccounts overwrite due to recent local delete", r.id);
+              } else {
+                localStorage.setItem("itAccounts", JSON.stringify(j.items));
+              }
+            } catch {
+              localStorage.setItem("itAccounts", JSON.stringify(j.items));
+            }
+          } else {
+            localStorage.setItem("itAccounts", JSON.stringify(j.items));
+          }
+        }
       }
       if (empR && (empR as any).ok) {
         const j = await (empR as Response).json().catch(() => null);
-        if (j?.items)
-          localStorage.setItem("hrEmployees", JSON.stringify(j.items));
+        if (j?.items) {
+          const recent = localStorage.getItem("recentlyDeletedEmployee");
+          if (recent) {
+            try {
+              const r = JSON.parse(recent);
+              const age = Date.now() - (r.ts || 0);
+              if (age < 10_000) {
+                console.debug("Skipping hrEmployees overwrite due to recent local delete", r.id);
+              } else {
+                localStorage.setItem("hrEmployees", JSON.stringify(j.items));
+              }
+            } catch {
+              localStorage.setItem("hrEmployees", JSON.stringify(j.items));
+            }
+          } else {
+            localStorage.setItem("hrEmployees", JSON.stringify(j.items));
+          }
+        }
       }
       if (pcR && (pcR as any).ok) {
         const j = await (pcR as Response).json().catch(() => null);
-        if (j?.items)
-          localStorage.setItem("pcLaptopAssets", JSON.stringify(j.items));
+        if (j?.items) {
+          const recent = localStorage.getItem("recentlyDeletedPcAsset");
+          if (recent) {
+            try {
+              const r = JSON.parse(recent);
+              const age = Date.now() - (r.ts || 0);
+              if (age < 10_000) {
+                console.debug("Skipping pcLaptopAssets overwrite due to recent local delete", r.id);
+              } else {
+                localStorage.setItem("pcLaptopAssets", JSON.stringify(j.items));
+              }
+            } catch {
+              localStorage.setItem("pcLaptopAssets", JSON.stringify(j.items));
+            }
+          } else {
+            localStorage.setItem("pcLaptopAssets", JSON.stringify(j.items));
+          }
+        }
       }
       setLastSync(new Date().toLocaleTimeString());
     } catch (e) {
