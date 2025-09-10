@@ -184,7 +184,10 @@ export default function SystemInfoDetail() {
     quantity: "1",
   });
 
-  const [seedTried, setSeedTried] = useState(false);
+  const [seedTried, setSeedTried] = useState(() => {
+    // don't auto-seed demo data if systemAssets key already exists in localStorage
+    return localStorage.getItem(STORAGE_KEY) !== null;
+  });
 
   useEffect(() => {
     const raw = localStorage.getItem(STORAGE_KEY);
