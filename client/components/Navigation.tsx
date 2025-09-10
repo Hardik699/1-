@@ -145,7 +145,10 @@ export default function AppNav() {
               const r = JSON.parse(recent);
               const age = Date.now() - (r.ts || 0);
               if (age < 10_000) {
-                console.debug("Skipping systemAssets overwrite due to recent local delete", r.id);
+                console.debug(
+                  "Skipping systemAssets overwrite due to recent local delete",
+                  r.id,
+                );
               } else {
                 localStorage.setItem("systemAssets", JSON.stringify(j.items));
               }
@@ -168,7 +171,10 @@ export default function AppNav() {
               const age = Date.now() - (r.ts || 0);
               if (age < 10_000) {
                 // skip overwriting itAccounts to avoid immediate re-appearance
-                console.debug("Skipping itAccounts overwrite due to recent local delete", r.id);
+                console.debug(
+                  "Skipping itAccounts overwrite due to recent local delete",
+                  r.id,
+                );
               } else {
                 localStorage.setItem("itAccounts", JSON.stringify(j.items));
               }
@@ -189,7 +195,10 @@ export default function AppNav() {
               const r = JSON.parse(recent);
               const age = Date.now() - (r.ts || 0);
               if (age < 10_000) {
-                console.debug("Skipping hrEmployees overwrite due to recent local delete", r.id);
+                console.debug(
+                  "Skipping hrEmployees overwrite due to recent local delete",
+                  r.id,
+                );
               } else {
                 localStorage.setItem("hrEmployees", JSON.stringify(j.items));
               }
@@ -210,7 +219,10 @@ export default function AppNav() {
               const r = JSON.parse(recent);
               const age = Date.now() - (r.ts || 0);
               if (age < 10_000) {
-                console.debug("Skipping pcLaptopAssets overwrite due to recent local delete", r.id);
+                console.debug(
+                  "Skipping pcLaptopAssets overwrite due to recent local delete",
+                  r.id,
+                );
               } else {
                 localStorage.setItem("pcLaptopAssets", JSON.stringify(j.items));
               }

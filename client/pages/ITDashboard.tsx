@@ -261,7 +261,9 @@ export default function ITDashboard() {
 
   const handleRemoveIT = async (id: string) => {
     // prompt for password
-    const pwd = window.prompt(`Enter delete password to remove IT account ${id}:`);
+    const pwd = window.prompt(
+      `Enter delete password to remove IT account ${id}:`,
+    );
     if (!pwd) {
       alert("Delete cancelled (no password provided)");
       return;
@@ -273,10 +275,17 @@ export default function ITDashboard() {
     }
 
     try {
-      const resp = await fetch(`/api/hr/it-accounts/${encodeURIComponent(id)}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json", "x-role": "admin", "x-delete-password": pwd },
-      });
+      const resp = await fetch(
+        `/api/hr/it-accounts/${encodeURIComponent(id)}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "x-role": "admin",
+            "x-delete-password": pwd,
+          },
+        },
+      );
       if (!resp.ok) {
         const txt = await resp.text().catch(() => "");
         alert(`Failed to delete on server: ${resp.status} ${txt}`);
@@ -287,7 +296,10 @@ export default function ITDashboard() {
       setRecords(next);
       localStorage.setItem("itAccounts", JSON.stringify(next));
       // mark recent delete to avoid immediate overwrite by background pull
-      localStorage.setItem("recentlyDeletedItAccount", JSON.stringify({ id, ts: Date.now() }));
+      localStorage.setItem(
+        "recentlyDeletedItAccount",
+        JSON.stringify({ id, ts: Date.now() }),
+      );
       alert("IT account removed");
     } catch (e) {
       console.debug("Delete request failed", e);

@@ -1085,7 +1085,9 @@ export default function HRDashboard() {
     if (!employee) return;
 
     // prompt for password before deleting
-    const pwd = window.prompt(`Enter delete password to remove ${employee.fullName}:`);
+    const pwd = window.prompt(
+      `Enter delete password to remove ${employee.fullName}:`,
+    );
     if (!pwd) {
       alert("Delete cancelled (no password provided)");
       return;
@@ -1112,7 +1114,9 @@ export default function HRDashboard() {
       saveEmployees(updatedEmployees);
 
       // remove any salary records for this employee
-      const remainingSalaryRecords = salaryRecords.filter((r) => r.employeeId !== employeeId);
+      const remainingSalaryRecords = salaryRecords.filter(
+        (r) => r.employeeId !== employeeId,
+      );
       saveSalaryRecords(remainingSalaryRecords);
 
       // Update department employee count
@@ -1124,11 +1128,17 @@ export default function HRDashboard() {
       saveDepartments(updatedDepartments);
 
       // If employee detail modal is open for this employee, close it
-      if (employeeDetailModal.employee && employeeDetailModal.employee.id === employeeId) {
+      if (
+        employeeDetailModal.employee &&
+        employeeDetailModal.employee.id === employeeId
+      ) {
         handleCloseEmployeeDetail();
       }
 
-      localStorage.setItem("recentlyDeletedEmployee", JSON.stringify({ id: employeeId, ts: Date.now() }));
+      localStorage.setItem(
+        "recentlyDeletedEmployee",
+        JSON.stringify({ id: employeeId, ts: Date.now() }),
+      );
       alert("Employee removed");
     } catch (e) {
       console.debug("Delete employee failed", e);

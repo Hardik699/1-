@@ -347,7 +347,9 @@ export default function SystemInfoDetail() {
 
   const handleRemove = async (assetId: string) => {
     // prompt for password
-    const pwd = window.prompt(`Enter delete password to remove asset ${assetId}:`);
+    const pwd = window.prompt(
+      `Enter delete password to remove asset ${assetId}:`,
+    );
     if (!pwd) {
       alert("Delete cancelled (no password provided)");
       return;
@@ -359,10 +361,13 @@ export default function SystemInfoDetail() {
     }
 
     try {
-      const resp = await fetch(`/api/hr/assets/${encodeURIComponent(assetId)}`, {
-        method: "DELETE",
-        headers: { "x-role": "admin", "x-delete-password": pwd },
-      });
+      const resp = await fetch(
+        `/api/hr/assets/${encodeURIComponent(assetId)}`,
+        {
+          method: "DELETE",
+          headers: { "x-role": "admin", "x-delete-password": pwd },
+        },
+      );
       if (!resp.ok) {
         const txt = await resp.text().catch(() => "");
         alert(`Failed to delete on server: ${resp.status} ${txt}`);
@@ -372,7 +377,10 @@ export default function SystemInfoDetail() {
       const remaining = assets.filter((a) => a.id !== assetId);
       setAssets(remaining);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
-      localStorage.setItem("recentlyDeletedAsset", JSON.stringify({ id: assetId, ts: Date.now() }));
+      localStorage.setItem(
+        "recentlyDeletedAsset",
+        JSON.stringify({ id: assetId, ts: Date.now() }),
+      );
       alert("Removed");
     } catch (e) {
       console.debug("Delete failed", e);
