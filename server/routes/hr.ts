@@ -602,6 +602,7 @@ export function hrRouter(): Router {
   router.get("/employees", listEmployees);
   router.post("/employees", requireAdmin, createEmployee);
   router.put("/employees/:id", requireAdmin, updateEmployee);
+  router.delete("/employees/:id", requireAdmin, deleteEmployee);
   router.get("/assets", listAssets);
   router.post("/assets/upsert-batch", requireAdmin, upsertAssetsBatch);
   router.delete("/assets/:id", requireAdmin, deleteAsset);
