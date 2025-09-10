@@ -518,7 +518,7 @@ export default function MasterAdmin() {
               try {
                 out[String(k)] = JSON.stringify(val);
               } catch (e) {
-                out[k] = String(val);
+                out[String(k)] = String(val);
               }
             } else {
               out[String(k)] = val;
