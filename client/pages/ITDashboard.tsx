@@ -259,7 +259,7 @@ export default function ITDashboard() {
     }
   }, []);
 
-  const handleRemoveIT = (id: string) => {
+  const handleRemoveIT = async (id: string) => {
     // prompt for password
     const pwd = window.prompt(`Enter delete password to remove IT account ${id}:`);
     if (!pwd) {
@@ -272,15 +272,25 @@ export default function ITDashboard() {
       return;
     }
 
-    const next = records.filter((rec) => rec.id !== id);
-    setRecords(next);
-    localStorage.setItem("itAccounts", JSON.stringify(next));
-    // Attempt to delete from server so periodic pulls don't restore it
-    fetch(`/api/hr/it-accounts/${encodeURIComponent(id)}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json", "x-role": "admin", "x-delete-password": pwd },
-    }).catch(() => {});
-    alert("IT account removed");
+    try {
+      const resp = await fetch(`/api/hr/it-accounts/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json", "x-role": "admin", "x-delete-password": pwd },
+      });
+      if (!resp.ok) {
+        const txt = await resp.text().catch(() => "");
+        alert(`Failed to delete on server: ${resp.status} ${txt}`);
+        return;
+      }
+      // server deleted successfully, update local state
+      const next = records.filter((rec) => rec.id !== id);
+      setRecords(next);
+      localStorage.setItem("itAccounts", JSON.stringify(next));
+      alert("IT account removed");
+    } catch (e) {
+      console.debug("Delete request failed", e);
+      alert("Failed to contact server to delete. Try again later.");
+    }
   };
 
   const handleProcessEmployee = (_notification: PendingITNotification) => {
