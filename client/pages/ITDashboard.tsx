@@ -286,6 +286,8 @@ export default function ITDashboard() {
       const next = records.filter((rec) => rec.id !== id);
       setRecords(next);
       localStorage.setItem("itAccounts", JSON.stringify(next));
+      // mark recent delete to avoid immediate overwrite by background pull
+      localStorage.setItem("recentlyDeletedItAccount", JSON.stringify({ id, ts: Date.now() }));
       alert("IT account removed");
     } catch (e) {
       console.debug("Delete request failed", e);
