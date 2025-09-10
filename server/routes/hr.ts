@@ -446,6 +446,12 @@ const deleteItAccount: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
     if (!id) return res.status(400).json({ error: "Missing id" });
+    // require delete password header
+    const pwdHeader = (req.headers["x-delete-password"] || req.headers["x-delete-password".toLowerCase()]) as string | undefined;
+    const expected = process.env.DELETE_PASSWORD || "1111";
+    if (!pwdHeader || String(pwdHeader) !== expected) {
+      return res.status(403).json({ error: "Forbidden - invalid delete password" });
+    }
     await pool.query(`DELETE FROM it_accounts WHERE id = $1`, [id]);
     res.json({ id });
   } catch (err) {
