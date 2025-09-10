@@ -138,8 +138,24 @@ export default function AppNav() {
 
       if (assetsR && (assetsR as any).ok) {
         const j = await (assetsR as Response).json().catch(() => null);
-        if (j?.items)
-          localStorage.setItem("systemAssets", JSON.stringify(j.items));
+        if (j?.items) {
+          const recent = localStorage.getItem("recentlyDeletedAsset");
+          if (recent) {
+            try {
+              const r = JSON.parse(recent);
+              const age = Date.now() - (r.ts || 0);
+              if (age < 10_000) {
+                console.debug("Skipping systemAssets overwrite due to recent local delete", r.id);
+              } else {
+                localStorage.setItem("systemAssets", JSON.stringify(j.items));
+              }
+            } catch {
+              localStorage.setItem("systemAssets", JSON.stringify(j.items));
+            }
+          } else {
+            localStorage.setItem("systemAssets", JSON.stringify(j.items));
+          }
+        }
       }
       if (itR && (itR as any).ok) {
         const j = await (itR as Response).json().catch(() => null);
