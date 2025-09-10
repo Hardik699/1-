@@ -485,7 +485,7 @@ export default function MasterAdmin() {
 
         const keepKeys = keys.filter((k) => {
           return rows.some((r) => {
-            const v = r?.[k];
+            const v = (r as any)?.[k];
             if (v === null || v === undefined) return false;
             if (typeof v === "string") return v.trim() !== "";
             if (Array.isArray(v)) return v.length > 0;
