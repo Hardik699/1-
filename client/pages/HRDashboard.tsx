@@ -1114,11 +1114,13 @@ export default function HRDashboard() {
         handleCloseEmployeeDetail();
       }
 
-      // attempt backend delete as well (best-effort)
+      // attempt to mark deleted on backend as well (best-effort). Server doesn't support DELETE for employees,
+      // so we send a PUT update to change status to 'deleted' which prevents periodic pulls restoring the record.
       try {
         fetch(`/api/hr/employees/${employeeId}`, {
-          method: "DELETE",
-          headers: { "x-role": "admin" },
+          method: "PUT",
+          headers: { "Content-Type": "application/json", "x-role": "admin" },
+          body: JSON.stringify({ status: "deleted" }),
         }).catch(() => {});
       } catch (e) {}
     }
