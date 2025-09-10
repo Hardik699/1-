@@ -1,5 +1,6 @@
 import AppNav from "@/components/Navigation";
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -104,6 +105,7 @@ interface PendingITNotification {
 }
 
 export default function ITDashboard() {
+  const navigate = useNavigate();
   const [records, setRecords] = useState<ITRecord[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
