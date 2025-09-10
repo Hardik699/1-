@@ -369,6 +369,7 @@ export default function SystemInfoDetail() {
       const remaining = assets.filter((a) => a.id !== assetId);
       setAssets(remaining);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+      localStorage.setItem("recentlyDeletedAsset", JSON.stringify({ id: assetId, ts: Date.now() }));
       alert("Removed");
     } catch (e) {
       console.debug("Delete failed", e);
