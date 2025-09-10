@@ -1080,7 +1080,7 @@ export default function HRDashboard() {
   };
 
   // Handle employee deletion
-  const handleDeleteEmployee = (employeeId: string) => {
+  const handleDeleteEmployee = async (employeeId: string) => {
     const employee = employees.find((emp) => emp.id === employeeId);
     if (!employee) return;
 
@@ -1096,33 +1096,44 @@ export default function HRDashboard() {
       return;
     }
 
-    const updatedEmployees = employees.filter((emp) => emp.id !== employeeId);
-    saveEmployees(updatedEmployees);
-
-    // remove any salary records for this employee
-    const remainingSalaryRecords = salaryRecords.filter((r) => r.employeeId !== employeeId);
-    saveSalaryRecords(remainingSalaryRecords);
-
-    // Update department employee count
-    const updatedDepartments = departments.map((dept) =>
-      dept.name === employee.department
-        ? { ...dept, employeeCount: Math.max(0, dept.employeeCount - 1) }
-        : dept,
-    );
-    saveDepartments(updatedDepartments);
-
-    // If employee detail modal is open for this employee, close it
-    if (employeeDetailModal.employee && employeeDetailModal.employee.id === employeeId) {
-      handleCloseEmployeeDetail();
-    }
-
-    // attempt server-side delete (best-effort). Send password header as well.
     try {
-      fetch(`/api/hr/employees/${employeeId}`, {
+      const resp = await fetch(`/api/hr/employees/${employeeId}`, {
         method: "DELETE",
         headers: { "x-role": "admin", "x-delete-password": pwd },
-      }).catch(() => {});
-    } catch (e) {}
+      });
+      if (!resp.ok) {
+        const txt = await resp.text().catch(() => "");
+        alert(`Failed to delete on server: ${resp.status} ${txt}`);
+        return;
+      }
+
+      // server deleted successfully, update local state
+      const updatedEmployees = employees.filter((emp) => emp.id !== employeeId);
+      saveEmployees(updatedEmployees);
+
+      // remove any salary records for this employee
+      const remainingSalaryRecords = salaryRecords.filter((r) => r.employeeId !== employeeId);
+      saveSalaryRecords(remainingSalaryRecords);
+
+      // Update department employee count
+      const updatedDepartments = departments.map((dept) =>
+        dept.name === employee.department
+          ? { ...dept, employeeCount: Math.max(0, dept.employeeCount - 1) }
+          : dept,
+      );
+      saveDepartments(updatedDepartments);
+
+      // If employee detail modal is open for this employee, close it
+      if (employeeDetailModal.employee && employeeDetailModal.employee.id === employeeId) {
+        handleCloseEmployeeDetail();
+      }
+
+      localStorage.setItem("recentlyDeletedEmployee", JSON.stringify({ id: employeeId, ts: Date.now() }));
+      alert("Employee removed");
+    } catch (e) {
+      console.debug("Delete employee failed", e);
+      alert("Failed to contact server to delete. Try again later.");
+    }
   };
 
   // Utility functions
