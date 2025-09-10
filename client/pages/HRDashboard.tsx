@@ -43,6 +43,14 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
   Plus,
   Users,
   User,
@@ -322,11 +330,13 @@ export default function HRDashboard() {
     paymentDate: "",
     notes: "",
   });
+  const [monthTotalDays, setMonthTotalDays] = useState<number | "">("");
   const [showSalaryForm, setShowSalaryForm] = useState(false);
   const [salaryFormBasicManual, setSalaryFormBasicManual] = useState(false);
   const [salaryConfig, setSalaryConfig] = useState<
     import("@/lib/salary").SalaryConfig | null
   >(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   // persist salary config derived from uploaded sheet so it's applied globally
   useEffect(() => {
@@ -726,7 +736,7 @@ export default function HRDashboard() {
           String(src.ctcPm || src.salary || 0).replace(/[^0-9.-]+/g, ""),
         ) || 0;
       const computed = computeSalaryFromCTC(ctc, salaryConfig || undefined);
-      const prorated = Math.round((computed.basicPay || 0) * (aw / tw));
+      const prorated = Math.round((computed.netPayable || 0) * (aw / tw));
       setSalaryForm((prev) => ({ ...prev, basicSalary: String(prorated) }));
     } catch (e) {
       // ignore
@@ -5036,11 +5046,35 @@ Generated on: ${new Date().toLocaleString()}
                                 <Input
                                   type="month"
                                   value={salaryForm.month}
-                                  onChange={(e) =>
-                                    setSalaryForm({
-                                      ...salaryForm,
-                                      month: e.target.value,
-                                    })
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    setSalaryForm({ ...salaryForm, month: val });
+                                    try {
+                                      if (!val) {
+                                        setMonthTotalDays("");
+                                        return;
+                                      }
+                                      const [yStr, mStr] = val.split("-");
+                                      const y = Number(yStr);
+                                      const m = Number(mStr);
+                                      if (!y || !m) {
+                                        setMonthTotalDays("");
+                                        return;
+                                      }
+                                      const daysInMonth = new Date(y, m, 0).getDate();
+                                      setMonthTotalDays(daysInMonth);
+                                      // compute working days Mon-Fri
+                                      let working = 0;
+                                      for (let d = 1; d <= daysInMonth; d++) {
+                                        const dt = new Date(y, m - 1, d);
+                                        const wd = dt.getDay();
+                                        if (wd !== 0 && wd !== 6) working++;
+                                      }
+                                      setSalaryForm((prev) => ({ ...prev, totalWorkingDays: String(working) }));
+                                    } catch (err) {
+                                      // ignore
+                                    }
+                                  }
                                   }
                                   className="bg-slate-800/50 border-slate-700 text-white"
                                   required
@@ -5066,6 +5100,17 @@ Generated on: ${new Date().toLocaleString()}
                                   required
                                 />
                               </div>
+
+                              <div className="space-y-2">
+                                <Label className="text-slate-300">Total Month Days</Label>
+                                <Input
+                                  type="number"
+                                  readOnly
+                                  value={monthTotalDays || ""}
+                                  className="bg-slate-800/30 border-slate-700 text-white"
+                                  placeholder="--"
+                                />
+                              </div>
                               <div className="space-y-2">
                                 <Label className="text-slate-300">
                                   Actual Working Days *
@@ -5088,7 +5133,7 @@ Generated on: ${new Date().toLocaleString()}
                               </div>
                               <div className="space-y-2">
                                 <Label className="text-slate-300">
-                                  Basic Salary *
+                                  Net Payable *
                                 </Label>
                                 <Input
                                   type="number"
@@ -5211,6 +5256,16 @@ Generated on: ${new Date().toLocaleString()}
                                 <Save className="h-4 w-4 mr-2" />
                                 Add Record
                               </Button>
+
+                              <Button
+                                onClick={() => setPreviewOpen(true)}
+                                variant="outline"
+                                className="flex-1 border-slate-600 text-slate-300"
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                Preview
+                              </Button>
+
                               <Button
                                 onClick={resetSalaryForm}
                                 variant="outline"
@@ -5224,6 +5279,58 @@ Generated on: ${new Date().toLocaleString()}
                         </Card>
                       )}
                     </div>
+
+                    {/* Preview Dialog */}
+                    <Dialog open={previewOpen} onOpenChange={(open)=>setPreviewOpen(open)}>
+                      <DialogContent className="bg-slate-900/95 border-slate-700 text-white max-w-xl">
+                        <DialogHeader>
+                          <DialogTitle>Salary Preview</DialogTitle>
+                          <DialogDescription className="text-slate-400">
+                            Review computed salary before adding record.
+                          </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="space-y-3 mt-2 text-white">
+                          <div className="flex justify-between">
+                            <span className="text-slate-300">Month</span>
+                            <span>{salaryForm.month || "--"}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-300">Total Month Days</span>
+                            <span>{monthTotalDays || "--"}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-300">Total Working Days</span>
+                            <span>{salaryForm.totalWorkingDays || "--"}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-300">Actual Working Days</span>
+                            <span>{salaryForm.actualWorkingDays || "--"}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-300">Net Payable</span>
+                            <span>₹{Number(salaryForm.basicSalary||0).toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-300">Bonus</span>
+                            <span>₹{Number(salaryForm.bonus||0).toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-300">Deductions</span>
+                            <span>₹{Number(salaryForm.deductions||0).toLocaleString()}</span>
+                          </div>
+
+                          <div className="border-t border-slate-700 pt-2 flex justify-between font-bold">
+                            <span>Total Salary</span>
+                            <span>₹{(Number(salaryForm.basicSalary||0) + Number(salaryForm.bonus||0) - Number(salaryForm.deductions||0)).toLocaleString()}</span>
+                          </div>
+                        </div>
+
+                        <DialogFooter className="mt-4">
+                          <Button onClick={()=> setPreviewOpen(false)} className="bg-green-500">Close</Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
 
                     {/* Salary Records List */}
                     <div className="space-y-4">
