@@ -3748,7 +3748,7 @@ Generated on: ${new Date().toLocaleString()}
                                         <div className="flex items-center space-x-2">
                                           {!rec?.checkIn && (
                                             <Button
-                                              size="xs"
+                                              size="sm"
                                               onClick={() =>
                                                 handleCheckIn(emp.id)
                                               }
@@ -3758,7 +3758,7 @@ Generated on: ${new Date().toLocaleString()}
                                           )}
                                           {rec?.checkIn && !rec?.checkOut && (
                                             <Button
-                                              size="xs"
+                                              size="sm"
                                               onClick={() =>
                                                 handleCheckOut(emp.id)
                                               }
@@ -3767,7 +3767,7 @@ Generated on: ${new Date().toLocaleString()}
                                             </Button>
                                           )}
                                           <Button
-                                            size="xs"
+                                            size="sm"
                                             variant="ghost"
                                             onClick={() =>
                                               openAttendanceFor(emp.id)
