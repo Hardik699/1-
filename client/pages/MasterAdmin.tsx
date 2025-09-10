@@ -485,7 +485,7 @@ export default function MasterAdmin() {
 
         const keepKeys = keys.filter((k) => {
           return rows.some((r) => {
-            const v = (r as any)?.[k];
+            const v = (r as any)?.[String(k)];
             if (v === null || v === undefined) return false;
             if (typeof v === "string") return v.trim() !== "";
             if (Array.isArray(v)) return v.length > 0;
@@ -500,28 +500,28 @@ export default function MasterAdmin() {
         return rows.map((r) => {
           const out: any = {};
           for (const k of keepKeys) {
-            let val = (r as any)?.[k];
+            let val = (r as any)?.[String(k)];
             if (val === undefined) val = "";
             // mask if key matches sensitive patterns
-            if (sensitivePatterns.some((p) => p.test(k))) {
+            if (sensitivePatterns.some((p) => p.test(String(k)))) {
               if (
                 val === null ||
                 val === undefined ||
                 String(val).trim() === ""
               )
-                out[k] = "";
-              else out[k] = "••••••";
+                out[String(k)] = "";
+              else out[String(k)] = "••••••";
               continue;
             }
             // for nested objects/arrays, stringify for Excel readability
             if (Array.isArray(val) || typeof val === "object") {
               try {
-                out[k] = JSON.stringify(val);
+                out[String(k)] = JSON.stringify(val);
               } catch (e) {
                 out[k] = String(val);
               }
             } else {
-              out[k] = val;
+              out[String(k)] = val;
             }
           }
           return out;
