@@ -1,4 +1,5 @@
 import type { RequestHandler, Router } from "express";
+import { deleteEmployeeFromHRSheet } from "../services/googleSheets";
 import express from "express";
 import { nanoid } from "nanoid";
 import { pool } from "../data/postgres";
@@ -376,6 +377,51 @@ const upsertAssetsBatch: RequestHandler = async (req, res, next) => {
   }
 };
 
+const deleteAsset: RequestHandler = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ error: "Missing id" });
+
+    // require delete password header
+    const pwdHeader = (req.headers["x-delete-password"] ||
+      req.headers["x-delete-password".toLowerCase()]) as string | undefined;
+    const expected = process.env.DELETE_PASSWORD || "1111";
+    if (!pwdHeader || String(pwdHeader) !== expected) {
+      return res
+        .status(403)
+        .json({ error: "Forbidden - invalid delete password" });
+    }
+
+    await pool.query("BEGIN");
+    // Remove assignments referencing this asset
+    await pool.query("DELETE FROM asset_assignments WHERE asset_id = $1", [id]);
+    // Remove from canonical assets table
+    await pool.query("DELETE FROM system_assets WHERE id = $1", [id]);
+    // Attempt to remove from per-category tables (best-effort)
+    const tables = [
+      "mice",
+      "keyboards",
+      "motherboards",
+      "rams",
+      "storages",
+      "power_supplies",
+      "headphones",
+      "cameras",
+      "monitors",
+      "vonage_numbers",
+      "vitel_global_numbers",
+    ];
+    for (const t of tables) {
+      await pool.query(`DELETE FROM ${t} WHERE id = $1`, [id]);
+    }
+    await pool.query("COMMIT");
+    res.json({ id });
+  } catch (err) {
+    await pool.query("ROLLBACK").catch(() => {});
+    next(err);
+  }
+};
+
 const listItAccounts: RequestHandler = async (_req, res) => {
   const { rows } = await pool.query(
     "SELECT * FROM it_accounts ORDER BY created_at DESC",
@@ -411,9 +457,56 @@ const deleteItAccount: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
     if (!id) return res.status(400).json({ error: "Missing id" });
+    // require delete password header
+    const pwdHeader = (req.headers["x-delete-password"] ||
+      req.headers["x-delete-password".toLowerCase()]) as string | undefined;
+    const expected = process.env.DELETE_PASSWORD || "1111";
+    if (!pwdHeader || String(pwdHeader) !== expected) {
+      return res
+        .status(403)
+        .json({ error: "Forbidden - invalid delete password" });
+    }
     await pool.query(`DELETE FROM it_accounts WHERE id = $1`, [id]);
     res.json({ id });
   } catch (err) {
+    next(err);
+  }
+};
+
+const deleteEmployee: RequestHandler = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ error: "Missing id" });
+
+    // require delete password header
+    const pwdHeader = (req.headers["x-delete-password"] ||
+      req.headers["x-delete-password".toLowerCase()]) as string | undefined;
+    const expected = process.env.DELETE_PASSWORD || "1111";
+    if (!pwdHeader || String(pwdHeader) !== expected) {
+      return res
+        .status(403)
+        .json({ error: "Forbidden - invalid delete password" });
+    }
+
+    await pool.query("BEGIN");
+    // remove asset assignments referencing this employee
+    await pool.query("DELETE FROM asset_assignments WHERE employee_id = $1", [
+      id,
+    ]);
+    // remove any it accounts for this employee
+    await pool.query("DELETE FROM it_accounts WHERE employee_id = $1", [id]);
+    // remove employee record
+    await pool.query("DELETE FROM employees WHERE id = $1", [id]);
+    await pool.query("COMMIT");
+    // best-effort: remove from HR Google Sheet as well
+    try {
+      await deleteEmployeeFromHRSheet(id);
+    } catch (e) {
+      console.debug("Failed to remove employee from HR sheet", e?.message || e);
+    }
+    res.json({ id });
+  } catch (err) {
+    await pool.query("ROLLBACK").catch(() => {});
     next(err);
   }
 };
@@ -549,8 +642,10 @@ export function hrRouter(): Router {
   router.get("/employees", listEmployees);
   router.post("/employees", requireAdmin, createEmployee);
   router.put("/employees/:id", requireAdmin, updateEmployee);
+  router.delete("/employees/:id", requireAdmin, deleteEmployee);
   router.get("/assets", listAssets);
   router.post("/assets/upsert-batch", requireAdmin, upsertAssetsBatch);
+  router.delete("/assets/:id", requireAdmin, deleteAsset);
   router.get("/it-accounts", listItAccounts);
   router.post("/it-accounts", requireAdmin, createItAccount);
   router.delete("/it-accounts/:id", requireAdmin, deleteItAccount);

@@ -31,8 +31,11 @@ export default function Login() {
         localStorage.getItem("userCredentials") || "{}",
       );
       if (credentials[username] && credentials[username] === password) {
+        // Determine role for this user (if any)
+        const roles = JSON.parse(localStorage.getItem("userRoles") || "{}");
+        const role = roles[username] || "user";
         localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("userRole", "user");
+        localStorage.setItem("userRole", role);
         localStorage.setItem("currentUser", username);
         navigate("/");
       } else {

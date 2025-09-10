@@ -27,6 +27,7 @@ import {
   Database,
   RefreshCw,
   ServerCog,
+  HardDrive,
 } from "lucide-react";
 
 export default function AppNav() {
@@ -137,23 +138,101 @@ export default function AppNav() {
 
       if (assetsR && (assetsR as any).ok) {
         const j = await (assetsR as Response).json().catch(() => null);
-        if (j?.items)
-          localStorage.setItem("systemAssets", JSON.stringify(j.items));
+        if (j?.items) {
+          const recent = localStorage.getItem("recentlyDeletedAsset");
+          if (recent) {
+            try {
+              const r = JSON.parse(recent);
+              const age = Date.now() - (r.ts || 0);
+              if (age < 10_000) {
+                console.debug(
+                  "Skipping systemAssets overwrite due to recent local delete",
+                  r.id,
+                );
+              } else {
+                localStorage.setItem("systemAssets", JSON.stringify(j.items));
+              }
+            } catch {
+              localStorage.setItem("systemAssets", JSON.stringify(j.items));
+            }
+          } else {
+            localStorage.setItem("systemAssets", JSON.stringify(j.items));
+          }
+        }
       }
       if (itR && (itR as any).ok) {
         const j = await (itR as Response).json().catch(() => null);
-        if (j?.items)
-          localStorage.setItem("itAccounts", JSON.stringify(j.items));
+        if (j?.items) {
+          // if a recent local delete happened for an IT account, avoid overwriting immediately
+          const recent = localStorage.getItem("recentlyDeletedItAccount");
+          if (recent) {
+            try {
+              const r = JSON.parse(recent);
+              const age = Date.now() - (r.ts || 0);
+              if (age < 10_000) {
+                // skip overwriting itAccounts to avoid immediate re-appearance
+                console.debug(
+                  "Skipping itAccounts overwrite due to recent local delete",
+                  r.id,
+                );
+              } else {
+                localStorage.setItem("itAccounts", JSON.stringify(j.items));
+              }
+            } catch {
+              localStorage.setItem("itAccounts", JSON.stringify(j.items));
+            }
+          } else {
+            localStorage.setItem("itAccounts", JSON.stringify(j.items));
+          }
+        }
       }
       if (empR && (empR as any).ok) {
         const j = await (empR as Response).json().catch(() => null);
-        if (j?.items)
-          localStorage.setItem("hrEmployees", JSON.stringify(j.items));
+        if (j?.items) {
+          const recent = localStorage.getItem("recentlyDeletedEmployee");
+          if (recent) {
+            try {
+              const r = JSON.parse(recent);
+              const age = Date.now() - (r.ts || 0);
+              if (age < 10_000) {
+                console.debug(
+                  "Skipping hrEmployees overwrite due to recent local delete",
+                  r.id,
+                );
+              } else {
+                localStorage.setItem("hrEmployees", JSON.stringify(j.items));
+              }
+            } catch {
+              localStorage.setItem("hrEmployees", JSON.stringify(j.items));
+            }
+          } else {
+            localStorage.setItem("hrEmployees", JSON.stringify(j.items));
+          }
+        }
       }
       if (pcR && (pcR as any).ok) {
         const j = await (pcR as Response).json().catch(() => null);
-        if (j?.items)
-          localStorage.setItem("pcLaptopAssets", JSON.stringify(j.items));
+        if (j?.items) {
+          const recent = localStorage.getItem("recentlyDeletedPcAsset");
+          if (recent) {
+            try {
+              const r = JSON.parse(recent);
+              const age = Date.now() - (r.ts || 0);
+              if (age < 10_000) {
+                console.debug(
+                  "Skipping pcLaptopAssets overwrite due to recent local delete",
+                  r.id,
+                );
+              } else {
+                localStorage.setItem("pcLaptopAssets", JSON.stringify(j.items));
+              }
+            } catch {
+              localStorage.setItem("pcLaptopAssets", JSON.stringify(j.items));
+            }
+          } else {
+            localStorage.setItem("pcLaptopAssets", JSON.stringify(j.items));
+          }
+        }
       }
       setLastSync(new Date().toLocaleTimeString());
     } catch (e) {
@@ -255,6 +334,14 @@ export default function AppNav() {
     navigate("/deshbord");
   };
 
+  const handleSystemInfo = () => {
+    navigate("/system-info");
+  };
+
+  const handlePcLaptopInfo = () => {
+    navigate("/pc-laptop-info");
+  };
+
   const handleMasterAdmin = () => {
     navigate("/master-admin");
   };
@@ -331,7 +418,7 @@ export default function AppNav() {
             {isAuthenticated ? (
               <>
                 {/* Admin Options */}
-                {userRole === "admin" && (
+                {userRole === "admin" ? (
                   <>
                     <Button
                       variant="outline"
@@ -360,19 +447,51 @@ export default function AppNav() {
                       <Database className="h-4 w-4 mr-2" />
                       Master Admin
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={syncAll}
-                      disabled={syncing}
-                      title={lastSync ? `Last sync: ${lastSync}` : "Sync to DB"}
-                      className={`transition-all duration-300 ${dbStatus === "online" ? "border-green-500 text-green-300 hover:bg-green-700 hover:text-white" : dbStatus === "offline" ? "border-red-500 text-red-300 hover:bg-red-700 hover:text-white" : "border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white"}`}
-                    >
-                      <RefreshCw
-                        className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`}
-                      />
-                      {syncing ? "Syncing" : "Sync"}
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={syncing}
+                          title={
+                            lastSync ? `Last sync: ${lastSync}` : "Sync to DB"
+                          }
+                          className={`transition-all duration-300 ${dbStatus === "online" ? "border-green-500 text-green-300 hover:bg-green-700 hover:text-white" : dbStatus === "offline" ? "border-red-500 text-red-300 hover:bg-red-700 hover:text-white" : "border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white"}`}
+                        >
+                          <RefreshCw
+                            className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`}
+                          />
+                          {syncing ? "Syncing" : "Sync"}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        className="bg-slate-800 border-slate-700 text-white"
+                        align="start"
+                      >
+                        <DropdownMenuItem
+                          className="focus:bg-slate-700 cursor-pointer"
+                          onClick={syncAll}
+                        >
+                          <RefreshCw className="h-4 w-4 mr-2" />
+                          Run Sync
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="focus:bg-slate-700 cursor-pointer"
+                          onClick={() => navigate("/data-sync")}
+                        >
+                          <HardDrive className="h-4 w-4 mr-2" />
+                          Sync Status
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator className="bg-slate-700" />
+                        <DropdownMenuItem
+                          className="focus:bg-slate-700 cursor-pointer"
+                          onClick={dbHealth}
+                        >
+                          <ServerCog className="h-4 w-4 mr-2" />
+                          DB Health
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
 
                     <Button
                       variant="outline"
@@ -385,7 +504,31 @@ export default function AppNav() {
                       Database
                     </Button>
                   </>
-                )}
+                ) : userRole === "hr" ? (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleHRDashboard}
+                      className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition-all duration-300"
+                    >
+                      <Building2 className="h-4 w-4 mr-2" />
+                      HR Dashboard
+                    </Button>
+                  </>
+                ) : userRole === "it" ? (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleMainDashboard}
+                      className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition-all duration-300"
+                    >
+                      <LayoutDashboard className="h-4 w-4 mr-2" />
+                      IT Dashboard
+                    </Button>
+                  </>
+                ) : null}
 
                 {/* User Dropdown */}
                 <DropdownMenu>
@@ -464,7 +607,7 @@ export default function AppNav() {
                   {isAuthenticated ? (
                     <>
                       {/* Admin Mobile Options */}
-                      {userRole === "admin" && (
+                      {userRole === "admin" ? (
                         <>
                           <Button
                             variant="outline"
@@ -510,8 +653,66 @@ export default function AppNav() {
                             <Database className="h-4 w-4 mr-2" />
                             Master Admin
                           </Button>
+
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start border-slate-600 text-slate-300 hover:bg-slate-700"
+                            onClick={() => {
+                              syncAll();
+                              setIsMobileMenuOpen(false);
+                            }}
+                            disabled={syncing}
+                            title={
+                              lastSync ? `Last sync: ${lastSync}` : "Sync to DB"
+                            }
+                          >
+                            <RefreshCw
+                              className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`}
+                            />
+                            {syncing ? "Syncing" : "Run Sync"}
+                          </Button>
+
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start border-slate-600 text-slate-300 hover:bg-slate-700"
+                            onClick={() => {
+                              navigate("/data-sync");
+                              setIsMobileMenuOpen(false);
+                            }}
+                          >
+                            <HardDrive className="h-4 w-4 mr-2" />
+                            Sync Status
+                          </Button>
                         </>
-                      )}
+                      ) : userRole === "hr" ? (
+                        <>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start border-slate-600 text-slate-300 hover:bg-slate-700"
+                            onClick={() => {
+                              handleHRDashboard();
+                              setIsMobileMenuOpen(false);
+                            }}
+                          >
+                            <Building2 className="h-4 w-4 mr-2" />
+                            HR Dashboard
+                          </Button>
+                        </>
+                      ) : userRole === "it" ? (
+                        <>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start border-slate-600 text-slate-300 hover:bg-slate-700"
+                            onClick={() => {
+                              handleMainDashboard();
+                              setIsMobileMenuOpen(false);
+                            }}
+                          >
+                            <LayoutDashboard className="h-4 w-4 mr-2" />
+                            IT Dashboard
+                          </Button>
+                        </>
+                      ) : null}
 
                       <Button
                         variant="outline"

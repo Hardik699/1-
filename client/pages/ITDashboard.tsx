@@ -1,5 +1,6 @@
 import AppNav from "@/components/Navigation";
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -57,6 +58,7 @@ import {
   Pencil,
   Plus,
   Trash2,
+  ArrowLeft,
 } from "lucide-react";
 
 interface ITRecord {
@@ -103,6 +105,7 @@ interface PendingITNotification {
 }
 
 export default function ITDashboard() {
+  const navigate = useNavigate();
   const [records, setRecords] = useState<ITRecord[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -256,17 +259,52 @@ export default function ITDashboard() {
     }
   }, []);
 
-  const handleRemoveIT = (id: string) => {
-    if (!confirm("Remove this IT account?")) return;
-    const next = records.filter((rec) => rec.id !== id);
-    setRecords(next);
-    localStorage.setItem("itAccounts", JSON.stringify(next));
-    // Attempt to delete from server so periodic pulls don't restore it
-    fetch(`/api/hr/it-accounts/${encodeURIComponent(id)}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json", "x-role": "admin" },
-    }).catch(() => {});
-    alert("IT account removed");
+  const handleRemoveIT = async (id: string) => {
+    // prompt for password
+    const pwd = window.prompt(
+      `Enter delete password to remove IT account ${id}:`,
+    );
+    if (!pwd) {
+      alert("Delete cancelled (no password provided)");
+      return;
+    }
+    const expectedClient = "1111";
+    if (pwd !== expectedClient) {
+      alert("Invalid password. Deletion aborted.");
+      return;
+    }
+
+    try {
+      const resp = await fetch(
+        `/api/hr/it-accounts/${encodeURIComponent(id)}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "x-role": "admin",
+            "x-delete-password": pwd,
+          },
+        },
+      );
+      if (!resp.ok) {
+        const txt = await resp.text().catch(() => "");
+        alert(`Failed to delete on server: ${resp.status} ${txt}`);
+        return;
+      }
+      // server deleted successfully, update local state
+      const next = records.filter((rec) => rec.id !== id);
+      setRecords(next);
+      localStorage.setItem("itAccounts", JSON.stringify(next));
+      // mark recent delete to avoid immediate overwrite by background pull
+      localStorage.setItem(
+        "recentlyDeletedItAccount",
+        JSON.stringify({ id, ts: Date.now() }),
+      );
+      alert("IT account removed");
+    } catch (e) {
+      console.debug("Delete request failed", e);
+      alert("Failed to contact server to delete. Try again later.");
+    }
   };
 
   const handleProcessEmployee = (_notification: PendingITNotification) => {
@@ -458,6 +496,22 @@ export default function ITDashboard() {
     return matchDept && matchQuery;
   });
 
+  const handleBack = () => {
+    const currentPath = window.location.pathname;
+    try {
+      if (typeof window !== "undefined" && window.history) {
+        window.history.back();
+        setTimeout(() => {
+          if (window.location.pathname === currentPath) {
+            navigate("/");
+          }
+        }, 250);
+        return;
+      }
+    } catch (e) {}
+    navigate("/");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
       <AppNav />
@@ -473,6 +527,13 @@ export default function ITDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            <button
+              onClick={handleBack}
+              className="inline-flex items-center gap-2 px-3 py-2 bg-slate-800/40 border border-slate-700 text-white rounded-lg hover:bg-slate-800/60 transition"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="text-sm font-medium">Back</span>
+            </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button

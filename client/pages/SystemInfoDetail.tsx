@@ -184,7 +184,10 @@ export default function SystemInfoDetail() {
     quantity: "1",
   });
 
-  const [seedTried, setSeedTried] = useState(false);
+  const [seedTried, setSeedTried] = useState(() => {
+    // don't auto-seed demo data if systemAssets key already exists in localStorage
+    return localStorage.getItem(STORAGE_KEY) !== null;
+  });
 
   useEffect(() => {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -342,19 +345,47 @@ export default function SystemInfoDetail() {
     setShowForm(true);
   };
 
-  const handleRemove = (assetId: string) => {
-    if (!confirm("Remove this asset?")) return;
-    const remaining = assets.filter((a) => a.id !== assetId);
-    setAssets(remaining);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+  const handleRemove = async (assetId: string) => {
+    // prompt for password
+    const pwd = window.prompt(
+      `Enter delete password to remove asset ${assetId}:`,
+    );
+    if (!pwd) {
+      alert("Delete cancelled (no password provided)");
+      return;
+    }
+    const expectedClient = "1111";
+    if (pwd !== expectedClient) {
+      alert("Invalid password. Deletion aborted.");
+      return;
+    }
+
     try {
-      fetch("/api/hr/assets/upsert-batch", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-role": "admin" },
-        body: JSON.stringify({ items: remaining }),
-      }).catch(() => {});
-    } catch {}
-    alert("Removed");
+      const resp = await fetch(
+        `/api/hr/assets/${encodeURIComponent(assetId)}`,
+        {
+          method: "DELETE",
+          headers: { "x-role": "admin", "x-delete-password": pwd },
+        },
+      );
+      if (!resp.ok) {
+        const txt = await resp.text().catch(() => "");
+        alert(`Failed to delete on server: ${resp.status} ${txt}`);
+        return;
+      }
+      // server deleted, update local state
+      const remaining = assets.filter((a) => a.id !== assetId);
+      setAssets(remaining);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+      localStorage.setItem(
+        "recentlyDeletedAsset",
+        JSON.stringify({ id: assetId, ts: Date.now() }),
+      );
+      alert("Removed");
+    } catch (e) {
+      console.debug("Delete failed", e);
+      alert("Failed to contact server to delete. Try again later.");
+    }
   };
 
   return (
