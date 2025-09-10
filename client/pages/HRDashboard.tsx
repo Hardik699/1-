@@ -1084,45 +1084,45 @@ export default function HRDashboard() {
     const employee = employees.find((emp) => emp.id === employeeId);
     if (!employee) return;
 
-    if (
-      confirm(
-        `Are you sure you want to delete employee "${employee.fullName}"?`,
-      )
-    ) {
-      const updatedEmployees = employees.filter((emp) => emp.id !== employeeId);
-      saveEmployees(updatedEmployees);
-
-      // remove any salary records for this employee
-      const remainingSalaryRecords = salaryRecords.filter(
-        (r) => r.employeeId !== employeeId,
-      );
-      saveSalaryRecords(remainingSalaryRecords);
-
-      // Update department employee count
-      const updatedDepartments = departments.map((dept) =>
-        dept.name === employee.department
-          ? { ...dept, employeeCount: Math.max(0, dept.employeeCount - 1) }
-          : dept,
-      );
-      saveDepartments(updatedDepartments);
-
-      // If employee detail modal is open for this employee, close it
-      if (
-        employeeDetailModal.employee &&
-        employeeDetailModal.employee.id === employeeId
-      ) {
-        handleCloseEmployeeDetail();
-      }
-
-      // attempt to mark deleted on backend as well (best-effort). Server doesn't support DELETE for employees,
-      // so we send a PUT update to change status to 'deleted' which prevents periodic pulls restoring the record.
-      try {
-        fetch(`/api/hr/employees/${employeeId}`, {
-          method: "DELETE",
-          headers: { "x-role": "admin" },
-        }).catch(() => {});
-      } catch (e) {}
+    // prompt for password before deleting
+    const pwd = window.prompt(`Enter delete password to remove ${employee.fullName}:`);
+    if (!pwd) {
+      alert("Delete cancelled (no password provided)");
+      return;
     }
+    const expectedClient = "1111";
+    if (pwd !== expectedClient) {
+      alert("Invalid password. Deletion aborted.");
+      return;
+    }
+
+    const updatedEmployees = employees.filter((emp) => emp.id !== employeeId);
+    saveEmployees(updatedEmployees);
+
+    // remove any salary records for this employee
+    const remainingSalaryRecords = salaryRecords.filter((r) => r.employeeId !== employeeId);
+    saveSalaryRecords(remainingSalaryRecords);
+
+    // Update department employee count
+    const updatedDepartments = departments.map((dept) =>
+      dept.name === employee.department
+        ? { ...dept, employeeCount: Math.max(0, dept.employeeCount - 1) }
+        : dept,
+    );
+    saveDepartments(updatedDepartments);
+
+    // If employee detail modal is open for this employee, close it
+    if (employeeDetailModal.employee && employeeDetailModal.employee.id === employeeId) {
+      handleCloseEmployeeDetail();
+    }
+
+    // attempt server-side delete (best-effort). Send password header as well.
+    try {
+      fetch(`/api/hr/employees/${employeeId}`, {
+        method: "DELETE",
+        headers: { "x-role": "admin", "x-delete-password": pwd },
+      }).catch(() => {});
+    } catch (e) {}
   };
 
   // Utility functions
