@@ -343,37 +343,37 @@ export default function SystemInfoDetail() {
   };
 
   const handleRemove = async (assetId: string) => {
-    if (!confirm("Remove this asset?")) return;
-    const remaining = assets.filter((a) => a.id !== assetId);
-    setAssets(remaining);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
-    try {
-      const resp = await fetch(
-        `/api/hr/assets/${encodeURIComponent(assetId)}`,
-        {
-          method: "DELETE",
-          headers: { "x-role": "admin" },
-        },
-      );
-      if (!resp.ok) {
-        // fallback: try upsert remaining to keep DB in sync
-        await fetch("/api/hr/assets/upsert-batch", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "x-role": "admin" },
-          body: JSON.stringify({ items: remaining }),
-        }).catch(() => {});
-      }
-    } catch (e) {
-      // best-effort fallback
-      try {
-        await fetch("/api/hr/assets/upsert-batch", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "x-role": "admin" },
-          body: JSON.stringify({ items: remaining }),
-        });
-      } catch {}
+    // prompt for password
+    const pwd = window.prompt(`Enter delete password to remove asset ${assetId}:`);
+    if (!pwd) {
+      alert("Delete cancelled (no password provided)");
+      return;
     }
-    alert("Removed");
+    const expectedClient = "1111";
+    if (pwd !== expectedClient) {
+      alert("Invalid password. Deletion aborted.");
+      return;
+    }
+
+    try {
+      const resp = await fetch(`/api/hr/assets/${encodeURIComponent(assetId)}`, {
+        method: "DELETE",
+        headers: { "x-role": "admin", "x-delete-password": pwd },
+      });
+      if (!resp.ok) {
+        const txt = await resp.text().catch(() => "");
+        alert(`Failed to delete on server: ${resp.status} ${txt}`);
+        return;
+      }
+      // server deleted, update local state
+      const remaining = assets.filter((a) => a.id !== assetId);
+      setAssets(remaining);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+      alert("Removed");
+    } catch (e) {
+      console.debug("Delete failed", e);
+      alert("Failed to contact server to delete. Try again later.");
+    }
   };
 
   return (
