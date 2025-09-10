@@ -465,6 +465,12 @@ const deleteEmployee: RequestHandler = async (req, res, next) => {
     // remove employee record
     await pool.query("DELETE FROM employees WHERE id = $1", [id]);
     await pool.query("COMMIT");
+    // best-effort: remove from HR Google Sheet as well
+    try {
+      await deleteEmployeeFromHRSheet(id);
+    } catch (e) {
+      console.debug("Failed to remove employee from HR sheet", e?.message || e);
+    }
     res.json({ id });
   } catch (err) {
     await pool.query("ROLLBACK").catch(() => {});
