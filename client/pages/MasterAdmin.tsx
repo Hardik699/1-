@@ -500,7 +500,7 @@ export default function MasterAdmin() {
         return rows.map((r) => {
           const out: any = {};
           for (const k of keepKeys) {
-            let val = r?.[k];
+            let val = (r as any)?.[k];
             if (val === undefined) val = "";
             // mask if key matches sensitive patterns
             if (sensitivePatterns.some((p) => p.test(k))) {
