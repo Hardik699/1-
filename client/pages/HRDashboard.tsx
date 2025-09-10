@@ -1118,9 +1118,8 @@ export default function HRDashboard() {
       // so we send a PUT update to change status to 'deleted' which prevents periodic pulls restoring the record.
       try {
         fetch(`/api/hr/employees/${employeeId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json", "x-role": "admin" },
-          body: JSON.stringify({ status: "deleted" }),
+          method: "DELETE",
+          headers: { "x-role": "admin" },
         }).catch(() => {});
       } catch (e) {}
     }
