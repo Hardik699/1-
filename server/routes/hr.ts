@@ -452,6 +452,25 @@ const deleteItAccount: RequestHandler = async (req, res, next) => {
   }
 };
 
+const deleteEmployee: RequestHandler = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ error: "Missing id" });
+    await pool.query("BEGIN");
+    // remove asset assignments referencing this employee
+    await pool.query("DELETE FROM asset_assignments WHERE employee_id = $1", [id]);
+    // remove any it accounts for this employee
+    await pool.query("DELETE FROM it_accounts WHERE employee_id = $1", [id]);
+    // remove employee record
+    await pool.query("DELETE FROM employees WHERE id = $1", [id]);
+    await pool.query("COMMIT");
+    res.json({ id });
+  } catch (err) {
+    await pool.query("ROLLBACK").catch(() => {});
+    next(err);
+  }
+};
+
 const listAssignments: RequestHandler = async (_req, res) => {
   const { rows } = await pool.query(
     "SELECT * FROM asset_assignments ORDER BY assigned_at DESC",
