@@ -5,7 +5,6 @@
 
 
 [functions]
-  external_node_modules = ["express", "pg"]
   node_bundler = "esbuild"
 
 [[redirects]]
