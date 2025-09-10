@@ -260,14 +260,25 @@ export default function ITDashboard() {
   }, []);
 
   const handleRemoveIT = (id: string) => {
-    if (!confirm("Remove this IT account?")) return;
+    // prompt for password
+    const pwd = window.prompt(`Enter delete password to remove IT account ${id}:`);
+    if (!pwd) {
+      alert("Delete cancelled (no password provided)");
+      return;
+    }
+    const expectedClient = "1111";
+    if (pwd !== expectedClient) {
+      alert("Invalid password. Deletion aborted.");
+      return;
+    }
+
     const next = records.filter((rec) => rec.id !== id);
     setRecords(next);
     localStorage.setItem("itAccounts", JSON.stringify(next));
     // Attempt to delete from server so periodic pulls don't restore it
     fetch(`/api/hr/it-accounts/${encodeURIComponent(id)}`, {
       method: "DELETE",
-      headers: { "Content-Type": "application/json", "x-role": "admin" },
+      headers: { "Content-Type": "application/json", "x-role": "admin", "x-delete-password": pwd },
     }).catch(() => {});
     alert("IT account removed");
   };
