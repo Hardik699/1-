@@ -44,20 +44,33 @@ export const hrStore = {
     const db = await readDB();
     return db.employees;
   },
-  async getEmployee(id: string) {
+  async getEmployee(idOrKey: string) {
     const db = await readDB();
-    return db.employees.find((e) => e.id === id) || null;
+    return (
+      db.employees.find((e) => e.id === idOrKey || e.employeeId === idOrKey) ||
+      null
+    );
   },
   async upsertEmployee(emp: any) {
     const db = await readDB();
-    const idx = db.employees.findIndex((e) => e.id === emp.id);
-    if (idx >= 0) db.employees[idx] = emp;
+    // Normalize employeeId: prefer existing employeeId, else use provided, else generate
+    if (!emp.employeeId) {
+      emp.employeeId = `EMP${Date.now().toString().slice(-6)}`;
+    }
+    // Ensure internal id exists
+    if (!emp.id) {
+      emp.id = Date.now().toString();
+    }
+    const idx = db.employees.findIndex((e) => e.employeeId === emp.employeeId || e.id === emp.id);
+    if (idx >= 0) db.employees[idx] = { ...db.employees[idx], ...emp };
     else db.employees.push(emp);
     await writeDB(db);
   },
-  async deleteEmployee(id: string) {
+  async deleteEmployee(idOrKey: string) {
     const db = await readDB();
-    db.employees = db.employees.filter((e) => e.id !== id);
+    db.employees = db.employees.filter(
+      (e) => e.id !== idOrKey && e.employeeId !== idOrKey,
+    );
     await writeDB(db);
   },
 
@@ -68,7 +81,10 @@ export const hrStore = {
   async upsertSystemAssets(items: any[]) {
     const db = await readDB();
     for (const a of items) {
-      const idx = db.systemAssets.findIndex((s) => s.id === a.id);
+      // match by serialNumber or id
+      const idx = db.systemAssets.findIndex(
+        (s) => s.id === a.id || (a.serialNumber && s.serialNumber === a.serialNumber),
+      );
       if (idx >= 0) db.systemAssets[idx] = { ...db.systemAssets[idx], ...a };
       else db.systemAssets.push(a);
     }
@@ -86,14 +102,20 @@ export const hrStore = {
   },
   async createItAccount(a: any) {
     const db = await readDB();
-    const idx = db.itAccounts.findIndex((x) => x.id === a.id);
-    if (idx >= 0) db.itAccounts[idx] = a;
+    // prefer matching by employeeId + systemId if present
+    const idx = db.itAccounts.findIndex(
+      (x) => x.id === a.id || (a.employeeId && x.employeeId === a.employeeId && x.systemId === a.systemId),
+    );
+    if (!a.id) a.id = Date.now().toString();
+    if (idx >= 0) db.itAccounts[idx] = { ...db.itAccounts[idx], ...a };
     else db.itAccounts.push(a);
     await writeDB(db);
   },
-  async deleteItAccount(id: string) {
+  async deleteItAccount(idOrKey: string) {
     const db = await readDB();
-    db.itAccounts = db.itAccounts.filter((x) => x.id !== id);
+    db.itAccounts = db.itAccounts.filter(
+      (x) => x.id !== idOrKey && x.employeeId !== idOrKey && x.systemId !== idOrKey,
+    );
     await writeDB(db);
   },
 
@@ -104,7 +126,9 @@ export const hrStore = {
   async upsertPCLaptops(items: any[]) {
     const db = await readDB();
     for (const p of items) {
-      const idx = db.pcLaptopAssets.findIndex((x) => x.id === p.id);
+      const idx = db.pcLaptopAssets.findIndex(
+        (x) => x.id === p.id || (p.serialNumber && x.serialNumber === p.serialNumber),
+      );
       if (idx >= 0) db.pcLaptopAssets[idx] = { ...db.pcLaptopAssets[idx], ...p };
       else db.pcLaptopAssets.push(p);
     }
