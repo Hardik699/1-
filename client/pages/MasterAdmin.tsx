@@ -288,7 +288,7 @@ export default function MasterAdmin() {
         currentUser: localStorage.getItem("currentUser") || "",
       };
 
-      // Attempt to load server-backed data when available (Neon/Postgres)
+      // Attempt to load server-backed data when available (Postgres)
       try {
         const headers = {
           "Content-Type": "application/json",
