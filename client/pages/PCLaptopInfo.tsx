@@ -1075,7 +1075,6 @@ export default function PCLaptopInfo() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>ID</TableHead>
                       <TableHead>Mouse ID</TableHead>
                       <TableHead>Keyboard ID</TableHead>
                       <TableHead>Motherboard ID</TableHead>
@@ -1092,7 +1091,6 @@ export default function PCLaptopInfo() {
                   <TableBody>
                     {items.map((a) => (
                       <TableRow key={a.id}>
-                        <TableCell className="font-medium">{a.id}</TableCell>
                         <TableCell>{a.mouseId || "-"}</TableCell>
                         <TableCell>{a.keyboardId || "-"}</TableCell>
                         <TableCell>{a.motherboardId || "-"}</TableCell>
