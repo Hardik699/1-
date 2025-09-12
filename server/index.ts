@@ -186,6 +186,62 @@ export function createServer() {
     }
   });
 
+  // Admin: sanitize stored files by removing id fields (one-time)
+  app.post('/api/admin/sanitize-storage', requireAdmin, async (_req, res) => {
+    try {
+      const fs = await import('fs/promises');
+      const dataDir = path.resolve(process.cwd(), 'data');
+      // salaries.json
+      try {
+        const salariesPath = path.join(dataDir, 'salaries.json');
+        const raw = await fs.readFile(salariesPath, 'utf8');
+        const parsed = JSON.parse(raw || '{}');
+        if (parsed.salaries) {
+          parsed.salaries = parsed.salaries.map((s: any) => {
+            const copy = { ...s };
+            delete copy.id;
+            return copy;
+          });
+        }
+        if (parsed.documents) {
+          parsed.documents = parsed.documents.map((d: any) => {
+            const copy = { ...d };
+            delete copy.id;
+            delete copy.salaryId;
+            return copy;
+          });
+        }
+        await fs.writeFile(salariesPath, JSON.stringify(parsed, null, 2), 'utf8');
+      } catch (e) {
+        // ignore if missing
+      }
+
+      // hr.json
+      try {
+        const hrPath = path.join(dataDir, 'hr.json');
+        const raw = await fs.readFile(hrPath, 'utf8');
+        const parsed = JSON.parse(raw || '{}');
+        const stripList = ['employees','systemAssets','pcLaptopAssets','itAccounts','assetAssignments'];
+        for (const key of stripList) {
+          if (Array.isArray(parsed[key])) {
+            parsed[key] = parsed[key].map((obj: any) => {
+              const copy = { ...obj };
+              delete copy.id;
+              return copy;
+            });
+          }
+        }
+        await fs.writeFile(hrPath, JSON.stringify(parsed, null, 2), 'utf8');
+      } catch (e) {
+        // ignore if missing
+      }
+
+      res.json({ ok: true, message: 'Sanitized storage files (ids removed)'});
+    } catch (e: any) {
+      res.status(500).json({ ok: false, error: e?.message || String(e) });
+    }
+  });
+
   // Admin helper: page that clears client-side localStorage/sessionStorage/indexedDB when visited
   app.get('/admin/clear-local', (_req, res) => {
     res.setHeader('Content-Type', 'text/html');
