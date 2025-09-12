@@ -6,12 +6,7 @@ import { handleDemo } from "./routes/demo";
 import { attachIdentity, requireAdmin } from "./middleware/auth";
 import { salariesRouter } from "./routes/salaries";
 
-const HAS_DB = !!(
-  process.env.DATABASE_URL ||
-  process.env.NETLIFY_DATABASE_URL ||
-  process.env.NETLIFY_DATABASE_URL_UNPOOLED ||
-  process.env.POSTGRES_URL
-);
+const HAS_DB = false;
 
 export function createServer() {
   const app = express();
