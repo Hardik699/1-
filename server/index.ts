@@ -126,7 +126,7 @@ export function createServer() {
       });
   }
 
-  // One-time migration (file store -> Postgres/Neon)
+  // One-time migration (file store -> Postgres)
   if (HAS_DB) {
     app.post(
       "/api/migrate-to-postgres",
