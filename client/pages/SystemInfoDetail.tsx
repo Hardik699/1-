@@ -153,6 +153,7 @@ const registry: Record<
 
 export default function SystemInfoDetail() {
   const navigate = useNavigate();
+  const rootClass = "hide-id-col";
   const { slug = "" } = useParams();
   const key = (slug || "").toLowerCase();
   const data = registry[key];
