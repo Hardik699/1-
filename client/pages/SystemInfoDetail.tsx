@@ -304,16 +304,6 @@ export default function SystemInfoDetail() {
       : [record, ...assets];
     setAssets(next);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    // Sync to Neon DB
-    try {
-      await fetch("/api/hr/assets/upsert-batch", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-role": "admin" },
-        body: JSON.stringify({ items: [record] }),
-      });
-    } catch (e) {
-      console.warn("DB sync failed", e);
-    }
     setShowForm(false);
     alert("Saved");
   };
@@ -347,13 +337,6 @@ export default function SystemInfoDetail() {
     const remaining = assets.filter((a) => a.id !== assetId);
     setAssets(remaining);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
-    try {
-      fetch("/api/hr/assets/upsert-batch", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-role": "admin" },
-        body: JSON.stringify({ items: remaining }),
-      }).catch(() => {});
-    } catch {}
     alert("Removed");
   };
 
