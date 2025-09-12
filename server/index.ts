@@ -203,5 +203,40 @@ export function createServer() {
     }
   });
 
+  // Admin helper: page that clears client-side localStorage/sessionStorage/indexedDB when visited
+  app.get('/admin/clear-local', (_req, res) => {
+    res.setHeader('Content-Type', 'text/html');
+    res.send(`<!doctype html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>Clear Local Data</title>
+          <meta name="viewport" content="width=device-width,initial-scale=1" />
+          <style>body{font-family:Inter,system-ui,sans-serif;background:#0f172a;color:#e6eef8;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}</style>
+        </head>
+        <body>
+          <div style="max-width:760px;padding:24px;text-align:center">
+            <h1>Clearing local data...</h1>
+            <p id="status">Attempting to clear localStorage, sessionStorage, and IndexedDB. Please wait.</p>
+            <script>
+              (async function(){
+                try {
+                  localStorage.clear();
+                  sessionStorage.clear();
+                  if (window.indexedDB && indexedDB.databases) {
+                    const dbs = await indexedDB.databases();
+                    await Promise.all(dbs.map(d => d.name ? indexedDB.deleteDatabase(d.name) : Promise.resolve()));
+                  }
+                  document.getElementById('status').textContent = 'Local data cleared successfully.';
+                } catch (e) {
+                  document.getElementById('status').textContent = 'Failed to clear local data: ' + (e && e.message ? e.message : String(e));
+                }
+              })();
+            </script>
+          </div>
+        </body>
+      </html>`);
+  });
+
   return app;
 }
