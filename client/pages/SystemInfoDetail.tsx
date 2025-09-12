@@ -751,7 +751,6 @@ export default function SystemInfoDetail() {
                   <TableHeader>
                     {isTelephony ? (
                       <TableRow>
-                        <TableHead>ID</TableHead>
                         <TableHead>Company</TableHead>
                         <TableHead>Number</TableHead>
                         <TableHead>Ext Code</TableHead>
@@ -762,7 +761,6 @@ export default function SystemInfoDetail() {
                       </TableRow>
                     ) : (
                       <TableRow>
-                        <TableHead>ID</TableHead>
                         <TableHead>Company</TableHead>
                         <TableHead>Serial Number</TableHead>
                         {categoryKey === "ram" && (
@@ -791,7 +789,6 @@ export default function SystemInfoDetail() {
                     {filtered.map((a) =>
                       isTelephony ? (
                         <TableRow key={a.id}>
-                          <TableCell className="font-medium">{a.id}</TableCell>
                           <TableCell>{a.companyName}</TableCell>
                           <TableCell>
                             {isVitel
@@ -831,7 +828,6 @@ export default function SystemInfoDetail() {
                         </TableRow>
                       ) : (
                         <TableRow key={a.id}>
-                          <TableCell className="font-medium">{a.id}</TableCell>
                           <TableCell>{a.companyName}</TableCell>
                           <TableCell>{a.serialNumber}</TableCell>
                           {categoryKey === "ram" && (
