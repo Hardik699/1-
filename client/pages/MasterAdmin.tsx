@@ -2061,8 +2061,6 @@ export default function MasterAdmin() {
                             {account.vitelGlobal.provider}
                           </TableCell>
                           <TableCell className="text-xs">
-                            ID: {account.lmPlayer.id}
-                            <br />
                             License: {account.lmPlayer.license}
                           </TableCell>
                           <TableCell>
