@@ -385,7 +385,7 @@ export default function DatabaseSetup() {
               <div className="flex gap-2">
                 <Input
                   type="password"
-                  placeholder="Paste your Neon connection string here"
+                  placeholder="Paste your database connection string here"
                   value={dbUrl}
                   onChange={(e) => setDbUrl(e.target.value)}
                   className="bg-slate-800/50 border-slate-700 text-white placeholder-slate-500 flex-1"
