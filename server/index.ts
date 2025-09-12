@@ -5,13 +5,6 @@ import path from "path";
 import { handleDemo } from "./routes/demo";
 import { attachIdentity, requireAdmin } from "./middleware/auth";
 import { salariesRouter } from "./routes/salaries";
-import {
-  getSpreadsheetInfo,
-  syncMasterDataToGoogleSheets,
-  getHRSpreadsheetInfo,
-  syncHRDataToGoogleSheets,
-  syncMasterDataFromDb,
-} from "./services/googleSheets";
 
 const HAS_DB = !!(
   process.env.DATABASE_URL ||
@@ -71,12 +64,7 @@ export function createServer() {
         dbError = e?.message || String(e);
       }
     }
-    const sheetsConfigured = Boolean(
-      (process.env.GOOGLE_SHEET_ID &&
-        process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS) ||
-        (process.env.GOOGLE_SHEET_ID_HR &&
-          process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS),
-    );
+    const sheetsConfigured = false;
     res.json({ ok: true, db, dbError, sheetsConfigured });
   });
 
@@ -154,15 +142,6 @@ export function createServer() {
     );
   }
 
-  // Google Sheets integration (admin only recommended on client)
-  app.post("/api/google-sheets/sync-master-data", syncMasterDataToGoogleSheets);
-  app.get("/api/google-sheets/info", getSpreadsheetInfo);
-  // Admin route: sync directly from Postgres DB into Google Sheets
-  app.post("/api/google-sheets/sync-master-data-from-db", requireAdmin, syncMasterDataFromDb);
-
-  // HR Google Sheets (separate spreadsheet)
-  app.post("/api/google-sheets/sync-hr", syncHRDataToGoogleSheets);
-  app.get("/api/google-sheets/info-hr", getHRSpreadsheetInfo);
 
   // Admin: full wipe of data (DB tables, file-store, uploads)
   app.post("/api/admin/full-wipe", requireAdmin, async (_req, res) => {
