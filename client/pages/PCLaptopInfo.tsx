@@ -634,7 +634,7 @@ export default function PCLaptopInfo() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
+    <div className={`min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900 hide-id-col`}>
       <AppNav />
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <header className="flex items-center justify-between">
