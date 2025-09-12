@@ -214,16 +214,6 @@ export default function MasterAdmin() {
   const [loading, setLoading] = useState(true);
   const [dbOpen, setDbOpen] = useState(false);
   const [syncing, setSyncing] = useState(false);
-  const [isGoogleSheetsConfigured, setIsGoogleSheetsConfigured] =
-    useState(false);
-  const [spreadsheetInfo, setSpreadsheetInfo] = useState<{
-    title?: string;
-    url?: string;
-  } | null>(null);
-  const [hrConfigured, setHrConfigured] = useState(false);
-  const [hrInfo, setHrInfo] = useState<{ title?: string; url?: string } | null>(
-    null,
-  );
   const [dbUnlocked, setDbUnlocked] = useState(false);
   const [dbPassword, setDbPassword] = useState("");
   const [hasSecureBackup, setHasSecureBackup] = useState(false);
@@ -231,26 +221,6 @@ export default function MasterAdmin() {
   useEffect(() => {
     loadAllData();
     setHasSecureBackup(!!localStorage.getItem("secureDB"));
-    // Check Google Sheets status
-    fetch("/api/google-sheets/info")
-      .then((r) => r.json())
-      .then((d) => {
-        if (d?.success) {
-          setIsGoogleSheetsConfigured(true);
-          setSpreadsheetInfo({ title: d.title, url: d.url });
-        }
-      })
-      .catch(() => setIsGoogleSheetsConfigured(false));
-
-    fetch("/api/google-sheets/info-hr")
-      .then((r) => r.json())
-      .then((d) => {
-        if (d?.success) {
-          setHrConfigured(true);
-          setHrInfo({ title: d.title, url: d.url });
-        }
-      })
-      .catch(() => setHrConfigured(false));
   }, []);
 
   const loadAllData = async () => {
@@ -674,46 +644,6 @@ export default function MasterAdmin() {
               <Download className="h-4 w-4" />
               Export to Excel
             </Button>
-            {isGoogleSheetsConfigured && (
-              <>
-                <Button
-                  onClick={async () => {
-                    try {
-                      setSyncing(true);
-                      const resp = await fetch(
-                        "/api/google-sheets/sync-master-data",
-                        {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ masterData }),
-                        },
-                      );
-                      const data = await resp.json();
-                      if (!data?.success) alert(data?.error || "Sync failed");
-                      else alert("Synced to Google Sheets");
-                    } finally {
-                      setSyncing(false);
-                    }
-                  }}
-                  disabled={syncing}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2"
-                >
-                  <RefreshCw
-                    className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`}
-                  />
-                  {syncing ? "Syncing..." : "Sync to Google Sheets"}
-                </Button>
-                {spreadsheetInfo?.url && (
-                  <Button
-                    onClick={() => window.open(spreadsheetInfo.url!, "_blank")}
-                    variant="outline"
-                    className="border-slate-600 text-slate-300"
-                  >
-                    <ExternalLink className="h-4 w-4 mr-1" /> Open Sheet
-                  </Button>
-                )}
-              </>
-            )}
             <Button
               onClick={clearEmployeesAndITDemo}
               variant="destructive"
