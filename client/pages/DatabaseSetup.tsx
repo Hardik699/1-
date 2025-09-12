@@ -155,7 +155,7 @@ export default function DatabaseSetup() {
           </CardContent>
         </Card>
 
-        {/* Neon Setup Instructions */}
+        {/* Database Setup Instructions */}
         <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
@@ -193,7 +193,7 @@ export default function DatabaseSetup() {
               <AlertDescription className="text-blue-300">
                 Your database connection string should look like: <br />
                 <code className="text-xs bg-slate-800 px-2 py-1 rounded mt-1 inline-block">
-                  postgresql://username:password@ep-xxx.us-east-1.aws.neon.tech/dbname?sslmode=require
+                  postgresql://username:password@host:port/dbname
                 </code>
               </AlertDescription>
             </Alert>
@@ -214,7 +214,7 @@ export default function DatabaseSetup() {
               <div className="flex gap-2">
                 <Input
                   type="password"
-                  placeholder="postgresql://username:password@ep-xxx.us-east-1.aws.neon.tech/dbname?sslmode=require"
+                  placeholder="postgresql://username:password@host:port/dbname"
                   value={dbUrl}
                   onChange={(e) => setDbUrl(e.target.value)}
                   className="bg-slate-800/50 border-slate-700 text-white placeholder-slate-500 flex-1"
@@ -336,11 +336,11 @@ export default function DatabaseSetup() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-white text-lg">Neon Console</CardTitle>
+              <CardTitle className="text-white text-lg">Database Console</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-slate-400 text-sm mb-4">
-                Access your Neon database dashboard to get connection details
+                Access your database dashboard to get connection details
               </p>
               <Button
                 onClick={() => window.open("https://#", "_blank")}
@@ -420,7 +420,7 @@ export default function DatabaseSetup() {
             <div className="bg-slate-800/30 p-4 rounded-lg">
               <p className="text-slate-300 text-sm mb-2">Expected format:</p>
               <code className="text-xs text-green-400 bg-slate-800 px-2 py-1 rounded block">
-                postgresql://username:password@ep-xxx.us-east-1.aws.neon.tech/dbname?sslmode=require
+                postgresql://username:password@host:port/dbname
               </code>
             </div>
           </CardContent>
