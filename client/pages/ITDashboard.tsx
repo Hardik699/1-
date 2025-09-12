@@ -1381,7 +1381,7 @@ export default function ITDashboard() {
                                               {e.password
                                                 ? previewSecrets
                                                   ? e.password
-                                                  : "••••••"
+                                                  : "��•••••"
                                                 : "-"}
                                             </div>
                                           </div>
@@ -1510,7 +1510,7 @@ export default function ITDashboard() {
                                     (t: any) => t.id === id,
                                   );
                                   return a
-                                    ? `${a.companyName || a.vendorName || "-"} (${a.id})`
+                                    ? `${a.companyName || a.vendorName || "-"}`
                                     : id;
                                 };
                                 const rows = [
