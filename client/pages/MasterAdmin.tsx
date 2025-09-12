@@ -2058,8 +2058,7 @@ export default function MasterAdmin() {
                             </div>
                           </TableCell>
                           <TableCell className="text-xs">
-                            {account.vitelGlobal.provider}:{" "}
-                            {account.vitelGlobal.id}
+                            {account.vitelGlobal.provider}
                           </TableCell>
                           <TableCell className="text-xs">
                             ID: {account.lmPlayer.id}
