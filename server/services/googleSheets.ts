@@ -103,6 +103,87 @@ export class GoogleSheets {
       const headers = Object.keys(sys[0]);
       const rows = sys.map((s: any) => headers.map((h) => s?.[h] ?? ""));
       await writeSheet("System_Assets", [headers, ...rows]);
+
+      // Category-specific sheets (Category_<name>)
+      const categories = Array.from(new Set(sys.map((s: any) => String(s.category || '').trim()).filter(Boolean)));
+      for (const cat of categories) {
+        const rowsForCat = sys.filter((s: any) => String(s.category || '').trim() === cat);
+        if (rowsForCat.length === 0) continue;
+        // normalize rows: keep vendor, company, serialNumber, purchaseDate, warrantyEndDate, createdAt
+        const normalized = rowsForCat.map((r: any) => ({
+          id: r.id,
+          category: r.category,
+          vendor: r.vendorName || r.vendor || "",
+          company: r.companyName || r.company || "",
+          serialNumber: r.serialNumber || r.serial || "",
+          purchaseDate: r.purchaseDate || "",
+          warrantyEndDate: r.warrantyEndDate || r.warranty || r.warrantyEnd || "",
+          number: r.vonageNumber || r.vitelNumber || r.number || "",
+          extCode: r.vonageExtCode || r.vitelExtCode || r.ext_code || "",
+          createdAt: r.createdAt || "",
+        }));
+        const catHeaders = Object.keys(normalized[0]);
+        const catRows = normalized.map((nr: any) => catHeaders.map((h) => nr[h] ?? ""));
+        const sheetName = `Category_${String(cat)}`.substring(0, 31);
+        await writeSheet(sheetName, [catHeaders, ...catRows]);
+      }
+    }
+
+    // IT Accounts
+    if (Array.isArray(hr.itAccounts) && hr.itAccounts.length > 0) {
+      const itFlat = hr.itAccounts.map((r: any) => ({
+        id: r.id,
+        employeeId: r.employeeId,
+        employeeName: r.employeeName,
+        systemId: r.systemId,
+        department: r.department,
+        tableNumber: r.tableNumber,
+        vitelProvider: r.vitelGlobal?.provider,
+        vitelId: r.vitelGlobal?.id,
+        lmPlayerId: r.lmPlayer?.id,
+        lmLicense: r.lmPlayer?.license,
+        emails: Array.isArray(r.emails) ? r.emails.map((e: any) => `${e.provider}:${e.email}`).join('; ') : '',
+        createdAt: r.createdAt,
+      }));
+      const itHeaders = Object.keys(itFlat[0]);
+      const itRows = itFlat.map((r: any) => itHeaders.map((h) => r[h] ?? ""));
+      await writeSheet("IT_Accounts", [itHeaders, ...itRows]);
+    }
+
+    // PC Laptops and flattened view
+    if (Array.isArray(hr.pcLaptopAssets) && hr.pcLaptopAssets.length > 0) {
+      const pcs = hr.pcLaptopAssets;
+      const pcHeaders = Object.keys(pcs[0]);
+      const pcRows = pcs.map((p: any) => pcHeaders.map((h) => p[h] ?? ""));
+      await writeSheet("PC_Laptops", [pcHeaders, ...pcRows]);
+
+      // Flatten with asset details resolved
+      const getAssetDetails = (assetId: string) => {
+        const asset = sys.find((a: any) => String(a.id) === String(assetId));
+        if (!asset) return assetId || "";
+        let details = `${asset.id} (${asset.vendorName || ''}`;
+        if (asset.ramSize) details += ` - ${asset.ramSize}`;
+        if (asset.storageType && asset.storageCapacity) details += ` - ${asset.storageType} ${asset.storageCapacity}`;
+        details += ")";
+        return details;
+      };
+
+      const pcFlattened = pcs.map((p: any) => ({
+        id: p.id,
+        mouse: getAssetDetails(p.mouseId || ""),
+        keyboard: getAssetDetails(p.keyboardId || ""),
+        motherboard: getAssetDetails(p.motherboardId || ""),
+        camera: getAssetDetails(p.cameraId || ""),
+        headphone: getAssetDetails(p.headphoneId || ""),
+        powerSupply: getAssetDetails(p.powerSupplyId || ""),
+        storage: getAssetDetails(p.storageId || ""),
+        ram1: getAssetDetails(p.ramId || ""),
+        ram2: getAssetDetails(p.ramId2 || ""),
+        createdAt: p.createdAt,
+      }));
+      const flatHeaders = Object.keys(pcFlattened[0]);
+      const flatRows = pcFlattened.map((r: any) => flatHeaders.map((h) => r[h] ?? ""));
+      await writeSheet("PC_Laptops_Flat", [flatHeaders, ...flatRows]);
     }
 
     // Salaries
