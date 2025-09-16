@@ -56,12 +56,18 @@ export function categoryCodeFor(category: string): string {
   }
 }
 
-export function nextWxId(assets: Asset[], category: string): string {
+export function nextWxId(assets: Asset[] = [], category: string): string {
   const code = categoryCodeFor(category);
   let max = 0;
-  for (const a of assets) {
-    if (a.category !== category) continue;
-    const mNew = a.id.match(new RegExp(`^WX-${code}-(\\d+)$`));
+  for (const a of assets || []) {
+    // skip missing entries or those not matching the requested category
+    if (!a || a.category !== category) continue;
+
+    // ensure we have a string id before attempting regex matches
+    const id = typeof a.id === "string" ? a.id : "";
+    if (!id) continue;
+
+    const mNew = id.match(new RegExp(`^WX-${code}-(\\d+)$`));
     if (mNew) {
       const n = parseInt(mNew[1], 10);
       if (!Number.isNaN(n)) {
@@ -69,7 +75,8 @@ export function nextWxId(assets: Asset[], category: string): string {
       }
       continue;
     }
-    const mOld = a.id.match(/^WX-(\d+)$/);
+
+    const mOld = id.match(/^WX-(\d+)$/);
     if (mOld) {
       const n = parseInt(mOld[1], 10);
       if (!Number.isNaN(n)) {
