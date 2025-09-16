@@ -188,8 +188,32 @@ export default function SystemInfoDetail() {
   const [seedTried, setSeedTried] = useState(false);
 
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    setAssets(raw ? JSON.parse(raw) : []);
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await fetch('/api/hr/assets');
+        if (res.ok) {
+          const j = await res.json();
+          const items = j?.items || [];
+          if (!cancelled) {
+            setAssets(items);
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); } catch {};
+            return;
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+      // fallback to localStorage
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!cancelled) setAssets(raw ? JSON.parse(raw) : []);
+      } catch (e) {
+        if (!cancelled) setAssets([]);
+      }
+    };
+    load();
+    return () => { cancelled = true; };
   }, []);
 
   const filtered = useMemo(
