@@ -338,6 +338,11 @@ export default function SystemInfoDetail() {
     const remaining = assets.filter((a) => a.id !== assetId);
     setAssets(remaining);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+    // Attempt to delete on server to avoid it being restored by periodic sync
+    fetch(`/api/hr/assets/${encodeURIComponent(assetId)}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json", "x-role": "admin" },
+    }).catch(() => {});
     alert("Removed");
   };
 
