@@ -221,4 +221,87 @@ export class GoogleSheets {
       await writeSheet("Salaries", [headers, ...rows]);
     }
   }
+
+  // Pull master data from Google Sheets into local data files
+  static async pullMasterToFiles() {
+    if (!process.env.GOOGLE_SHEET_ID) throw new Error("GOOGLE_SHEET_ID not set");
+    const sheets = await this.getSheetsClient();
+    const dataDir = path.resolve(process.cwd(), "data");
+    await fs.mkdir(dataDir, { recursive: true });
+
+    const readSheet = async (name: string) => {
+      try {
+        const r = await sheets.spreadsheets.values.get({
+          spreadsheetId: process.env.GOOGLE_SHEET_ID!,
+          range: `${name}!A1:Z1000`,
+        });
+        const values = r.data.values || [];
+        if (values.length === 0) return [];
+        const headers = values[0].map((h: any) => String(h || "").trim());
+        const rows = values.slice(1).map((row: any[]) => {
+          const obj: any = {};
+          for (let i = 0; i < headers.length; i++) {
+            const k = headers[i] || `col_${i}`;
+            const raw = row[i] ?? "";
+            let v: any = raw;
+            if (typeof raw === "string") {
+              const s = raw.trim();
+              if ((s.startsWith("{") && s.endsWith("}")) || (s.startsWith("[") && s.endsWith("]"))) {
+                try {
+                  v = JSON.parse(s);
+                } catch {
+                  v = raw;
+                }
+              }
+            }
+            obj[k] = v;
+          }
+          return obj;
+        });
+        return rows;
+      } catch (e) {
+        return [];
+      }
+    };
+
+    // Get metadata to find category sheets
+    const meta = await sheets.spreadsheets.get({ spreadsheetId: process.env.GOOGLE_SHEET_ID! });
+    const sheetNames = (meta.data.sheets || []).map((s: any) => s.properties?.title).filter(Boolean) as string[];
+
+    const employees = await readSheet("Employees");
+    const systemAssets = await readSheet("System_Assets");
+
+    // Read category sheets and merge into systemAssets
+    for (const name of sheetNames) {
+      if (name.startsWith("Category_")) {
+        const rows = await readSheet(name);
+        for (const r of rows) systemAssets.push(r);
+      }
+    }
+
+    const itAccounts = await readSheet("IT_Accounts");
+    const pcLaptops = await readSheet("PC_Laptops");
+    const salaries = await readSheet("Salaries");
+
+    const hrObj: any = {
+      employees: employees || [],
+      systemAssets: systemAssets || [],
+      pcLaptopAssets: pcLaptops || [],
+      itAccounts: itAccounts || [],
+      assetAssignments: [],
+    };
+
+    const salariesObj: any = {
+      salaries: salaries || [],
+      documents: [],
+    };
+
+    const hrPath = path.join(dataDir, "hr.json");
+    const salariesPath = path.join(dataDir, "salaries.json");
+
+    await fs.writeFile(hrPath, JSON.stringify(hrObj, null, 2), "utf8");
+    await fs.writeFile(salariesPath, JSON.stringify(salariesObj, null, 2), "utf8");
+
+    return { ok: true };
+  }
 }
