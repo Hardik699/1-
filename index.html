@@ -9,6 +9,47 @@
   <body>
     <div id="root"></div>
 
+    <script>
+      // Clear client local storage and indexedDB, then hydrate from server data and disable further writes
+      (async function(){
+        try {
+          // clear everything first (except auth maybe) -- but per request, clear all
+          try { localStorage.clear(); } catch(e){}
+          try { sessionStorage.clear(); } catch(e){}
+          if (window.indexedDB && indexedDB.databases) {
+            const dbs = await indexedDB.databases();
+            await Promise.all(dbs.map(d => d.name ? indexedDB.deleteDatabase(d.name) : Promise.resolve()));
+          }
+        } catch(e){}
+
+        // hydrate keys from server so existing UI that reads localStorage still works
+        try {
+          const headers = { "Content-Type": "application/json", "x-role": "admin" };
+          const [assetsR, itR, empR, pcR] = await Promise.all([
+            fetch('/api/hr/assets', { headers }).catch(()=>null),
+            fetch('/api/hr/it-accounts', { headers }).catch(()=>null),
+            fetch('/api/hr/employees', { headers }).catch(()=>null),
+            fetch('/api/hr/pc-laptops', { headers }).catch(()=>null),
+          ]);
+          if (assetsR && assetsR.ok) { try { const j=await assetsR.json(); localStorage.setItem('systemAssets', JSON.stringify(j.items||[])); } catch(e){} }
+          if (itR && itR.ok) { try { const j=await itR.json(); localStorage.setItem('itAccounts', JSON.stringify(j.items||[])); } catch(e){} }
+          if (empR && empR.ok) { try { const j=await empR.json(); localStorage.setItem('hrEmployees', JSON.stringify(j.items||[])); } catch(e){} }
+          if (pcR && pcR.ok) { try { const j=await pcR.json(); localStorage.setItem('pcLaptopAssets', JSON.stringify(j.items||[])); } catch(e){} }
+        } catch(e){}
+
+        // disable further writes to localStorage/sessionStorage to force server as source of truth
+        try {
+          const noop = function(){};
+          localStorage.setItem = noop;
+          localStorage.removeItem = noop;
+          localStorage.clear = noop;
+          sessionStorage.setItem = noop;
+          sessionStorage.removeItem = noop;
+          sessionStorage.clear = noop;
+        } catch(e){}
+      })();
+    </script>
+
     <script type="module" src="/client/App.tsx"></script>
   </body>
 </html>
