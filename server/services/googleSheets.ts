@@ -21,19 +21,31 @@ export class GoogleSheets {
   static async appendValues(sheetName: string, rows: any[][]) {
     if (!process.env.GOOGLE_SHEET_ID) throw new Error("GOOGLE_SHEET_ID not set");
     const sheets = await this.getSheetsClient();
-    const range = `${sheetName}`; // append to sheet by name
+    const fmt = (v: any) => {
+      if (v === null || v === undefined) return "";
+      if (typeof v === "object") {
+        try {
+          return JSON.stringify(v);
+        } catch (e) {
+          return String(v);
+        }
+      }
+      return String(v);
+    };
+    const safeRows = rows.map((r) => r.map((c) => fmt(c)));
+    const range = `${sheetName}!A1`;
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEET_ID!,
       range,
       valueInputOption: "RAW",
-      requestBody: { values: rows },
+      requestBody: { values: safeRows },
     });
   }
 
   static async clearSheet(sheetName: string) {
     if (!process.env.GOOGLE_SHEET_ID) throw new Error("GOOGLE_SHEET_ID not set");
     const sheets = await this.getSheetsClient();
-    const range = `${sheetName}`;
+    const range = `${sheetName}!A1:Z1000`;
     await sheets.spreadsheets.values.clear({
       spreadsheetId: process.env.GOOGLE_SHEET_ID!,
       range,
