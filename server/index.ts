@@ -90,24 +90,22 @@ export function createServer() {
     }
   });
 
-  // HR/IT API (DB-backed)
-  if (HAS_DB) {
-    import("./routes/hr")
-      .then((m) => {
-        app.use("/api/hr", m.hrRouter());
+  // HR/IT API (mount even when DB disabled - use local file store)
+  import("./routes/hr")
+    .then((m) => {
+      app.use("/api/hr", m.hrRouter());
 
-        if (process.env.AUTO_WIPE_IT_HR === "1") {
-          Promise.resolve(m.wipeDirect?.()).catch(() => {});
-        }
+      if (process.env.AUTO_WIPE_IT_HR === "1") {
+        Promise.resolve(m.wipeDirect?.()).catch(() => {});
+      }
 
-        if (process.env.AUTO_SEED_DEMO === "1") {
-          Promise.resolve(m.seedDemoDirect?.(10)).catch(() => {});
-        }
-      })
-      .catch((err) => {
-        console.error("Failed to initialize HR routes:", err?.message || err);
-      });
-  }
+      if (process.env.AUTO_SEED_DEMO === "1") {
+        Promise.resolve(m.seedDemoDirect?.(10)).catch(() => {});
+      }
+    })
+    .catch((err) => {
+      console.error("Failed to initialize HR routes:", err?.message || err);
+    });
 
   // One-time migration (file store -> Postgres)
   if (HAS_DB) {
