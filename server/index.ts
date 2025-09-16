@@ -116,6 +116,23 @@ export function createServer() {
       .catch((err) => {
         console.error("Failed to initialize Sheets routes:", err?.message || err);
       });
+
+    // Start periodic background job to push master data every 5 minutes
+    (async () => {
+      try {
+        const mod = await import("./services/googleSheets");
+        // Run once at startup
+        mod.GoogleSheets.pushMasterFromFiles().catch((e: any) => console.error("Initial sheets push failed:", e));
+        // Every 5 minutes
+        setInterval(() => {
+          mod.GoogleSheets.pushMasterFromFiles().catch((e: any) =>
+            console.error("Periodic sheets push failed:", e),
+          );
+        }, 5 * 60 * 1000);
+      } catch (e) {
+        console.error("Failed to start sheets background job:", e);
+      }
+    })();
   }
 
   // One-time migration (file store -> Postgres)
