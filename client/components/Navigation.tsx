@@ -41,6 +41,7 @@ export default function AppNav() {
   const [dbStatus, setDbStatus] = useState<"unknown" | "online" | "offline">(
     "unknown",
   );
+  const [sheetsConfigured, setSheetsConfigured] = useState(false);
 
   const syncAll = async () => {
     if (syncing) return;
