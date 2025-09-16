@@ -138,23 +138,16 @@ export default function AppNav() {
 
       if (assetsR && (assetsR as any).ok) {
         const j = await (assetsR as Response).json().catch(() => null);
-        if (j?.items)
-          localStorage.setItem("systemAssets", JSON.stringify(j.items));
+        // do not write to localStorage; server is source of truth
       }
       if (itR && (itR as any).ok) {
         const j = await (itR as Response).json().catch(() => null);
-        if (j?.items)
-          localStorage.setItem("itAccounts", JSON.stringify(j.items));
       }
       if (empR && (empR as any).ok) {
         const j = await (empR as Response).json().catch(() => null);
-        if (j?.items)
-          localStorage.setItem("hrEmployees", JSON.stringify(j.items));
       }
       if (pcR && (pcR as any).ok) {
         const j = await (pcR as Response).json().catch(() => null);
-        if (j?.items)
-          localStorage.setItem("pcLaptopAssets", JSON.stringify(j.items));
       }
       setLastSync(new Date().toLocaleTimeString());
     } catch (e) {
