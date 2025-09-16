@@ -157,6 +157,17 @@ export function hrRouter() {
     }
   });
 
+  // Delete asset by internal id or serialNumber
+  router.delete("/assets/:key", requireAdmin, async (req, res, next) => {
+    try {
+      const { key } = req.params;
+      await hrStore.deleteSystemAsset(key);
+      res.json({ ok: true });
+    } catch (e) {
+      next(e);
+    }
+  });
+
   router.get("/assignments", async (_req, res) => {
     const items = await hrStore.getAssignments();
     const sanitized = (items || []).map((it) => {
