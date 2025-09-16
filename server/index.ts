@@ -107,6 +107,17 @@ export function createServer() {
       console.error("Failed to initialize HR routes:", err?.message || err);
     });
 
+  // Sheets routes (mount when service account and sheet id are configured)
+  if (process.env.GOOGLE_SHEET_ID && process.env.GOOGLE_SA_JSON) {
+    import("./routes/sheets")
+      .then((m) => {
+        app.use("/api/sheets", m.sheetsRouter());
+      })
+      .catch((err) => {
+        console.error("Failed to initialize Sheets routes:", err?.message || err);
+      });
+  }
+
   // One-time migration (file store -> Postgres)
   if (HAS_DB) {
     app.post(
