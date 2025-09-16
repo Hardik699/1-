@@ -47,7 +47,7 @@ export function createServer() {
         dbError = e?.message || String(e);
       }
     }
-    const sheetsConfigured = false;
+    const sheetsConfigured = !!process.env.GOOGLE_SHEET_ID && !!process.env.GOOGLE_SA_JSON;
     res.json({ ok: true, db, dbError, sheetsConfigured });
   });
 
