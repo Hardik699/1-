@@ -2253,7 +2253,7 @@ Generated on: ${new Date().toLocaleString()}
                         <SelectValue placeholder="Select department" />
                       </SelectTrigger>
                       <SelectContent className="bg-slate-800 border-slate-700 text-white">
-                        <SelectItem value="all">All Departments</SelectItem>
+                        <SelectItem key="all-depts" value="all">All Departments</SelectItem>
                         {departments.map((dept, i) => (
                           <SelectItem
                             key={`${dept.id || dept.name}-${i}`}
