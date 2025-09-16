@@ -58,7 +58,24 @@ export class GoogleSheets {
 
     const sheets = await this.getSheetsClient();
 
+    const ensureSheetExists = async (name: string) => {
+      const meta = await sheets.spreadsheets.get({ spreadsheetId: process.env.GOOGLE_SHEET_ID! });
+      const sheetsList = meta.data.sheets?.map((s: any) => s.properties?.title) || [];
+      if (!sheetsList.includes(name)) {
+        await sheets.spreadsheets.batchUpdate({
+          spreadsheetId: process.env.GOOGLE_SHEET_ID!,
+          requestBody: {
+            requests: [
+              { addSheet: { properties: { title: name } } },
+            ],
+          },
+        });
+      }
+    };
+
     const writeSheet = async (name: string, rows: any[][]) => {
+      // Ensure the sheet/tab exists
+      await ensureSheetExists(name);
       // Clear then write header+rows
       await sheets.spreadsheets.values.clear({
         spreadsheetId: process.env.GOOGLE_SHEET_ID!,
