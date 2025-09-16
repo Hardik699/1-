@@ -90,6 +90,14 @@ export const hrStore = {
     }
     await writeDB(db);
   },
+
+  async deleteSystemAsset(idOrKey: string) {
+    const db = await readDB();
+    db.systemAssets = db.systemAssets.filter(
+      (s) => s.id !== idOrKey && s.serialNumber !== idOrKey,
+    );
+    await writeDB(db);
+  },
   async replaceSystemAssets(items: any[]) {
     const db = await readDB();
     db.systemAssets = items;
