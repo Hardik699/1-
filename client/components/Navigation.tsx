@@ -199,15 +199,31 @@ export default function AppNav() {
         console.debug("DB health check failed (caught)", err?.message || err);
       }
     };
+
+    // Sheets config check
+    const checkSheets = async () => {
+      try {
+        const r = await fetch(`${window.location.origin}/api/health`);
+        if (!r.ok) return;
+        const j = await r.json().catch(() => null);
+        if (typeof j?.sheetsConfigured === "boolean") setSheetsConfigured(!!j.sheetsConfigured);
+      } catch (e) {
+        // ignore
+      }
+    };
+
     try {
       check();
+      checkSheets();
     } catch (err) {
       console.debug("DB health check sync error", err);
     }
     const id = setInterval(check, 60 * 1000);
+    const id2 = setInterval(checkSheets, 60 * 1000);
     return () => {
       cancelled = true;
       clearInterval(id);
+      clearInterval(id2);
     };
   }, []);
 
