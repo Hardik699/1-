@@ -98,7 +98,7 @@ export function hrRouter() {
     const items = await hrStore.getSystemAssets();
     const sanitized = (items || []).map((it) => {
       const copy = { ...it };
-      delete copy.id;
+      // delete copy.id; // Removed to ensure IDs are sent to client for ID generation
       return copy;
     });
     res.json({ items: sanitized });
