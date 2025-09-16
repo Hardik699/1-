@@ -215,10 +215,7 @@
       "companyName": "Business Corp",
       "purchaseDate": "2024-02-10",
       "warrantyEndDate": "2026-09-12T15:23:06.123Z",
-      "createdAt": "2025-09-12T15:23:06.123Z",
-      "vonageNumber": "+1-555-123-4567",
-      "vonageExtCode": "101",
-      "vonagePassword": "demo123!"
+      "createdAt": "2025-09-12T15:23:06.123Z"
     },
     {
       "id": "WX-ST-001",
@@ -228,9 +225,7 @@
       "companyName": "Tech Solutions Inc",
       "purchaseDate": "2024-01-12",
       "warrantyEndDate": "2026-09-12T15:23:06.123Z",
-      "createdAt": "2025-09-12T15:23:06.123Z",
-      "storageType": "SSD",
-      "storageCapacity": "512GB"
+      "createdAt": "2025-09-12T15:23:06.123Z"
     },
     {
       "id": "WX-ST-002",
@@ -240,9 +235,7 @@
       "companyName": "Business Corp",
       "purchaseDate": "2024-02-03",
       "warrantyEndDate": "2026-09-12T15:23:06.123Z",
-      "createdAt": "2025-09-12T15:23:06.123Z",
-      "storageType": "HDD",
-      "storageCapacity": "1TB"
+      "createdAt": "2025-09-12T15:23:06.123Z"
     },
     {
       "id": "WX-VG-001",
@@ -252,10 +245,7 @@
       "companyName": "Tech Solutions Inc",
       "purchaseDate": "2024-03-01",
       "warrantyEndDate": "2026-09-12T15:23:06.123Z",
-      "createdAt": "2025-09-12T15:23:06.123Z",
-      "vitelNumber": "+44-20-1234-5678",
-      "vitelExtCode": "200",
-      "vitelPassword": "vitelDemo1"
+      "createdAt": "2025-09-12T15:23:06.123Z"
     },
     {
       "id": "WX-VG-002",
@@ -265,10 +255,7 @@
       "companyName": "Business Corp",
       "purchaseDate": "2024-03-05",
       "warrantyEndDate": "2026-09-12T15:23:06.123Z",
-      "createdAt": "2025-09-12T15:23:06.123Z",
-      "vitelNumber": "+44-20-8765-4321",
-      "vitelExtCode": "201",
-      "vitelPassword": "vitelDemo2"
+      "createdAt": "2025-09-12T15:23:06.123Z"
     },
     {
       "id": "WX-K-001",
@@ -279,6 +266,258 @@
       "purchaseDate": "2024-01-15",
       "warrantyEndDate": "2026-09-16T20:33:25.755Z",
       "createdAt": "2025-09-16T20:33:25.755Z"
+    },
+    {
+      "id": "WX-M-001",
+      "category": "mouse",
+      "vendor": "Logitech",
+      "company": "Tech Solutions Inc",
+      "serialNumber": "LOG-MX3-789012",
+      "purchaseDate": "2024-01-15",
+      "warrantyEndDate": "2026-09-12T15:39:15.768Z",
+      "number": "",
+      "extCode": "",
+      "createdAt": "2025-09-12T15:39:15.768Z"
+    },
+    {
+      "id": "WX-M-002",
+      "category": "mouse",
+      "vendor": "HP",
+      "company": "Business Corp",
+      "serialNumber": "HP-WL-mouse-112233",
+      "purchaseDate": "2024-02-01",
+      "warrantyEndDate": "2026-09-12T15:39:15.768Z",
+      "number": "",
+      "extCode": "",
+      "createdAt": "2025-09-12T15:39:15.768Z"
+    },
+    {
+      "id": "WX-MB-001",
+      "category": "motherboard",
+      "vendor": "ASUS",
+      "company": "Tech Solutions Inc",
+      "serialNumber": "ASU-B550M-123456",
+      "purchaseDate": "2024-01-10",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "number": "",
+      "extCode": "",
+      "createdAt": "2025-09-12T15:23:06.123Z"
+    },
+    {
+      "id": "WX-MB-002",
+      "category": "motherboard",
+      "vendor": "HP",
+      "company": "Business Corp",
+      "serialNumber": "HP-OFFICE-MB-778899",
+      "purchaseDate": "2024-02-01",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "number": "",
+      "extCode": "",
+      "createdAt": "2025-09-12T15:23:06.123Z"
+    },
+    {
+      "id": "WX-R-001",
+      "category": "ram",
+      "vendor": "Corsair",
+      "company": "Tech Solutions Inc",
+      "serialNumber": "COR-32GB-789012",
+      "purchaseDate": "2024-01-10",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "number": "",
+      "extCode": "",
+      "createdAt": "2025-09-12T15:23:06.123Z"
+    },
+    {
+      "id": "WX-R-002",
+      "category": "ram",
+      "vendor": "HP",
+      "company": "Business Corp",
+      "serialNumber": "HP-16GB-DDR4-998877",
+      "purchaseDate": "2024-02-01",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "number": "",
+      "extCode": "",
+      "createdAt": "2025-09-12T15:23:06.123Z"
+    },
+    {
+      "id": "WX-PS-001",
+      "category": "power-supply",
+      "vendor": "EVGA",
+      "company": "Tech Solutions Inc",
+      "serialNumber": "EVG-750W-345678",
+      "purchaseDate": "2024-01-10",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "number": "",
+      "extCode": "",
+      "createdAt": "2025-09-12T15:23:06.123Z"
+    },
+    {
+      "id": "WX-PS-002",
+      "category": "power-supply",
+      "vendor": "HP",
+      "company": "Business Corp",
+      "serialNumber": "HP-500W-654321",
+      "purchaseDate": "2024-02-01",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "number": "",
+      "extCode": "",
+      "createdAt": "2025-09-12T15:23:06.123Z"
+    },
+    {
+      "id": "WX-H-001",
+      "category": "headphone",
+      "vendor": "Sony",
+      "company": "Tech Solutions Inc",
+      "serialNumber": "SON-WH1000-567890",
+      "purchaseDate": "2024-01-20",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "number": "",
+      "extCode": "",
+      "createdAt": "2025-09-12T15:23:06.123Z"
+    },
+    {
+      "id": "WX-H-002",
+      "category": "headphone",
+      "vendor": "HP",
+      "company": "Business Corp",
+      "serialNumber": "HP-STEREO-112244",
+      "purchaseDate": "2024-02-05",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "number": "",
+      "extCode": "",
+      "createdAt": "2025-09-12T15:23:06.123Z"
+    },
+    {
+      "id": "WX-C-001",
+      "category": "camera",
+      "vendor": "Logitech",
+      "company": "Tech Solutions Inc",
+      "serialNumber": "LOG-C920-234567",
+      "purchaseDate": "2024-01-20",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "number": "",
+      "extCode": "",
+      "createdAt": "2025-09-12T15:23:06.123Z"
+    },
+    {
+      "id": "WX-C-002",
+      "category": "camera",
+      "vendor": "HP",
+      "company": "Business Corp",
+      "serialNumber": "HP-WEB-CAM-556677",
+      "purchaseDate": "2024-02-05",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "number": "",
+      "extCode": "",
+      "createdAt": "2025-09-12T15:23:06.123Z"
+    },
+    {
+      "id": "WX-MN-001",
+      "category": "monitor",
+      "vendor": "Dell",
+      "company": "Tech Solutions Inc",
+      "serialNumber": "DEL-U2720Q-890123",
+      "purchaseDate": "2024-01-15",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "number": "",
+      "extCode": "",
+      "createdAt": "2025-09-12T15:23:06.123Z"
+    },
+    {
+      "id": "WX-MN-002",
+      "category": "monitor",
+      "vendor": "HP",
+      "company": "Business Corp",
+      "serialNumber": "HP-24inch-334455",
+      "purchaseDate": "2024-02-01",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "number": "",
+      "extCode": "",
+      "createdAt": "2025-09-12T15:23:06.123Z"
+    },
+    {
+      "id": "WX-K-002",
+      "category": "keyboard",
+      "vendor": "HP",
+      "company": "Business Corp",
+      "serialNumber": "HP-KB-wired-445566",
+      "purchaseDate": "2024-02-01",
+      "warrantyEndDate": "2026-09-16T20:32:21.273Z",
+      "number": "",
+      "extCode": "",
+      "createdAt": "2025-09-16T20:32:21.273Z"
+    },
+    {
+      "id": "WX-K-001",
+      "category": "keyboard",
+      "vendor": "Corsair",
+      "company": "Tech Solutions Inc",
+      "serialNumber": "COR-K70-456789",
+      "purchaseDate": "2024-01-15",
+      "warrantyEndDate": "2026-09-16T20:33:25.755Z",
+      "number": "",
+      "extCode": "",
+      "createdAt": "2025-09-16T20:33:25.755Z"
+    },
+    {
+      "id": "WX-V-001",
+      "category": "vonage",
+      "vendor": "Vonage",
+      "company": "Business Corp",
+      "serialNumber": "VON-PHONE-998877",
+      "purchaseDate": "2024-02-10",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "number": "+1-555-123-4567",
+      "extCode": "101",
+      "createdAt": "2025-09-12T15:23:06.123Z"
+    },
+    {
+      "id": "WX-ST-001",
+      "category": "storage",
+      "vendor": "Samsung",
+      "company": "Tech Solutions Inc",
+      "serialNumber": "SSD-SAM-001",
+      "purchaseDate": "2024-01-12",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "number": "",
+      "extCode": "",
+      "createdAt": "2025-09-12T15:23:06.123Z"
+    },
+    {
+      "id": "WX-ST-002",
+      "category": "storage",
+      "vendor": "Western Digital",
+      "company": "Business Corp",
+      "serialNumber": "HDD-WD-002",
+      "purchaseDate": "2024-02-03",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "number": "",
+      "extCode": "",
+      "createdAt": "2025-09-12T15:23:06.123Z"
+    },
+    {
+      "id": "WX-VG-001",
+      "category": "vitel-global",
+      "vendor": "Vitel Global",
+      "company": "Tech Solutions Inc",
+      "serialNumber": "VIT-TRK-1001",
+      "purchaseDate": "2024-03-01",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "number": "+44-20-1234-5678",
+      "extCode": "200",
+      "createdAt": "2025-09-12T15:23:06.123Z"
+    },
+    {
+      "id": "WX-VG-002",
+      "category": "vitel-global",
+      "vendor": "Vitel Global",
+      "company": "Business Corp",
+      "serialNumber": "VIT-TRK-1002",
+      "purchaseDate": "2024-03-05",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "number": "+44-20-8765-4321",
+      "extCode": "201",
+      "createdAt": "2025-09-12T15:23:06.123Z"
     }
   ],
   "pcLaptopAssets": [
