@@ -77,14 +77,16 @@ export class GoogleSheets {
       // Ensure the sheet/tab exists
       await ensureSheetExists(name);
       // Clear then write header+rows
+      const clearRange = `${name}!A1:Z1000`;
+      const appendRange = `${name}!A1`;
       await sheets.spreadsheets.values.clear({
         spreadsheetId: process.env.GOOGLE_SHEET_ID!,
-        range: name,
+        range: clearRange,
       });
       if (rows.length > 0) {
         await sheets.spreadsheets.values.append({
           spreadsheetId: process.env.GOOGLE_SHEET_ID!,
-          range: name,
+          range: appendRange,
           valueInputOption: "RAW",
           requestBody: { values: rows },
         });
