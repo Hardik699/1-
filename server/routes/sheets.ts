@@ -66,5 +66,15 @@ export function sheetsRouter() {
     }
   });
 
+  // Pull master data from Google Sheets into local files
+  router.post("/pull-master", requireAdmin, async (_req, res, next) => {
+    try {
+      const result = await GoogleSheets.pullMasterToFiles();
+      res.json(result || { ok: true });
+    } catch (e) {
+      next(e);
+    }
+  });
+
   return router;
 }
