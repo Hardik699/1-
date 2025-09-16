@@ -49,17 +49,24 @@ export function hrRouter() {
 
   router.get("/employees", async (_req, res) => {
     const items = await hrStore.getEmployees();
-    res.json({ items });
+    const sanitized = (items || []).map((it) => {
+      const copy = { ...it };
+      delete copy.id;
+      return copy;
+    });
+    res.json({ items: sanitized });
   });
 
   router.post("/employees", requireAdmin, async (req, res, next) => {
     try {
       const body = req.body || {};
+      const employeeId = body.employeeId || `EMP${Date.now().toString().slice(-6)}`;
       const id = body.id || nanoid(12);
       const employee = {
         id,
+        employeeId,
         fullName: body.fullName || body.name || "Unnamed",
-        email: body.email || `${id}@example.com`,
+        email: body.email || `${employeeId}@example.com`,
         department: body.department || "General",
         status: body.status || "active",
         tableNumber: body.tableNumber || null,
@@ -67,21 +74,21 @@ export function hrRouter() {
         createdAt: new Date().toISOString(),
       };
       await hrStore.upsertEmployee(employee);
-      res.status(201).json({ id });
+      res.status(201).json({ employeeId });
     } catch (e) {
       next(e);
     }
   });
 
-  router.put("/employees/:id", requireAdmin, async (req, res, next) => {
+  router.put("/employees/:key", requireAdmin, async (req, res, next) => {
     try {
-      const { id } = req.params;
-      const existing = await hrStore.getEmployee(id);
+      const { key } = req.params;
+      const existing = await hrStore.getEmployee(key);
       if (!existing) return res.status(404).json({ error: "Not found" });
       const payload = req.body || {};
       const updated = { ...existing, ...payload };
       await hrStore.upsertEmployee(updated);
-      res.json({ id });
+      res.json({ employeeId: updated.employeeId });
     } catch (e) {
       next(e);
     }
@@ -89,7 +96,12 @@ export function hrRouter() {
 
   router.get("/assets", async (_req, res) => {
     const items = await hrStore.getSystemAssets();
-    res.json({ items });
+    const sanitized = (items || []).map((it) => {
+      const copy = { ...it };
+      delete copy.id;
+      return copy;
+    });
+    res.json({ items: sanitized });
   });
 
   router.post("/assets/upsert-batch", requireAdmin, async (req, res, next) => {
@@ -104,25 +116,32 @@ export function hrRouter() {
 
   router.get("/it-accounts", async (_req, res) => {
     const items = await hrStore.getItAccounts();
-    res.json({ items });
+    const sanitized = (items || []).map((it) => {
+      const copy = { ...it };
+      delete copy.id;
+      return copy;
+    });
+    res.json({ items: sanitized });
   });
 
   router.post("/it-accounts", requireAdmin, async (req, res, next) => {
     try {
-      const id = req.body?.id || nanoid(12);
-      const payload = { ...req.body, id, createdAt: new Date().toISOString() };
+      const payload = { ...req.body };
+      if (!payload.id) payload.id = Date.now().toString();
+      if (!payload.employeeId && req.body?.employeeId) payload.employeeId = req.body.employeeId;
+      payload.createdAt = new Date().toISOString();
       await hrStore.createItAccount(payload);
-      res.status(201).json({ id });
+      res.status(201).json({ employeeId: payload.employeeId, systemId: payload.systemId });
     } catch (e) {
       next(e);
     }
   });
 
-  router.delete("/it-accounts/:id", requireAdmin, async (req, res, next) => {
+  router.delete("/it-accounts/:key", requireAdmin, async (req, res, next) => {
     try {
-      const { id } = req.params;
-      await hrStore.deleteItAccount(id);
-      res.json({ id });
+      const { key } = req.params;
+      await hrStore.deleteItAccount(key);
+      res.json({ ok: true });
     } catch (e) {
       next(e);
     }
@@ -140,7 +159,12 @@ export function hrRouter() {
 
   router.get("/assignments", async (_req, res) => {
     const items = await hrStore.getAssignments();
-    res.json({ items });
+    const sanitized = (items || []).map((it) => {
+      const copy = { ...it };
+      delete copy.id;
+      return copy;
+    });
+    res.json({ items: sanitized });
   });
 
   router.post("/admin/wipe", requireAdmin, async (_req, res, next) => {
