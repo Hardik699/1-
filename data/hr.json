@@ -1,5 +1,61 @@
 {
-  "employees": [],
+  "employees": [
+    {
+      "id": "1757690586125-0",
+      "employeeId": "EMP6125",
+      "fullName": "Rahul Sharma",
+      "email": "rahul.sharma@example.com",
+      "department": "Engineering",
+      "status": "active",
+      "tableNumber": "1",
+      "profile": {},
+      "createdAt": "2025-09-16T20:54:26.437Z"
+    },
+    {
+      "id": "1757690586125-1",
+      "employeeId": "EMP6126",
+      "fullName": "Priya Verma",
+      "email": "priya.verma@example.com",
+      "department": "HR",
+      "status": "active",
+      "tableNumber": "2",
+      "profile": {},
+      "createdAt": "2025-09-16T20:54:26.812Z"
+    },
+    {
+      "id": "1757690586125-2",
+      "employeeId": "EMP6127",
+      "fullName": "Amit Kumar",
+      "email": "amit.kumar@example.com",
+      "department": "Sales",
+      "status": "active",
+      "tableNumber": "3",
+      "profile": {},
+      "createdAt": "2025-09-16T20:54:27.157Z"
+    },
+    {
+      "id": "1757690586125-3",
+      "employeeId": "EMP6128",
+      "fullName": "Sneha Patel",
+      "email": "sneha.patel@example.com",
+      "department": "Support",
+      "status": "active",
+      "tableNumber": "4",
+      "profile": {},
+      "createdAt": "2025-09-16T20:54:27.517Z"
+    },
+    {
+      "id": "1757690586125-4",
+      "employeeId": "EMP6129",
+      "fullName": "Vikas Gupta",
+      "email": "vikas.gupta@example.com",
+      "department": "Finance",
+      "status": "active",
+      "tableNumber": "5",
+      "profile": {},
+      "createdAt": "2025-09-16T20:54:27.856Z"
+    }
+  ],
   "systemAssets": [
     {
       "id": "WX-M-001",
@@ -8,8 +64,8 @@
       "vendorName": "Logitech",
       "companyName": "Tech Solutions Inc",
       "purchaseDate": "2024-01-15",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z"
+      "warrantyEndDate": "2026-09-12T15:39:15.768Z",
+      "createdAt": "2025-09-12T15:39:15.768Z"
     },
     {
       "id": "WX-MB-001",
@@ -18,8 +74,8 @@
       "vendorName": "ASUS",
       "companyName": "Tech Solutions Inc",
       "purchaseDate": "2024-01-10",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z"
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "createdAt": "2025-09-12T15:23:06.123Z"
     },
     {
       "id": "WX-R-001",
@@ -28,8 +84,8 @@
       "vendorName": "Corsair",
       "companyName": "Tech Solutions Inc",
       "purchaseDate": "2024-01-10",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z"
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "createdAt": "2025-09-12T15:23:06.123Z"
     },
     {
       "id": "WX-PS-001",
@@ -38,8 +94,8 @@
       "vendorName": "EVGA",
       "companyName": "Tech Solutions Inc",
       "purchaseDate": "2024-01-10",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z"
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "createdAt": "2025-09-12T15:23:06.123Z"
     },
     {
       "id": "WX-H-001",
@@ -48,8 +104,8 @@
       "vendorName": "Sony",
       "companyName": "Tech Solutions Inc",
       "purchaseDate": "2024-01-20",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z"
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "createdAt": "2025-09-12T15:23:06.123Z"
     },
     {
       "id": "WX-C-001",
@@ -58,8 +114,8 @@
       "vendorName": "Logitech",
       "companyName": "Tech Solutions Inc",
       "purchaseDate": "2024-01-20",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z"
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "createdAt": "2025-09-12T15:23:06.123Z"
     },
     {
       "id": "WX-MN-001",
@@ -68,8 +124,8 @@
       "vendorName": "Dell",
       "companyName": "Tech Solutions Inc",
       "purchaseDate": "2024-01-15",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z"
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "createdAt": "2025-09-12T15:23:06.123Z"
     },
     {
       "id": "WX-M-002",
@@ -78,8 +134,8 @@
       "vendorName": "HP",
       "companyName": "Business Corp",
       "purchaseDate": "2024-02-01",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z"
+      "warrantyEndDate": "2026-09-12T15:39:15.768Z",
+      "createdAt": "2025-09-12T15:39:15.768Z"
     },
     {
       "id": "WX-K-002",
@@ -88,8 +144,8 @@
       "vendorName": "HP",
       "companyName": "Business Corp",
       "purchaseDate": "2024-02-01",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z"
+      "warrantyEndDate": "2026-09-16T20:32:21.273Z",
+      "createdAt": "2025-09-16T20:32:21.273Z"
     },
     {
       "id": "WX-MB-002",
@@ -98,8 +154,8 @@
       "vendorName": "HP",
       "companyName": "Business Corp",
       "purchaseDate": "2024-02-01",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z"
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "createdAt": "2025-09-12T15:23:06.123Z"
     },
     {
       "id": "WX-R-002",
@@ -108,8 +164,8 @@
       "vendorName": "HP",
       "companyName": "Business Corp",
       "purchaseDate": "2024-02-01",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z"
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "createdAt": "2025-09-12T15:23:06.123Z"
     },
     {
       "id": "WX-PS-002",
@@ -118,8 +174,8 @@
       "vendorName": "HP",
       "companyName": "Business Corp",
       "purchaseDate": "2024-02-01",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z"
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "createdAt": "2025-09-12T15:23:06.123Z"
     },
     {
       "id": "WX-H-002",
@@ -128,8 +184,8 @@
       "vendorName": "HP",
       "companyName": "Business Corp",
       "purchaseDate": "2024-02-05",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z"
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "createdAt": "2025-09-12T15:23:06.123Z"
     },
     {
       "id": "WX-C-002",
@@ -138,8 +194,8 @@
       "vendorName": "HP",
       "companyName": "Business Corp",
       "purchaseDate": "2024-02-05",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z"
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "createdAt": "2025-09-12T15:23:06.123Z"
     },
     {
       "id": "WX-MN-002",
@@ -148,8 +204,8 @@
       "vendorName": "HP",
       "companyName": "Business Corp",
       "purchaseDate": "2024-02-01",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z"
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "createdAt": "2025-09-12T15:23:06.123Z"
     },
     {
       "id": "WX-V-001",
@@ -158,8 +214,8 @@
       "vendorName": "Vonage",
       "companyName": "Business Corp",
       "purchaseDate": "2024-02-10",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "createdAt": "2025-09-12T15:23:06.123Z",
       "vonageNumber": "+1-555-123-4567",
       "vonageExtCode": "101",
       "vonagePassword": "demo123!"
@@ -171,8 +227,8 @@
       "vendorName": "Samsung",
       "companyName": "Tech Solutions Inc",
       "purchaseDate": "2024-01-12",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "createdAt": "2025-09-12T15:23:06.123Z",
       "storageType": "SSD",
       "storageCapacity": "512GB"
     },
@@ -183,8 +239,8 @@
       "vendorName": "Western Digital",
       "companyName": "Business Corp",
       "purchaseDate": "2024-02-03",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "createdAt": "2025-09-12T15:23:06.123Z",
       "storageType": "HDD",
       "storageCapacity": "1TB"
     },
@@ -195,8 +251,8 @@
       "vendorName": "Vitel Global",
       "companyName": "Tech Solutions Inc",
       "purchaseDate": "2024-03-01",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "createdAt": "2025-09-12T15:23:06.123Z",
       "vitelNumber": "+44-20-1234-5678",
       "vitelExtCode": "200",
       "vitelPassword": "vitelDemo1"
@@ -208,8 +264,8 @@
       "vendorName": "Vitel Global",
       "companyName": "Business Corp",
       "purchaseDate": "2024-03-05",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z",
+      "warrantyEndDate": "2026-09-12T15:23:06.123Z",
+      "createdAt": "2025-09-12T15:23:06.123Z",
       "vitelNumber": "+44-20-8765-4321",
       "vitelExtCode": "201",
       "vitelPassword": "vitelDemo2"
@@ -221,11 +277,48 @@
       "vendorName": "Corsair",
       "companyName": "Tech Solutions Inc",
       "purchaseDate": "2024-01-15",
-      "warrantyEndDate": "2026-09-16T20:44:30.342Z",
-      "createdAt": "2025-09-16T20:44:30.342Z"
+      "warrantyEndDate": "2026-09-16T20:33:25.755Z",
+      "createdAt": "2025-09-16T20:33:25.755Z"
     }
   ],
-  "pcLaptopAssets": [],
+  "pcLaptopAssets": [
+    {
+      "id": "PC-6126-1",
+      "model": "Demo PC 1",
+      "serialNumber": "SN-gyy3dh5",
+      "createdAt": "2025-09-12T15:23:06.126Z"
+    },
+    {
+      "id": "PC-6126-2",
+      "model": "Demo PC 2",
+      "serialNumber": "SN-rs6bapm",
+      "createdAt": "2025-09-12T15:23:06.126Z"
+    },
+    {
+      "id": "PC-6126-3",
+      "model": "Demo PC 3",
+      "serialNumber": "SN-iqpu3j4",
+      "createdAt": "2025-09-12T15:23:06.126Z"
+    },
+    {
+      "id": "PC-6126-4",
+      "model": "Demo PC 4",
+      "serialNumber": "SN-qugnwkn",
+      "createdAt": "2025-09-12T15:23:06.126Z"
+    },
+    {
+      "id": "PC-6126-5",
+      "model": "Demo PC 5",
+      "serialNumber": "SN-ptffhcc",
+      "createdAt": "2025-09-12T15:23:06.126Z"
+    },
+    {
+      "id": "PC-6126-6",
+      "model": "Demo PC 6",
+      "serialNumber": "SN-t924204",
+      "createdAt": "2025-09-12T15:23:06.126Z"
+    }
+  ],
   "itAccounts": [],
   "assetAssignments": []
 }
