@@ -24,7 +24,8 @@ export default function Login() {
       localStorage.setItem("isAuthenticated", "true");
       localStorage.setItem("userRole", "admin");
       localStorage.setItem("currentUser", "admin");
-      navigate("/");
+      // Redirect admin to /admin
+      navigate("/admin");
     } else {
       // Check created user credentials
       const credentials = JSON.parse(
@@ -34,7 +35,8 @@ export default function Login() {
         localStorage.setItem("isAuthenticated", "true");
         localStorage.setItem("userRole", "user");
         localStorage.setItem("currentUser", username);
-        navigate("/");
+        // Redirect regular users to /dashboard
+        navigate("/dashboard");
       } else {
         alert(
           "Invalid credentials. Use admin/admin or a created user account.",
