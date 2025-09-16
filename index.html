@@ -37,15 +37,34 @@
           if (pcR && pcR.ok) { try { const j=await pcR.json(); localStorage.setItem('pcLaptopAssets', JSON.stringify(j.items||[])); } catch(e){} }
         } catch(e){}
 
-        // disable further writes to localStorage/sessionStorage to force server as source of truth
+        // disable further writes to localStorage/sessionStorage except for auth keys
         try {
-          const noop = function(){};
-          localStorage.setItem = noop;
-          localStorage.removeItem = noop;
-          localStorage.clear = noop;
-          sessionStorage.setItem = noop;
-          sessionStorage.removeItem = noop;
-          sessionStorage.clear = noop;
+          const _ls_set = localStorage.setItem.bind(localStorage);
+          const _ls_remove = localStorage.removeItem.bind(localStorage);
+          const _ls_clear = localStorage.clear.bind(localStorage);
+          const _ss_set = sessionStorage.setItem.bind(sessionStorage);
+          const _ss_remove = sessionStorage.removeItem.bind(sessionStorage);
+          const _ss_clear = sessionStorage.clear.bind(sessionStorage);
+          const allowed = new Set(["isAuthenticated", "userRole", "currentUser", "userCredentials"]);
+          localStorage.setItem = function(k, v) {
+            try { if (allowed.has(String(k))) return _ls_set(k, v); } catch (e) {}
+          };
+          localStorage.removeItem = function(k) {
+            try { if (allowed.has(String(k))) return _ls_remove(k); } catch (e) {}
+          };
+          localStorage.clear = function() {
+            // no-op to prevent accidental clears
+            return;
+          };
+          sessionStorage.setItem = function(k, v) {
+            try { if (allowed.has(String(k))) return _ss_set(k, v); } catch (e) {}
+          };
+          sessionStorage.removeItem = function(k) {
+            try { if (allowed.has(String(k))) return _ss_remove(k); } catch (e) {}
+          };
+          sessionStorage.clear = function() {
+            return;
+          };
         } catch(e){}
       })();
     </script>
