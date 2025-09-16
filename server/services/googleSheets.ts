@@ -73,6 +73,18 @@ export class GoogleSheets {
       }
     };
 
+    const fmt = (v: any) => {
+      if (v === null || v === undefined) return "";
+      if (typeof v === "object") {
+        try {
+          return JSON.stringify(v);
+        } catch (e) {
+          return String(v);
+        }
+      }
+      return String(v);
+    };
+
     const writeSheet = async (name: string, rows: any[][]) => {
       // Ensure the sheet/tab exists
       await ensureSheetExists(name);
@@ -84,11 +96,13 @@ export class GoogleSheets {
         range: clearRange,
       });
       if (rows.length > 0) {
+        // Ensure all values are strings
+        const safeRows = rows.map((r) => r.map((c) => fmt(c)));
         await sheets.spreadsheets.values.append({
           spreadsheetId: process.env.GOOGLE_SHEET_ID!,
           range: appendRange,
           valueInputOption: "RAW",
-          requestBody: { values: rows },
+          requestBody: { values: safeRows },
         });
       }
     };
