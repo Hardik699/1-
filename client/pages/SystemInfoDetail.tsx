@@ -816,9 +816,10 @@ export default function SystemInfoDetail() {
                     )}
                   </TableHeader>
                   <TableBody>
-                    {filtered.map((a) =>
-                      isTelephony ? (
-                        <TableRow key={a.id}>
+                    {filtered.map((a, i) => {
+                      const rowKey = a?.id || a?.serialNumber || a?.employeeId || String(i);
+                      return isTelephony ? (
+                        <TableRow key={rowKey}>
                           <TableCell>{a.companyName}</TableCell>
                           <TableCell>
                             {isVitel
@@ -857,7 +858,7 @@ export default function SystemInfoDetail() {
                           </TableCell>
                         </TableRow>
                       ) : (
-                        <TableRow key={a.id}>
+                        <TableRow key={rowKey}>
                           <TableCell>{a.companyName}</TableCell>
                           <TableCell>{a.serialNumber}</TableCell>
                           {categoryKey === "ram" && (
@@ -903,8 +904,8 @@ export default function SystemInfoDetail() {
                             </div>
                           </TableCell>
                         </TableRow>
-                      ),
-                    )}
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
