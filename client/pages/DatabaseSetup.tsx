@@ -18,7 +18,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function DatabaseSetup() {
-  const [dbUrl, setDbUrl] = useState("postgresql://neondb_owner:npg_Qhjkl24tnxRE@ep-patient-dew-aeh2x2hr-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require");
+  const [dbUrl, setDbUrl] = useState("");
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{
     success: boolean;
@@ -51,7 +51,7 @@ export default function DatabaseSetup() {
     if (!dbUrl.trim()) {
       setTestResult({
         success: false,
-        message: "Please enter your Neon database URL"
+        message: "Please enter your database URL"
       });
       return;
     }
@@ -73,7 +73,7 @@ export default function DatabaseSetup() {
       if (response.ok && data.connected) {
         setTestResult({
           success: true,
-          message: "Neon database connection successful! Ready for deployment."
+          message: "Database connection successful! Ready for deployment."
         });
       } else {
         setTestResult({
@@ -104,9 +104,9 @@ export default function DatabaseSetup() {
             <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
               <Database className="h-6 w-6 text-green-400" />
             </div>
-            <h1 className="text-3xl font-bold text-white">Connect Neon Database</h1>
+            <h1 className="text-3xl font-bold text-white">Database Setup</h1>
           </div>
-          <p className="text-slate-400">Configure your Neon PostgreSQL database connection</p>
+          <p className="text-slate-400">Configure your PostgreSQL database connection</p>
         </header>
 
         {/* Current Status */}
@@ -155,12 +155,12 @@ export default function DatabaseSetup() {
           </CardContent>
         </Card>
 
-        {/* Neon Setup Instructions */}
+        {/* Database Setup Instructions */}
         <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
               <ExternalLink className="h-5 w-5 text-green-400" />
-              Get Your Neon Connection String
+              Get Your Database Connection String
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -168,8 +168,8 @@ export default function DatabaseSetup() {
               <div className="flex items-start gap-3">
                 <Badge className="bg-green-600 text-white mt-1">1</Badge>
                 <div>
-                  <p className="font-medium">Go to your Neon Console</p>
-                  <p className="text-slate-400 text-sm">Visit <a href="https://console.neon.tech" target="_blank" className="text-green-400 hover:underline">console.neon.tech</a> and sign in</p>
+                  <p className="font-medium">Go to your Database Console</p>
+                  <p className="text-slate-400 text-sm">Visit <a href="https://#" target="_blank" className="text-green-400 hover:underline">#</a> and sign in</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -191,9 +191,9 @@ export default function DatabaseSetup() {
             <Alert className="bg-blue-500/10 border-blue-500/30">
               <AlertCircle className="h-4 w-4 text-blue-400" />
               <AlertDescription className="text-blue-300">
-                Your Neon connection string should look like: <br />
+                Your database connection string should look like: <br />
                 <code className="text-xs bg-slate-800 px-2 py-1 rounded mt-1 inline-block">
-                  postgresql://username:password@ep-xxx.us-east-1.aws.neon.tech/dbname?sslmode=require
+                  postgresql://username:password@host:port/dbname
                 </code>
               </AlertDescription>
             </Alert>
@@ -210,11 +210,11 @@ export default function DatabaseSetup() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-slate-300">Neon Database URL</Label>
+              <Label className="text-slate-300">Database URL</Label>
               <div className="flex gap-2">
                 <Input
                   type="password"
-                  placeholder="postgresql://username:password@ep-xxx.us-east-1.aws.neon.tech/dbname?sslmode=require"
+                  placeholder="postgresql://username:password@host:port/dbname"
                   value={dbUrl}
                   onChange={(e) => setDbUrl(e.target.value)}
                   className="bg-slate-800/50 border-slate-700 text-white placeholder-slate-500 flex-1"
@@ -326,7 +326,7 @@ export default function DatabaseSetup() {
             <Alert className="bg-blue-500/10 border-blue-500/30">
               <AlertCircle className="h-4 w-4 text-blue-400" />
               <AlertDescription className="text-blue-300">
-                <strong>Important:</strong> Set both DATABASE_URL and NETLIFY_DATABASE_URL to the same Neon connection string for best compatibility.
+                <strong>Important:</strong> Set both DATABASE_URL and NETLIFY_DATABASE_URL to the same database connection string for best compatibility.
               </AlertDescription>
             </Alert>
           </CardContent>
@@ -336,18 +336,18 @@ export default function DatabaseSetup() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-white text-lg">Neon Console</CardTitle>
+              <CardTitle className="text-white text-lg">Database Console</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-slate-400 text-sm mb-4">
-                Access your Neon database dashboard to get connection details
+                Access your database dashboard to get connection details
               </p>
               <Button
-                onClick={() => window.open("https://console.neon.tech", "_blank")}
+                onClick={() => window.open("https://#", "_blank")}
                 className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-2"
               >
                 <ExternalLink className="h-4 w-4" />
-                Open Neon Console
+                Open Console
               </Button>
             </CardContent>
           </Card>
@@ -381,11 +381,11 @@ export default function DatabaseSetup() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-slate-300">Neon Database URL</Label>
+              <Label className="text-slate-300">Database URL</Label>
               <div className="flex gap-2">
                 <Input
                   type="password"
-                  placeholder="Paste your Neon connection string here"
+                  placeholder="Paste your database connection string here"
                   value={dbUrl}
                   onChange={(e) => setDbUrl(e.target.value)}
                   className="bg-slate-800/50 border-slate-700 text-white placeholder-slate-500 flex-1"
@@ -420,7 +420,7 @@ export default function DatabaseSetup() {
             <div className="bg-slate-800/30 p-4 rounded-lg">
               <p className="text-slate-300 text-sm mb-2">Expected format:</p>
               <code className="text-xs text-green-400 bg-slate-800 px-2 py-1 rounded block">
-                postgresql://username:password@ep-xxx.us-east-1.aws.neon.tech/dbname?sslmode=require
+                postgresql://username:password@host:port/dbname
               </code>
             </div>
           </CardContent>

@@ -1381,7 +1381,7 @@ export default function ITDashboard() {
                                               {e.password
                                                 ? previewSecrets
                                                   ? e.password
-                                                  : "••••••"
+                                                  : "��•••••"
                                                 : "-"}
                                             </div>
                                           </div>
@@ -1474,8 +1474,7 @@ export default function ITDashboard() {
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-xs">
                                       <div>Category: {displayCategory}</div>
-                                      <div>ID: {displayId}</div>
-                                      <div>Vendor: {displayVendor}</div>
+                                                                            <div>Vendor: {displayVendor}</div>
                                       <div>Company: {displayCompany}</div>
                                       <div>Ext: {displayExt}</div>
                                       <div>Number: {displayNumber}</div>
@@ -1511,7 +1510,7 @@ export default function ITDashboard() {
                                     (t: any) => t.id === id,
                                   );
                                   return a
-                                    ? `${a.companyName || a.vendorName || "-"} (${a.id})`
+                                    ? `${a.companyName || a.vendorName || "-"}`
                                     : id;
                                 };
                                 const rows = [

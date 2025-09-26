@@ -153,6 +153,7 @@ const registry: Record<
 
 export default function SystemInfoDetail() {
   const navigate = useNavigate();
+  const rootClass = "hide-id-col";
   const { slug = "" } = useParams();
   const key = (slug || "").toLowerCase();
   const data = registry[key];
@@ -187,8 +188,32 @@ export default function SystemInfoDetail() {
   const [seedTried, setSeedTried] = useState(false);
 
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    setAssets(raw ? JSON.parse(raw) : []);
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await fetch('/api/hr/assets');
+        if (res.ok) {
+          const j = await res.json();
+          const items = j?.items || [];
+          if (!cancelled) {
+            setAssets(items);
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); } catch {};
+            return;
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+      // fallback to localStorage
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!cancelled) setAssets(raw ? JSON.parse(raw) : []);
+      } catch (e) {
+        if (!cancelled) setAssets([]);
+      }
+    };
+    load();
+    return () => { cancelled = true; };
   }, []);
 
   const filtered = useMemo(
@@ -304,16 +329,6 @@ export default function SystemInfoDetail() {
       : [record, ...assets];
     setAssets(next);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    // Sync to Neon DB
-    try {
-      await fetch("/api/hr/assets/upsert-batch", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-role": "admin" },
-        body: JSON.stringify({ items: [record] }),
-      });
-    } catch (e) {
-      console.warn("DB sync failed", e);
-    }
     setShowForm(false);
     alert("Saved");
   };
@@ -347,18 +362,16 @@ export default function SystemInfoDetail() {
     const remaining = assets.filter((a) => a.id !== assetId);
     setAssets(remaining);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
-    try {
-      fetch("/api/hr/assets/upsert-batch", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-role": "admin" },
-        body: JSON.stringify({ items: remaining }),
-      }).catch(() => {});
-    } catch {}
+    // Attempt to delete on server to avoid it being restored by periodic sync
+    fetch(`/api/hr/assets/${encodeURIComponent(assetId)}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json", "x-role": "admin" },
+    }).catch(() => {});
     alert("Removed");
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
+    <div className={`min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900 ${rootClass}`}>
       <AppNav />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <header className="flex items-center justify-between">
@@ -768,7 +781,6 @@ export default function SystemInfoDetail() {
                   <TableHeader>
                     {isTelephony ? (
                       <TableRow>
-                        <TableHead>ID</TableHead>
                         <TableHead>Company</TableHead>
                         <TableHead>Number</TableHead>
                         <TableHead>Ext Code</TableHead>
@@ -779,7 +791,6 @@ export default function SystemInfoDetail() {
                       </TableRow>
                     ) : (
                       <TableRow>
-                        <TableHead>ID</TableHead>
                         <TableHead>Company</TableHead>
                         <TableHead>Serial Number</TableHead>
                         {categoryKey === "ram" && (
@@ -805,10 +816,10 @@ export default function SystemInfoDetail() {
                     )}
                   </TableHeader>
                   <TableBody>
-                    {filtered.map((a) =>
-                      isTelephony ? (
-                        <TableRow key={a.id}>
-                          <TableCell className="font-medium">{a.id}</TableCell>
+                    {filtered.map((a, i) => {
+                      const rowKey = a?.id || a?.serialNumber || a?.employeeId || String(i);
+                      return isTelephony ? (
+                        <TableRow key={rowKey}>
                           <TableCell>{a.companyName}</TableCell>
                           <TableCell>
                             {isVitel
@@ -847,8 +858,7 @@ export default function SystemInfoDetail() {
                           </TableCell>
                         </TableRow>
                       ) : (
-                        <TableRow key={a.id}>
-                          <TableCell className="font-medium">{a.id}</TableCell>
+                        <TableRow key={rowKey}>
                           <TableCell>{a.companyName}</TableCell>
                           <TableCell>{a.serialNumber}</TableCell>
                           {categoryKey === "ram" && (
@@ -894,8 +904,8 @@ export default function SystemInfoDetail() {
                             </div>
                           </TableCell>
                         </TableRow>
-                      ),
-                    )}
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>

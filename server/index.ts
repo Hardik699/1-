@@ -5,20 +5,8 @@ import path from "path";
 import { handleDemo } from "./routes/demo";
 import { attachIdentity, requireAdmin } from "./middleware/auth";
 import { salariesRouter } from "./routes/salaries";
-import {
-  getSpreadsheetInfo,
-  syncMasterDataToGoogleSheets,
-  getHRSpreadsheetInfo,
-  syncHRDataToGoogleSheets,
-  syncMasterDataFromDb,
-} from "./services/googleSheets";
 
-const HAS_DB = !!(
-  process.env.DATABASE_URL ||
-  process.env.NETLIFY_DATABASE_URL ||
-  process.env.NETLIFY_DATABASE_URL_UNPOOLED ||
-  process.env.POSTGRES_URL
-);
+const HAS_DB = false;
 
 export function createServer() {
   const app = express();
@@ -42,19 +30,7 @@ export function createServer() {
 
   // DB health
   app.get("/api/db/health", async (_req, res) => {
-    if (!HAS_DB) {
-      return res.json({
-        connected: false,
-        reason: "No database URL configured",
-      });
-    }
-    try {
-      const { pool } = await import("./data/postgres");
-      await pool.query("SELECT 1");
-      res.json({ connected: true });
-    } catch (e: any) {
-      res.json({ connected: false, error: e?.message || String(e) });
-    }
+    res.json({ connected: false, reason: "Database disabled in this build" });
   });
 
   // Global health
@@ -71,12 +47,7 @@ export function createServer() {
         dbError = e?.message || String(e);
       }
     }
-    const sheetsConfigured = Boolean(
-      (process.env.GOOGLE_SHEET_ID &&
-        process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS) ||
-        (process.env.GOOGLE_SHEET_ID_HR &&
-          process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS),
-    );
+    const sheetsConfigured = !!process.env.GOOGLE_SHEET_ID && !!process.env.GOOGLE_SA_JSON;
     res.json({ ok: true, db, dbError, sheetsConfigured });
   });
 
@@ -119,26 +90,57 @@ export function createServer() {
     }
   });
 
-  // HR/IT API (DB-backed)
-  if (HAS_DB) {
-    import("./routes/hr")
+  // HR/IT API (mount even when DB disabled - use local file store)
+  import("./routes/hr")
+    .then((m) => {
+      app.use("/api/hr", m.hrRouter());
+
+      if (process.env.AUTO_WIPE_IT_HR === "1") {
+        Promise.resolve(m.wipeDirect?.()).catch(() => {});
+      }
+
+      if (process.env.AUTO_SEED_DEMO === "1") {
+        Promise.resolve(m.seedDemoDirect?.(10)).catch(() => {});
+      }
+    })
+    .catch((err) => {
+      console.error("Failed to initialize HR routes:", err?.message || err);
+    });
+
+  // Sheets routes (mount when service account and sheet id are configured)
+  if (process.env.GOOGLE_SHEET_ID && process.env.GOOGLE_SA_JSON) {
+    import("./routes/sheets")
       .then((m) => {
-        app.use("/api/hr", m.hrRouter());
-
-        if (process.env.AUTO_WIPE_IT_HR === "1") {
-          Promise.resolve(m.wipeDirect?.()).catch(() => {});
-        }
-
-        if (process.env.AUTO_SEED_DEMO === "1") {
-          Promise.resolve(m.seedDemoDirect?.(10)).catch(() => {});
-        }
+        app.use("/api/sheets", m.sheetsRouter());
       })
       .catch((err) => {
-        console.error("Failed to initialize HR routes:", err?.message || err);
+        console.error("Failed to initialize Sheets routes:", err?.message || err);
       });
+
+    // Start periodic background job to push master data every 5 minutes (no immediate startup push)
+    (async () => {
+      try {
+        const mod = await import("./services/googleSheets");
+        // Schedule periodic push with initial delay to avoid startup API bursts
+        const runPush = async () => {
+          try {
+            await mod.GoogleSheets.pushMasterFromFiles();
+          } catch (err) {
+            console.error("Periodic sheets push failed:", err?.message || err);
+          }
+        };
+        // Start after 30s, then every 5 minutes
+        setTimeout(() => {
+          runPush();
+          setInterval(runPush, 5 * 60 * 1000);
+        }, 30 * 1000);
+      } catch (e) {
+        console.error("Failed to start sheets background job:", e);
+      }
+    })();
   }
 
-  // One-time migration (file store -> Postgres/Neon)
+  // One-time migration (file store -> Postgres)
   if (HAS_DB) {
     app.post(
       "/api/migrate-to-postgres",
@@ -154,15 +156,6 @@ export function createServer() {
     );
   }
 
-  // Google Sheets integration (admin only recommended on client)
-  app.post("/api/google-sheets/sync-master-data", syncMasterDataToGoogleSheets);
-  app.get("/api/google-sheets/info", getSpreadsheetInfo);
-  // Admin route: sync directly from Postgres DB into Google Sheets
-  app.post("/api/google-sheets/sync-master-data-from-db", requireAdmin, syncMasterDataFromDb);
-
-  // HR Google Sheets (separate spreadsheet)
-  app.post("/api/google-sheets/sync-hr", syncHRDataToGoogleSheets);
-  app.get("/api/google-sheets/info-hr", getHRSpreadsheetInfo);
 
   // Admin: full wipe of data (DB tables, file-store, uploads)
   app.post("/api/admin/full-wipe", requireAdmin, async (_req, res) => {
@@ -222,6 +215,97 @@ export function createServer() {
       } catch {}
       res.status(500).json({ ok: false, error: e?.message || String(e) });
     }
+  });
+
+  // Admin: sanitize stored files by removing id fields (one-time)
+  app.post('/api/admin/sanitize-storage', requireAdmin, async (_req, res) => {
+    try {
+      const fs = await import('fs/promises');
+      const dataDir = path.resolve(process.cwd(), 'data');
+      // salaries.json
+      try {
+        const salariesPath = path.join(dataDir, 'salaries.json');
+        const raw = await fs.readFile(salariesPath, 'utf8');
+        const parsed = JSON.parse(raw || '{}');
+        if (parsed.salaries) {
+          parsed.salaries = parsed.salaries.map((s: any) => {
+            const copy = { ...s };
+            delete copy.id;
+            return copy;
+          });
+        }
+        if (parsed.documents) {
+          parsed.documents = parsed.documents.map((d: any) => {
+            const copy = { ...d };
+            delete copy.id;
+            delete copy.salaryId;
+            return copy;
+          });
+        }
+        await fs.writeFile(salariesPath, JSON.stringify(parsed, null, 2), 'utf8');
+      } catch (e) {
+        // ignore if missing
+      }
+
+      // hr.json
+      try {
+        const hrPath = path.join(dataDir, 'hr.json');
+        const raw = await fs.readFile(hrPath, 'utf8');
+        const parsed = JSON.parse(raw || '{}');
+        const stripList = ['employees','systemAssets','pcLaptopAssets','itAccounts','assetAssignments'];
+        for (const key of stripList) {
+          if (Array.isArray(parsed[key])) {
+            parsed[key] = parsed[key].map((obj: any) => {
+              const copy = { ...obj };
+              delete copy.id;
+              return copy;
+            });
+          }
+        }
+        await fs.writeFile(hrPath, JSON.stringify(parsed, null, 2), 'utf8');
+      } catch (e) {
+        // ignore if missing
+      }
+
+      res.json({ ok: true, message: 'Sanitized storage files (ids removed)'});
+    } catch (e: any) {
+      res.status(500).json({ ok: false, error: e?.message || String(e) });
+    }
+  });
+
+  // Admin helper: page that clears client-side localStorage/sessionStorage/indexedDB when visited
+  app.get('/admin/clear-local', (_req, res) => {
+    res.setHeader('Content-Type', 'text/html');
+    res.send(`<!doctype html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>Clear Local Data</title>
+          <meta name="viewport" content="width=device-width,initial-scale=1" />
+          <style>body{font-family:Inter,system-ui,sans-serif;background:#0f172a;color:#e6eef8;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}</style>
+        </head>
+        <body>
+          <div style="max-width:760px;padding:24px;text-align:center">
+            <h1>Clearing local data...</h1>
+            <p id="status">Attempting to clear localStorage, sessionStorage, and IndexedDB. Please wait.</p>
+            <script>
+              (async function(){
+                try {
+                  localStorage.clear();
+                  sessionStorage.clear();
+                  if (window.indexedDB && indexedDB.databases) {
+                    const dbs = await indexedDB.databases();
+                    await Promise.all(dbs.map(d => d.name ? indexedDB.deleteDatabase(d.name) : Promise.resolve()));
+                  }
+                  document.getElementById('status').textContent = 'Local data cleared successfully.';
+                } catch (e) {
+                  document.getElementById('status').textContent = 'Failed to clear local data: ' + (e && e.message ? e.message : String(e));
+                }
+              })();
+            </script>
+          </div>
+        </body>
+      </html>`);
   });
 
   return app;

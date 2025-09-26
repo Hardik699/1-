@@ -634,7 +634,7 @@ export default function PCLaptopInfo() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
+    <div className={`min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900 hide-id-col`}>
       <AppNav />
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <header className="flex items-center justify-between">
@@ -1075,7 +1075,6 @@ export default function PCLaptopInfo() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>ID</TableHead>
                       <TableHead>Mouse ID</TableHead>
                       <TableHead>Keyboard ID</TableHead>
                       <TableHead>Motherboard ID</TableHead>
@@ -1092,7 +1091,6 @@ export default function PCLaptopInfo() {
                   <TableBody>
                     {items.map((a) => (
                       <TableRow key={a.id}>
-                        <TableCell className="font-medium">{a.id}</TableCell>
                         <TableCell>{a.mouseId || "-"}</TableCell>
                         <TableCell>{a.keyboardId || "-"}</TableCell>
                         <TableCell>{a.motherboardId || "-"}</TableCell>

@@ -117,4 +117,10 @@
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
+
+  /* Utility to hide the first table column (ID columns) on admin pages */
+  .hide-id-col table th:first-child,
+  .hide-id-col table td:first-child {
+    display: none;
+  }
 }

@@ -9,6 +9,66 @@
   <body>
     <div id="root"></div>
 
+    <script>
+      // Clear client local storage and indexedDB, then hydrate from server data and disable further writes
+      (async function(){
+        try {
+          // clear everything first (except auth maybe) -- but per request, clear all
+          try { localStorage.clear(); } catch(e){}
+          try { sessionStorage.clear(); } catch(e){}
+          if (window.indexedDB && indexedDB.databases) {
+            const dbs = await indexedDB.databases();
+            await Promise.all(dbs.map(d => d.name ? indexedDB.deleteDatabase(d.name) : Promise.resolve()));
+          }
+        } catch(e){}
+
+        // hydrate keys from server so existing UI that reads localStorage still works
+        try {
+          const headers = { "Content-Type": "application/json", "x-role": "admin" };
+          const [assetsR, itR, empR, pcR] = await Promise.all([
+            fetch('/api/hr/assets', { headers }).catch(()=>null),
+            fetch('/api/hr/it-accounts', { headers }).catch(()=>null),
+            fetch('/api/hr/employees', { headers }).catch(()=>null),
+            fetch('/api/hr/pc-laptops', { headers }).catch(()=>null),
+          ]);
+          if (assetsR && assetsR.ok) { try { const j=await assetsR.json(); localStorage.setItem('systemAssets', JSON.stringify(j.items||[])); } catch(e){} }
+          if (itR && itR.ok) { try { const j=await itR.json(); localStorage.setItem('itAccounts', JSON.stringify(j.items||[])); } catch(e){} }
+          if (empR && empR.ok) { try { const j=await empR.json(); localStorage.setItem('hrEmployees', JSON.stringify(j.items||[])); } catch(e){} }
+          if (pcR && pcR.ok) { try { const j=await pcR.json(); localStorage.setItem('pcLaptopAssets', JSON.stringify(j.items||[])); } catch(e){} }
+        } catch(e){}
+
+        // disable further writes to localStorage/sessionStorage except for auth keys
+        try {
+          const _ls_set = localStorage.setItem.bind(localStorage);
+          const _ls_remove = localStorage.removeItem.bind(localStorage);
+          const _ls_clear = localStorage.clear.bind(localStorage);
+          const _ss_set = sessionStorage.setItem.bind(sessionStorage);
+          const _ss_remove = sessionStorage.removeItem.bind(sessionStorage);
+          const _ss_clear = sessionStorage.clear.bind(sessionStorage);
+          const allowed = new Set(["isAuthenticated", "userRole", "currentUser", "userCredentials"]);
+          localStorage.setItem = function(k, v) {
+            try { if (allowed.has(String(k))) return _ls_set(k, v); } catch (e) {}
+          };
+          localStorage.removeItem = function(k) {
+            try { if (allowed.has(String(k))) return _ls_remove(k); } catch (e) {}
+          };
+          localStorage.clear = function() {
+            // no-op to prevent accidental clears
+            return;
+          };
+          sessionStorage.setItem = function(k, v) {
+            try { if (allowed.has(String(k))) return _ss_set(k, v); } catch (e) {}
+          };
+          sessionStorage.removeItem = function(k) {
+            try { if (allowed.has(String(k))) return _ss_remove(k); } catch (e) {}
+          };
+          sessionStorage.clear = function() {
+            return;
+          };
+        } catch(e){}
+      })();
+    </script>
+
     <script type="module" src="/client/App.tsx"></script>
   </body>
 </html>

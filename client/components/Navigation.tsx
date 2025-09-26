@@ -41,6 +41,7 @@ export default function AppNav() {
   const [dbStatus, setDbStatus] = useState<"unknown" | "online" | "offline">(
     "unknown",
   );
+  const [sheetsConfigured, setSheetsConfigured] = useState(false);
 
   const syncAll = async () => {
     if (syncing) return;
@@ -137,23 +138,16 @@ export default function AppNav() {
 
       if (assetsR && (assetsR as any).ok) {
         const j = await (assetsR as Response).json().catch(() => null);
-        if (j?.items)
-          localStorage.setItem("systemAssets", JSON.stringify(j.items));
+        // do not write to localStorage; server is source of truth
       }
       if (itR && (itR as any).ok) {
         const j = await (itR as Response).json().catch(() => null);
-        if (j?.items)
-          localStorage.setItem("itAccounts", JSON.stringify(j.items));
       }
       if (empR && (empR as any).ok) {
         const j = await (empR as Response).json().catch(() => null);
-        if (j?.items)
-          localStorage.setItem("hrEmployees", JSON.stringify(j.items));
       }
       if (pcR && (pcR as any).ok) {
         const j = await (pcR as Response).json().catch(() => null);
-        if (j?.items)
-          localStorage.setItem("pcLaptopAssets", JSON.stringify(j.items));
       }
       setLastSync(new Date().toLocaleTimeString());
     } catch (e) {
@@ -198,15 +192,31 @@ export default function AppNav() {
         console.debug("DB health check failed (caught)", err?.message || err);
       }
     };
+
+    // Sheets config check
+    const checkSheets = async () => {
+      try {
+        const r = await fetch(`${window.location.origin}/api/health`);
+        if (!r.ok) return;
+        const j = await r.json().catch(() => null);
+        if (typeof j?.sheetsConfigured === "boolean") setSheetsConfigured(!!j.sheetsConfigured);
+      } catch (e) {
+        // ignore
+      }
+    };
+
     try {
       check();
+      checkSheets();
     } catch (err) {
       console.debug("DB health check sync error", err);
     }
     const id = setInterval(check, 60 * 1000);
+    const id2 = setInterval(checkSheets, 60 * 1000);
     return () => {
       cancelled = true;
       clearInterval(id);
+      clearInterval(id2);
     };
   }, []);
 
@@ -366,7 +376,7 @@ export default function AppNav() {
                       onClick={syncAll}
                       disabled={syncing}
                       title={lastSync ? `Last sync: ${lastSync}` : "Sync to DB"}
-                      className={`transition-all duration-300 ${dbStatus === "online" ? "border-green-500 text-green-300 hover:bg-green-700 hover:text-white" : dbStatus === "offline" ? "border-red-500 text-red-300 hover:bg-red-700 hover:text-white" : "border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white"}`}
+                      className={`transition-all duration-300 ${sheetsConfigured ? "border-green-500 text-green-300 hover:bg-green-700 hover:text-white" : dbStatus === "online" ? "border-green-500 text-green-300 hover:bg-green-700 hover:text-white" : dbStatus === "offline" ? "border-red-500 text-red-300 hover:bg-red-700 hover:text-white" : "border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white"}`}
                     >
                       <RefreshCw
                         className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`}

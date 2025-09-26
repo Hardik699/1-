@@ -1,419 +1,307 @@
-import type { RequestHandler } from "express";
 import { google } from "googleapis";
 
-const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]; // read/write
+import path from "path";
+import { promises as fs } from "fs";
 
-function getSpreadsheetUrl(id: string) {
-  return `https://docs.google.com/spreadsheets/d/${id}/edit`;
-}
+export class GoogleSheets {
+  static async getSheetsClient() {
+    const saJson = process.env.GOOGLE_SA_JSON;
+    if (!saJson) throw new Error("GOOGLE_SA_JSON not set");
+    const sa = JSON.parse(saJson);
+    const jwt = new google.auth.JWT({
+      email: sa.client_email,
+      key: sa.private_key,
+      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+    } as any);
 
-async function getSheetsClient() {
-  const raw = process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS;
-  if (!raw) throw new Error("GOOGLE_SERVICE_ACCOUNT_CREDENTIALS not set");
-  const creds = JSON.parse(raw);
-  const auth = new google.auth.GoogleAuth({
-    credentials: creds,
-    scopes: SCOPES,
-  });
-  const authClient = await auth.getClient();
-  return google.sheets({ version: "v4", auth: authClient as any }) as any;
-}
+    await jwt.authorize();
+    return google.sheets({ version: "v4", auth: jwt });
+  }
 
-async function ensureSheetExists(
-  sheets: any,
-  spreadsheetId: string,
-  title: string,
-) {
-  const meta = await sheets.spreadsheets.get({ spreadsheetId });
-  const existing = meta.data.sheets?.find(
-    (s: any) => s.properties?.title === title,
-  );
-  if (existing) return existing.properties.sheetId as number;
-  const add = await sheets.spreadsheets.batchUpdate({
-    spreadsheetId,
-    requestBody: { requests: [{ addSheet: { properties: { title } } }] },
-  });
-  const replies = add.data.replies || [];
-  const id = replies[0]?.addSheet?.properties?.sheetId;
-  return id ?? 0;
-}
-
-function objKeysUnion(rows: any[]): string[] {
-  const set = new Set<string>();
-  for (const r of rows) Object.keys(r || {}).forEach((k) => set.add(k));
-  return Array.from(set);
-}
-
-async function writeTable(
-  sheets: any,
-  spreadsheetId: string,
-  title: string,
-  rows: any[],
-) {
-  await ensureSheetExists(sheets, spreadsheetId, title);
-  const headers = objKeysUnion(rows);
-  const values = [
-    headers,
-    ...rows.map((r) => headers.map((h) => (r?.[h] ?? "") as string)),
-  ];
-  await sheets.spreadsheets.values.clear({
-    spreadsheetId,
-    range: `${title}!A:ZZ`,
-  });
-  await sheets.spreadsheets.values.update({
-    spreadsheetId,
-    range: `${title}!A1`,
-    valueInputOption: "RAW",
-    requestBody: { values },
-  });
-}
-
-// IT
-export const getSpreadsheetInfo: RequestHandler = async (_req, res) => {
-  try {
-    const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-    if (!spreadsheetId || !process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS)
-      return res.json({
-        success: false,
-        disabled: true,
-        reason: !spreadsheetId
-          ? "GOOGLE_SHEET_ID not set"
-          : "GOOGLE_SERVICE_ACCOUNT_CREDENTIALS not set",
-      });
-    const sheets = await getSheetsClient();
-    const resp = await sheets.spreadsheets.get({ spreadsheetId });
-    const title = resp.data.properties?.title || "";
-    const sheetTitles = (resp.data.sheets || []).map((s: any) => ({
-      title: s.properties?.title,
-      sheetId: s.properties?.sheetId,
-    }));
-    res.json({
-      success: true,
-      title,
-      url: getSpreadsheetUrl(spreadsheetId),
-      sheets: sheetTitles,
-    });
-  } catch (e: any) {
-    res.status(500).json({
-      success: false,
-      error: e?.message || "Failed to access spreadsheet",
+  static async appendValues(sheetName: string, rows: any[][]) {
+    if (!process.env.GOOGLE_SHEET_ID) throw new Error("GOOGLE_SHEET_ID not set");
+    const sheets = await this.getSheetsClient();
+    const fmt = (v: any) => {
+      if (v === null || v === undefined) return "";
+      if (typeof v === "object") {
+        try {
+          return JSON.stringify(v);
+        } catch (e) {
+          return String(v);
+        }
+      }
+      return String(v);
+    };
+    const safeRows = rows.map((r) => r.map((c) => fmt(c)));
+    const range = `${sheetName}!A1`;
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID!,
+      range,
+      valueInputOption: "RAW",
+      requestBody: { values: safeRows },
     });
   }
-};
 
-export const syncMasterDataToGoogleSheets: RequestHandler = async (
-  req,
-  res,
-) => {
-  try {
-    const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-    if (!spreadsheetId || !process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS)
-      return res.json({
-        success: false,
-        disabled: true,
-        reason: !spreadsheetId
-          ? "GOOGLE_SHEET_ID not set"
-          : "GOOGLE_SERVICE_ACCOUNT_CREDENTIALS not set",
-      });
-    const { masterData } = req.body as { masterData: any };
-    if (!masterData)
-      return res
-        .status(400)
-        .json({ success: false, error: "Missing masterData" });
-
-    const sheets = await getSheetsClient();
-
-    // Summary
-    const summary = [
-      {
-        employees: (masterData.employees || []).length,
-        systemAssets: (masterData.systemAssets || []).length,
-        pcLaptopAssets: (masterData.pcLaptopAssets || []).length,
-        itAccounts: (masterData.itAccounts || []).length,
-        salaryRecords: (masterData.salaryRecords || []).length,
-        leaveRequests: (masterData.leaveRequests || []).length,
-        pendingITNotifications: (masterData.pendingITNotifications || [])
-          .length,
-        updatedAt: new Date().toISOString(),
-      },
-    ];
-    await writeTable(sheets, spreadsheetId, "Summary", summary);
-
-    // IT-related
-    await writeTable(
-      sheets,
-      spreadsheetId,
-      "System_Assets",
-      masterData.systemAssets || [],
-    );
-
-    // System Assets by category
-    const assets = (masterData.systemAssets || []) as any[];
-    const byCat = (c: string) =>
-      assets.filter((a) => (a?.category || "").toLowerCase() === c);
-    await writeTable(sheets, spreadsheetId, "Mouse", byCat("mouse"));
-    await writeTable(sheets, spreadsheetId, "Keyboard", byCat("keyboard"));
-    await writeTable(
-      sheets,
-      spreadsheetId,
-      "Motherboard",
-      byCat("motherboard"),
-    );
-    await writeTable(sheets, spreadsheetId, "RAM", byCat("ram"));
-    await writeTable(sheets, spreadsheetId, "Storage", byCat("storage"));
-    await writeTable(
-      sheets,
-      spreadsheetId,
-      "Power_Supply",
-      byCat("power-supply"),
-    );
-    await writeTable(sheets, spreadsheetId, "Headphone", byCat("headphone"));
-    await writeTable(sheets, spreadsheetId, "Camera", byCat("camera"));
-    await writeTable(sheets, spreadsheetId, "Monitor", byCat("monitor"));
-    await writeTable(sheets, spreadsheetId, "Vonage", byCat("vonage"));
-
-    await writeTable(
-      sheets,
-      spreadsheetId,
-      "PC_Laptop_Configs",
-      masterData.pcLaptopAssets || [],
-    );
-    await writeTable(
-      sheets,
-      spreadsheetId,
-      "IT_Accounts",
-      masterData.itAccounts || [],
-    );
-    await writeTable(
-      sheets,
-      spreadsheetId,
-      "IT_Notifications",
-      masterData.pendingITNotifications || [],
-    );
-
-    res.json({ success: true, message: "Synced IT data to Google Sheets" });
-  } catch (e: any) {
-    res
-      .status(500)
-      .json({ success: false, error: e?.message || "Sync failed" });
-  }
-};
-
-// HR
-export const getHRSpreadsheetInfo: RequestHandler = async (_req, res) => {
-  try {
-    const spreadsheetId = process.env.GOOGLE_SHEET_ID_HR;
-    if (!spreadsheetId || !process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS)
-      return res.json({
-        success: false,
-        disabled: true,
-        reason: !spreadsheetId
-          ? "GOOGLE_SHEET_ID_HR not set"
-          : "GOOGLE_SERVICE_ACCOUNT_CREDENTIALS not set",
-      });
-    const sheets = await getSheetsClient();
-    const resp = await sheets.spreadsheets.get({ spreadsheetId });
-    const title = resp.data.properties?.title || "";
-    const sheetTitles = (resp.data.sheets || []).map((s: any) => ({
-      title: s.properties?.title,
-      sheetId: s.properties?.sheetId,
-    }));
-    res.json({
-      success: true,
-      title,
-      url: getSpreadsheetUrl(spreadsheetId),
-      sheets: sheetTitles,
-    });
-  } catch (e: any) {
-    res.status(500).json({
-      success: false,
-      error: e?.message || "Failed to access spreadsheet",
+  static async clearSheet(sheetName: string) {
+    if (!process.env.GOOGLE_SHEET_ID) throw new Error("GOOGLE_SHEET_ID not set");
+    const sheets = await this.getSheetsClient();
+    const range = `${sheetName}!A1:Z1000`;
+    await sheets.spreadsheets.values.clear({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID!,
+      range,
     });
   }
-};
 
-export const syncHRDataToGoogleSheets: RequestHandler = async (req, res) => {
-  try {
-    const spreadsheetId = process.env.GOOGLE_SHEET_ID_HR;
-    if (!spreadsheetId || !process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS)
-      return res.json({
-        success: false,
-        disabled: true,
-        reason: !spreadsheetId
-          ? "GOOGLE_SHEET_ID_HR not set"
-          : "GOOGLE_SERVICE_ACCOUNT_CREDENTIALS not set",
-      });
-    const { masterData } = req.body as { masterData: any };
-    if (!masterData)
-      return res
-        .status(400)
-        .json({ success: false, error: "Missing masterData" });
+  // Push master data from local files (data/hr.json, data/salaries.json) to configured sheets
+  static async pushMasterFromFiles() {
+    if (!process.env.GOOGLE_SHEET_ID) throw new Error("GOOGLE_SHEET_ID not set");
+    const dataDir = path.resolve(process.cwd(), "data");
+    const hrPath = path.join(dataDir, "hr.json");
+    const salariesPath = path.join(dataDir, "salaries.json");
 
-    const sheets = await getSheetsClient();
+    const hrRaw = await fs.readFile(hrPath, "utf8").catch(() => "{}");
+    const salariesRaw = await fs.readFile(salariesPath, "utf8").catch(() => "{}");
+    const hr = JSON.parse(hrRaw || "{}");
+    const salaries = JSON.parse(salariesRaw || "{}");
 
-    const summary = [
-      {
-        employees: (masterData.employees || []).length,
-        departments: (masterData.departments || []).length,
-        leaveRequests: (masterData.leaveRequests || []).length,
-        attendanceRecords: (masterData.attendanceRecords || []).length,
-        salaryRecords: (masterData.salaryRecords || []).length,
-        updatedAt: new Date().toISOString(),
-      },
-    ];
-    await writeTable(sheets, spreadsheetId, "Summary", summary);
+    const employees = Array.isArray(hr.employees) ? hr.employees : [];
+    const sys = Array.isArray(hr.systemAssets) ? hr.systemAssets : [];
+    const sal = Array.isArray(salaries.salaries) ? salaries.salaries : [];
 
-    await writeTable(
-      sheets,
-      spreadsheetId,
-      "Employees",
-      masterData.employees || [],
-    );
-    await writeTable(
-      sheets,
-      spreadsheetId,
-      "Departments",
-      masterData.departments || [],
-    );
-    await writeTable(
-      sheets,
-      spreadsheetId,
-      "Leave_Requests",
-      masterData.leaveRequests || [],
-    );
-    await writeTable(
-      sheets,
-      spreadsheetId,
-      "Attendance_Records",
-      masterData.attendanceRecords || [],
-    );
-    await writeTable(
-      sheets,
-      spreadsheetId,
-      "Salary_Records",
-      masterData.salaryRecords || [],
-    );
+    const sheets = await this.getSheetsClient();
 
-    res.json({ success: true, message: "Synced HR data to Google Sheets" });
-  } catch (e: any) {
-    res
-      .status(500)
-      .json({ success: false, error: e?.message || "HR sync failed" });
-  }
-};
-
-// Sync directly from Postgres DB into Google Sheets (admin only)
-export const syncMasterDataFromDb: RequestHandler = async (req, res) => {
-  try {
-    const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-    if (!spreadsheetId || !process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS)
-      return res.json({
-        success: false,
-        disabled: true,
-        reason: !spreadsheetId
-          ? "GOOGLE_SHEET_ID not set"
-          : "GOOGLE_SERVICE_ACCOUNT_CREDENTIALS not set",
-      });
-
-    const { pool } = await import("../data/postgres");
-    const sheets = await getSheetsClient();
-
-    // Load data from DB
-    const empRes = await pool.query("SELECT * FROM employees ORDER BY created_at DESC");
-    const assetsRes = await pool.query("SELECT * FROM system_assets ORDER BY created_at DESC");
-    const pcRes = await pool.query("SELECT * FROM pc_laptop_assets ORDER BY created_at DESC");
-    const itRes = await pool.query("SELECT id, employee_id, payload, created_at FROM it_accounts ORDER BY created_at DESC");
-    const salariesRes = await pool.query("SELECT * FROM salaries ORDER BY created_at DESC");
-
-    const masterData: any = {
-      employees: empRes.rows.map((r: any) => ({
-        id: r.id,
-        fullName: r.full_name,
-        email: r.email,
-        department: r.department,
-        status: r.status,
-        tableNumber: r.table_number,
-        createdAt: r.created_at,
-        profile: r.profile || {},
-      })),
-      systemAssets: assetsRes.rows.map((r: any) => ({
-        id: r.id,
-        category: r.category,
-        serialNumber: r.serial_number,
-        vendorName: r.vendor_name,
-        companyName: r.company_name,
-        purchaseDate: r.purchase_date,
-        warrantyEndDate: r.warranty_end_date,
-        metadata: r.metadata || {},
-        createdAt: r.created_at,
-      })),
-      pcLaptopAssets: pcRes.rows.map((r: any) => ({
-        id: r.id,
-        mouseId: r.mouse_id,
-        keyboardId: r.keyboard_id,
-        motherboardId: r.motherboard_id,
-        ramId: r.ram_id,
-        ramId2: r.ram_id2,
-        storageId: r.storage_id,
-        createdAt: r.created_at,
-      })),
-      itAccounts: itRes.rows.map((r: any) => ({
-        id: r.id,
-        employeeId: r.employee_id,
-        ...((r.payload && typeof r.payload === 'object') ? r.payload : {}),
-        createdAt: r.created_at,
-      })),
-      salaryRecords: salariesRes.rows.map((r: any) => ({
-        id: r.id,
-        userId: r.user_id,
-        employeeName: r.employee_name,
-        month: r.month,
-        year: r.year,
-        amount: r.amount,
-        notes: r.notes,
-        createdAt: r.created_at,
-        updatedAt: r.updated_at,
-      })),
-      pendingITNotifications: [],
-      departments: [],
-      leaveRequests: [],
-      attendanceRecords: [],
+    const ensureSheetExists = async (name: string) => {
+      const meta = await sheets.spreadsheets.get({ spreadsheetId: process.env.GOOGLE_SHEET_ID! });
+      const sheetsList = meta.data.sheets?.map((s: any) => s.properties?.title) || [];
+      if (!sheetsList.includes(name)) {
+        await sheets.spreadsheets.batchUpdate({
+          spreadsheetId: process.env.GOOGLE_SHEET_ID!,
+          requestBody: {
+            requests: [
+              { addSheet: { properties: { title: name } } },
+            ],
+          },
+        });
+      }
     };
 
-    // Reuse existing writer to populate sheets
-    await writeTable(sheets, spreadsheetId, "Summary", [
-      {
-        employees: masterData.employees.length,
-        systemAssets: masterData.systemAssets.length,
-        pcLaptopAssets: masterData.pcLaptopAssets.length,
-        itAccounts: masterData.itAccounts.length,
-        salaryRecords: masterData.salaryRecords.length,
-        leaveRequests: (masterData.leaveRequests || []).length,
-        pendingITNotifications: (masterData.pendingITNotifications || []).length,
-        updatedAt: new Date().toISOString(),
-      },
-    ]);
+    const fmt = (v: any) => {
+      if (v === null || v === undefined) return "";
+      if (typeof v === "object") {
+        try {
+          return JSON.stringify(v);
+        } catch (e) {
+          return String(v);
+        }
+      }
+      return String(v);
+    };
 
-    await writeTable(sheets, spreadsheetId, "System_Assets", masterData.systemAssets || []);
-    const assets = masterData.systemAssets || [];
-    const byCat = (c: string) => assets.filter((a: any) => (a?.category || "").toLowerCase() === c);
-    await writeTable(sheets, spreadsheetId, "Mouse", byCat("mouse"));
-    await writeTable(sheets, spreadsheetId, "Keyboard", byCat("keyboard"));
-    await writeTable(sheets, spreadsheetId, "Motherboard", byCat("motherboard"));
-    await writeTable(sheets, spreadsheetId, "RAM", byCat("ram"));
-    await writeTable(sheets, spreadsheetId, "Storage", byCat("storage"));
-    await writeTable(sheets, spreadsheetId, "Power_Supply", byCat("power-supply"));
-    await writeTable(sheets, spreadsheetId, "Headphone", byCat("headphone"));
-    await writeTable(sheets, spreadsheetId, "Camera", byCat("camera"));
-    await writeTable(sheets, spreadsheetId, "Monitor", byCat("monitor"));
-    await writeTable(sheets, spreadsheetId, "Vonage", byCat("vonage"));
+    const writeSheet = async (name: string, rows: any[][]) => {
+      // Ensure the sheet/tab exists
+      await ensureSheetExists(name);
+      // Clear then write header+rows
+      const clearRange = `${name}!A1:Z1000`;
+      const appendRange = `${name}!A1`;
+      await sheets.spreadsheets.values.clear({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID!,
+        range: clearRange,
+      });
+      if (rows.length > 0) {
+        // Ensure all values are strings
+        const safeRows = rows.map((r) => r.map((c) => fmt(c)));
+        await sheets.spreadsheets.values.append({
+          spreadsheetId: process.env.GOOGLE_SHEET_ID!,
+          range: appendRange,
+          valueInputOption: "RAW",
+          requestBody: { values: safeRows },
+        });
+      }
+    };
 
-    await writeTable(sheets, spreadsheetId, "PC_Laptop_Configs", masterData.pcLaptopAssets || []);
-    await writeTable(sheets, spreadsheetId, "IT_Accounts", masterData.itAccounts || []);
-    await writeTable(sheets, spreadsheetId, "IT_Notifications", masterData.pendingITNotifications || []);
+    // Employees
+    if (employees.length > 0) {
+      const headers = Object.keys(employees[0]);
+      const rows = employees.map((e: any) => headers.map((h) => e?.[h] ?? ""));
+      await writeSheet("Employees", [headers, ...rows]);
+    }
 
-    res.json({ success: true, message: "Synced master data from DB to Google Sheets" });
-  } catch (e: any) {
-    res.status(500).json({ success: false, error: e?.message || "Sync from DB failed" });
+    // System assets
+    if (sys.length > 0) {
+      const headers = Object.keys(sys[0]);
+      const rows = sys.map((s: any) => headers.map((h) => s?.[h] ?? ""));
+      await writeSheet("System_Assets", [headers, ...rows]);
+
+      // Category-specific sheets (Category_<name>)
+      const categories = Array.from(new Set(sys.map((s: any) => String(s.category || '').trim()).filter(Boolean)));
+      for (const cat of categories) {
+        const rowsForCat = sys.filter((s: any) => String(s.category || '').trim() === cat);
+        if (rowsForCat.length === 0) continue;
+        // normalize rows: keep vendor, company, serialNumber, purchaseDate, warrantyEndDate, createdAt
+        const normalized = rowsForCat.map((r: any) => ({
+          id: r.id,
+          category: r.category,
+          vendor: r.vendorName || r.vendor || "",
+          company: r.companyName || r.company || "",
+          serialNumber: r.serialNumber || r.serial || "",
+          purchaseDate: r.purchaseDate || "",
+          warrantyEndDate: r.warrantyEndDate || r.warranty || r.warrantyEnd || "",
+          number: r.vonageNumber || r.vitelNumber || r.number || "",
+          extCode: r.vonageExtCode || r.vitelExtCode || r.ext_code || "",
+          createdAt: r.createdAt || "",
+        }));
+        const catHeaders = Object.keys(normalized[0]);
+        const catRows = normalized.map((nr: any) => catHeaders.map((h) => nr[h] ?? ""));
+        const sheetName = `Category_${String(cat)}`.substring(0, 31);
+        await writeSheet(sheetName, [catHeaders, ...catRows]);
+      }
+    }
+
+    // IT Accounts
+    if (Array.isArray(hr.itAccounts) && hr.itAccounts.length > 0) {
+      const itFlat = hr.itAccounts.map((r: any) => ({
+        id: r.id,
+        employeeId: r.employeeId,
+        employeeName: r.employeeName,
+        systemId: r.systemId,
+        department: r.department,
+        tableNumber: r.tableNumber,
+        vitelProvider: r.vitelGlobal?.provider,
+        vitelId: r.vitelGlobal?.id,
+        lmPlayerId: r.lmPlayer?.id,
+        lmLicense: r.lmPlayer?.license,
+        emails: Array.isArray(r.emails) ? r.emails.map((e: any) => `${e.provider}:${e.email}`).join('; ') : '',
+        createdAt: r.createdAt,
+      }));
+      const itHeaders = Object.keys(itFlat[0]);
+      const itRows = itFlat.map((r: any) => itHeaders.map((h) => r[h] ?? ""));
+      await writeSheet("IT_Accounts", [itHeaders, ...itRows]);
+    }
+
+    // PC Laptops and flattened view
+    if (Array.isArray(hr.pcLaptopAssets) && hr.pcLaptopAssets.length > 0) {
+      const pcs = hr.pcLaptopAssets;
+      const pcHeaders = Object.keys(pcs[0]);
+      const pcRows = pcs.map((p: any) => pcHeaders.map((h) => p[h] ?? ""));
+      await writeSheet("PC_Laptops", [pcHeaders, ...pcRows]);
+
+      // Flatten with asset details resolved
+      const getAssetDetails = (assetId: string) => {
+        const asset = sys.find((a: any) => String(a.id) === String(assetId));
+        if (!asset) return assetId || "";
+        let details = `${asset.id} (${asset.vendorName || ''}`;
+        if (asset.ramSize) details += ` - ${asset.ramSize}`;
+        if (asset.storageType && asset.storageCapacity) details += ` - ${asset.storageType} ${asset.storageCapacity}`;
+        details += ")";
+        return details;
+      };
+
+      const pcFlattened = pcs.map((p: any) => ({
+        id: p.id,
+        mouse: getAssetDetails(p.mouseId || ""),
+        keyboard: getAssetDetails(p.keyboardId || ""),
+        motherboard: getAssetDetails(p.motherboardId || ""),
+        camera: getAssetDetails(p.cameraId || ""),
+        headphone: getAssetDetails(p.headphoneId || ""),
+        powerSupply: getAssetDetails(p.powerSupplyId || ""),
+        storage: getAssetDetails(p.storageId || ""),
+        ram1: getAssetDetails(p.ramId || ""),
+        ram2: getAssetDetails(p.ramId2 || ""),
+        createdAt: p.createdAt,
+      }));
+      const flatHeaders = Object.keys(pcFlattened[0]);
+      const flatRows = pcFlattened.map((r: any) => flatHeaders.map((h) => r[h] ?? ""));
+      await writeSheet("PC_Laptops_Flat", [flatHeaders, ...flatRows]);
+    }
+
+    // Salaries
+    if (sal.length > 0) {
+      const headers = Object.keys(sal[0]);
+      const rows = sal.map((r: any) => headers.map((h) => r?.[h] ?? ""));
+      await writeSheet("Salaries", [headers, ...rows]);
+    }
   }
-};
+
+  // Pull master data from Google Sheets into local data files
+  static async pullMasterToFiles() {
+    if (!process.env.GOOGLE_SHEET_ID) throw new Error("GOOGLE_SHEET_ID not set");
+    const sheets = await this.getSheetsClient();
+    const dataDir = path.resolve(process.cwd(), "data");
+    await fs.mkdir(dataDir, { recursive: true });
+
+    const readSheet = async (name: string) => {
+      try {
+        const r = await sheets.spreadsheets.values.get({
+          spreadsheetId: process.env.GOOGLE_SHEET_ID!,
+          range: `${name}!A1:Z1000`,
+        });
+        const values = r.data.values || [];
+        if (values.length === 0) return [];
+        const headers = values[0].map((h: any) => String(h || "").trim());
+        const rows = values.slice(1).map((row: any[]) => {
+          const obj: any = {};
+          for (let i = 0; i < headers.length; i++) {
+            const k = headers[i] || `col_${i}`;
+            const raw = row[i] ?? "";
+            let v: any = raw;
+            if (typeof raw === "string") {
+              const s = raw.trim();
+              if ((s.startsWith("{") && s.endsWith("}")) || (s.startsWith("[") && s.endsWith("]"))) {
+                try {
+                  v = JSON.parse(s);
+                } catch {
+                  v = raw;
+                }
+              }
+            }
+            obj[k] = v;
+          }
+          return obj;
+        });
+        return rows;
+      } catch (e) {
+        return [];
+      }
+    };
+
+    // Get metadata to find category sheets
+    const meta = await sheets.spreadsheets.get({ spreadsheetId: process.env.GOOGLE_SHEET_ID! });
+    const sheetNames = (meta.data.sheets || []).map((s: any) => s.properties?.title).filter(Boolean) as string[];
+
+    const employees = await readSheet("Employees");
+    const systemAssets = await readSheet("System_Assets");
+
+    // Read category sheets and merge into systemAssets
+    for (const name of sheetNames) {
+      if (name.startsWith("Category_")) {
+        const rows = await readSheet(name);
+        for (const r of rows) systemAssets.push(r);
+      }
+    }
+
+    const itAccounts = await readSheet("IT_Accounts");
+    const pcLaptops = await readSheet("PC_Laptops");
+    const salaries = await readSheet("Salaries");
+
+    const hrObj: any = {
+      employees: employees || [],
+      systemAssets: systemAssets || [],
+      pcLaptopAssets: pcLaptops || [],
+      itAccounts: itAccounts || [],
+      assetAssignments: [],
+    };
+
+    const salariesObj: any = {
+      salaries: salaries || [],
+      documents: [],
+    };
+
+    const hrPath = path.join(dataDir, "hr.json");
+    const salariesPath = path.join(dataDir, "salaries.json");
+
+    await fs.writeFile(hrPath, JSON.stringify(hrObj, null, 2), "utf8");
+    await fs.writeFile(salariesPath, JSON.stringify(salariesObj, null, 2), "utf8");
+
+    return { ok: true };
+  }
+}
